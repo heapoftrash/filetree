@@ -314,7 +314,7 @@ func (h *AuthHandler) fetchGoogleUserInfo(ctx context.Context, cfg *oauth2.Confi
 	if err != nil {
 		return "", "", "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var userInfo struct {
 		Email   string `json:"email"`
@@ -335,7 +335,7 @@ func (h *AuthHandler) fetchGitHubUserInfo(ctx context.Context, cfg *oauth2.Confi
 	if err != nil {
 		return "", "", "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var user struct {
 		Login   string `json:"login"`
@@ -372,7 +372,7 @@ func (h *AuthHandler) fetchGitHubPrimaryEmail(_ context.Context, client *http.Cl
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var emails []struct {
 		Email    string `json:"email"`

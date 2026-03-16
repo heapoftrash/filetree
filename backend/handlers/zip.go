@@ -23,7 +23,7 @@ func (h *Handler) DownloadZip(c *gin.Context) {
 	c.Header("Transfer-Encoding", "chunked")
 	c.Status(http.StatusOK)
 	zw := zip.NewWriter(c.Writer)
-	defer zw.Close()
+	defer func() { _ = zw.Close() }()
 
 	seen := make(map[string]bool)
 	for _, rel := range body.Paths {
@@ -56,7 +56,7 @@ func addFileToZip(zw *zip.Writer, absPath, zipName string, seen map[string]bool)
 	if err != nil {
 		return
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	info, _ := f.Stat()
 	wh, _ := zip.FileInfoHeader(info)
 	wh.Name = zipName
@@ -90,7 +90,7 @@ func ReadFileContent(absPath string, maxBytes int64) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	if maxBytes <= 0 {
 		maxBytes = 512 * 1024 // 512KB default
 	}

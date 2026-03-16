@@ -50,7 +50,7 @@ func (h *Handler) Preview(c *gin.Context) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 			return
 		}
-		defer f.Close()
+		defer func() { _ = f.Close() }()
 		c.Header("Content-Disposition", "inline")
 		c.Header("Content-Type", contentType)
 		c.Status(http.StatusOK)
