@@ -1,0 +1,34 @@
+# Filetree configuration example
+# Copy to config.yaml and set CONFIG_FILE=./config.yaml (or use full path)
+# Environment variables override values from this file
+
+server:
+  root_path: ./data
+  debug: false   # true = Gin debug logs, false = release mode (quiet)
+  max_upload_bytes: 104857600   # 100MB; set UPLOAD_SIZE_LIMIT env for bytes
+
+auth:
+  jwt_secret: change-me-in-production
+  oauth_redirect_url: http://localhost:8080/api/auth/google/callback  # Required for OAuth. Use https://your-domain.com/... in production
+  local_auth_enabled: false   # username/password auth (local_users)
+  providers:
+    google:
+      enabled: true
+      client_id: xxx.apps.googleusercontent.com
+      client_secret: xxx   # or set GOOGLE_CLIENT_SECRET env
+      # callback_url: optional; if empty, derived from oauth_redirect_url
+    github:
+      enabled: false
+      client_id: ""
+      # callback_url: optional; if empty, derived from oauth_redirect_url
+
+frontend:
+  url: http://localhost:5173
+
+users:
+  admin_emails: []   # OAuth user emails that get admin role
+  local_users: []   # Local username/password users
+  # default_admin: bootstrap on startup (password hashed, stored in default_admin; not added to local_users)
+  # default_admin:
+  #   username: admin
+  #   password: changeme   # replaced by password_hash after first run

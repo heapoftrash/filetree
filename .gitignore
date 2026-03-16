@@ -1,0 +1,28 @@
+# Go
+backend/filetree
+backend/filetree.exe
+backend/data/
+
+# Node / frontend
+node_modules/
+frontend/dist/
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.cursor
+# OS
+.DS_Store
+Thumbs.db
+
+# Env and logs
+.env
+.env.local
+*.log
+
+# Config (may contain secrets)
+config.yaml
+config.json

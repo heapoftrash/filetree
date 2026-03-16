@@ -1,0 +1,22 @@
+name: Security
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  gosec:
+    name: Go security scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Run gosec
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+          cd backend && gosec ./...

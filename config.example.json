@@ -1,0 +1,28 @@
+{
+  "server": {
+    "root_path": "./data",
+    "debug": false,
+    "max_upload_bytes": 104857600
+  },
+  "auth": {
+    "jwt_secret": "change-me-in-production",
+    "oauth_redirect_url": "http://localhost:8080/api/auth/google/callback",
+    "local_auth_enabled": false,
+    "providers": {
+      "google": {
+        "enabled": true,
+        "client_id": "xxx.apps.googleusercontent.com",
+        "client_secret": "xxx"
+      },
+      "github": { "enabled": false, "client_id": "" }
+    }
+  },
+  "frontend": {
+    "url": "http://localhost:5173"
+  },
+  "users": {
+    "admin_emails": [],
+    "local_users": [],
+    "default_admin": null
+  }
+}
