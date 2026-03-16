@@ -6,10 +6,8 @@
 
 **Self-hosted web file manager** — browse, upload, preview, and manage files from your browser. Google OAuth, GitHub OAuth, or local username/password. Single binary deployment.
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/YOUR_ORG/filetree)](https://goreportcard.com/report/github.com/YOUR_ORG/filetree)
-[![CI](https://github.com/YOUR_ORG/filetree/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_ORG/filetree/actions/workflows/ci.yml)
-
-> Replace `YOUR_ORG` in badges with your GitHub org/username after pushing.
+[![Go Report Card](https://goreportcard.com/badge/github.com/heapoftrash/filetree)](https://goreportcard.com/report/github.com/heapoftrash/filetree)
+[![CI](https://github.com/heapoftrash/filetree/actions/workflows/ci.yml/badge.svg)](https://github.com/heapoftrash/filetree/actions/workflows/ci.yml)
 
 ## Features
 
