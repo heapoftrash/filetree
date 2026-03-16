@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"filetree/backend/middleware"
+	"github.com/heapoftrash/filetree/backend/middleware"
 
 	"github.com/gin-gonic/gin"
 )

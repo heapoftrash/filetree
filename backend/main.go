@@ -4,9 +4,9 @@ import (
 	"log"
 	"os"
 
-	"filetree/backend/config"
-	"filetree/backend/handlers"
-	"filetree/backend/middleware"
+	"github.com/heapoftrash/filetree/backend/config"
+	"github.com/heapoftrash/filetree/backend/handlers"
+	"github.com/heapoftrash/filetree/backend/middleware"
 
 	"github.com/gin-gonic/gin"
 )

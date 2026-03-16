@@ -51,4 +51,4 @@ go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest && golangc
 go install github.com/securego/gosec/v2/cmd/gosec@latest && gosec ./...
 ```
 
-Replace `YOUR_ORG` in the Go Report Card badge (README) with your GitHub org/username to see the score at [goreportcard.com](https://goreportcard.com).
+If you fork the repo, update the Go Report Card badge in the README to point to your fork (e.g. `github.com/YOUR_ORG/filetree`) to see the score at [goreportcard.com](https://goreportcard.com).

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"filetree/backend/config"
+	"github.com/heapoftrash/filetree/backend/config"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"

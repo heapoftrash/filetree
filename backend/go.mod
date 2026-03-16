@@ -1,4 +1,4 @@
-module filetree/backend
+module github.com/heapoftrash/filetree/backend
 
 go 1.25.0
 
