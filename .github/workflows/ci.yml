@@ -56,11 +56,11 @@ jobs:
       - name: Test
         run: cd backend && go test ./...
 
-      # - name: Lint
-      #   uses: golangci/golangci-lint-action@v6
-      #   with:
-      #     version: v1.64
-      #     working-directory: backend
+      - name: Lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.64
+          working-directory: backend
 
   frontend:
     name: Frontend
