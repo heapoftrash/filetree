@@ -86,7 +86,7 @@ export function useFileManagerActions(params: UseFileManagerActionsParams) {
     }
   }, [currentPath, newFolderName, setNewFolderOpen, setNewFolderName, loadEntries, loadTree])
 
-  const handleRenameRef = useRef<(overwrite?: boolean, useNewName?: string) => Promise<void>>()
+  const handleRenameRef = useRef<((overwrite?: boolean, useNewName?: string) => Promise<void>) | undefined>(undefined)
   const handleRename = useCallback(
     async (overwrite = false, useNewName?: string) => {
       const name = useNewName ?? renameName.trim()
@@ -219,7 +219,7 @@ export function useFileManagerActions(params: UseFileManagerActionsParams) {
     [currentPath, selectedRowKeys, previewEntry, setSelectedRowKeys, setPreviewEntry, loadEntries, loadTree],
   )
 
-  const handleMoveCopyRef = useRef<(overwrite?: boolean, newName?: string) => Promise<void>>()
+  const handleMoveCopyRef = useRef<((overwrite?: boolean, newName?: string) => Promise<void>) | undefined>(undefined)
   const handleMoveCopy = useCallback(
     async (overwrite = false, newNameForPath?: string) => {
       if (!moveCopyDest || moveCopyDest === currentPath) {

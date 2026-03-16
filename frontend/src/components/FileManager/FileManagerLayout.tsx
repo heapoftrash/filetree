@@ -48,7 +48,7 @@ export interface FileManagerLayoutProps {
   onTreeSelect: (keys: React.Key[]) => void
   onDrop: (e: React.DragEvent, targetPath: string) => void
   fileListProps: FileListProps
-  tableRef: React.RefObject<HTMLDivElement>
+  tableRef: React.RefObject<HTMLDivElement | null>
   previewPanelLayout: PanelLayout | undefined
   onPreviewLayoutChanged: (layout: PanelLayout) => void
   previewEntry: Entry | null

@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactElement } from 'react'
 
 function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -8,7 +8,7 @@ export function highlightMatches(
   text: string,
   query: string,
   markStyle?: CSSProperties
-): (string | JSX.Element)[] {
+): (string | ReactElement)[] {
   if (!query.trim()) return [text]
   const escaped = escapeRegex(query)
   const regex = new RegExp(`(${escaped})`, 'gi')
