@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
-    "@commitlint/config-conventional": "^19.0.0"
+    "@commitlint/config-conventional": "^20.5.0"
   },
   "scripts": {
     "commitlint": "commitlint"
