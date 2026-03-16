@@ -36,7 +36,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const themeConfig: ThemeConfig = useMemo(
     () => ({
-      cssVar: true,
+      cssVar: {},
       algorithm: mode === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm,
       token: {
         colorPrimary: '#1677ff',
