@@ -1,5 +1,5 @@
 site_name: Filetree
-site_description: Self-hosted web file manager — browse, upload, preview, and manage files from your browser
+site_description: Self-hosted web file manager — no database, simple YAML/JSON config. Browse, upload, preview, and manage files from your browser.
 site_url: ""
 
 repo_url: https://github.com/heapoftrash/filetree
@@ -11,15 +11,11 @@ theme:
   logo: assets/logo.svg
   favicon: assets/favicon.svg
   palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      # primary: indigo
+    - scheme: default
       toggle:
         icon: material/weather-sunny
         name: Switch to dark mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      # primary: indigo
+    - scheme: slate
       toggle:
         icon: material/weather-night
         name: Switch to light mode

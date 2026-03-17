@@ -13,27 +13,39 @@
             <circle cx="22" cy="22" r="4" fill="currentColor" fill-opacity="0.3"/>
             <circle cx="38" cy="22" r="4" fill="currentColor" fill-opacity="0.3"/>
             <circle cx="54" cy="22" r="4" fill="currentColor" fill-opacity="0.3"/>
-            <path d="M25 50h20l5 6h30v30H25V50z" fill="currentColor" fill-opacity="0.1"/>
-            <path d="M25 50h20l5 6h30v30H25V50z"/>
-            <rect x="30" y="65" width="25" height="4" rx="1" fill="currentColor" fill-opacity="0.4"/>
-            <rect x="30" y="74" width="20" height="4" rx="1" fill="currentColor" fill-opacity="0.4"/>
-            <rect x="85" y="50" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
-            <rect x="85" y="50" width="28" height="35" rx="2"/>
-            <line x1="90" y1="58" x2="108" y2="58"/>
-            <line x1="90" y1="65" x2="105" y2="65"/>
-            <rect x="120" y="50" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
-            <rect x="120" y="50" width="28" height="35" rx="2"/>
-            <line x1="125" y1="58" x2="143" y2="58"/>
-            <line x1="125" y1="65" x2="140" y2="65"/>
-            <rect x="155" y="50" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
-            <rect x="155" y="50" width="28" height="35" rx="2"/>
-            <line x1="160" y1="58" x2="178" y2="58"/>
-            <rect x="85" y="92" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
-            <rect x="85" y="92" width="28" height="35" rx="2"/>
-            <path d="M92 100 L98 100 L98 118 L92 118 Z" fill="currentColor" fill-opacity="0.3"/>
-            <rect x="120" y="92" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
-            <rect x="120" y="92" width="28" height="35" rx="2"/>
-            <circle cx="134" cy="108" r="6" fill="currentColor" fill-opacity="0.2"/>
+            <g class="hero-sidebar">
+              <path d="M25 50h20l5 6h30v30H25V50z" fill="currentColor" fill-opacity="0.1"/>
+              <path d="M25 50h20l5 6h30v30H25V50z"/>
+              <rect x="30" y="65" width="25" height="4" rx="1" fill="currentColor" fill-opacity="0.4"/>
+              <rect x="30" y="74" width="20" height="4" rx="1" fill="currentColor" fill-opacity="0.4"/>
+            </g>
+            <g class="hero-file hero-file-1">
+              <rect x="85" y="50" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
+              <rect x="85" y="50" width="28" height="35" rx="2"/>
+              <line x1="90" y1="58" x2="108" y2="58"/>
+              <line x1="90" y1="65" x2="105" y2="65"/>
+            </g>
+            <g class="hero-file hero-file-2">
+              <rect x="120" y="50" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
+              <rect x="120" y="50" width="28" height="35" rx="2"/>
+              <line x1="125" y1="58" x2="143" y2="58"/>
+              <line x1="125" y1="65" x2="140" y2="65"/>
+            </g>
+            <g class="hero-file hero-file-3">
+              <rect x="155" y="50" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
+              <rect x="155" y="50" width="28" height="35" rx="2"/>
+              <line x1="160" y1="58" x2="178" y2="58"/>
+            </g>
+            <g class="hero-file hero-file-4">
+              <rect x="85" y="92" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
+              <rect x="85" y="92" width="28" height="35" rx="2"/>
+              <path d="M92 100 L98 100 L98 118 L92 118 Z" fill="currentColor" fill-opacity="0.3"/>
+            </g>
+            <g class="hero-file hero-file-5">
+              <rect x="120" y="92" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
+              <rect x="120" y="92" width="28" height="35" rx="2"/>
+              <circle cx="134" cy="108" r="6" fill="currentColor" fill-opacity="0.2"/>
+            </g>
           </svg>
         </span>
       </div>
@@ -61,15 +73,44 @@
 {% if page.meta.features %}
 <div class="md-features">
   {% for feature in page.meta.features %}
-  <div class="md-feature-card">
+  <div class="md-feature-card md-feature-card--{% if feature.image == 'assets/images/browse-manage.svg' %}browse{% elif feature.image == 'assets/images/rich-preview.svg' %}preview{% elif feature.image == 'assets/images/secure-auth.svg' %}auth{% elif feature.image == 'assets/images/signed-url.svg' %}signedurl{% elif feature.image == 'assets/images/simple-admin.svg' %}simpleadmin{% else %}default{% endif %}">
     {% if feature.image %}
     <span class="md-feature-card__svg" aria-hidden="true">
       {% if feature.image == 'assets/images/browse-manage.svg' %}
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 25h30l10 10h40v40H20V25z"/><path d="M50 35v-10H20"/><rect x="35" y="55" width="20" height="15" rx="1"/><rect x="65" y="55" width="20" height="15" rx="1"/><rect x="50" y="75" width="20" height="15" rx="1"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <g class="feat-folder"><path d="M20 25h30l10 10h40v40H20V25z"/><path d="M50 35v-10H20"/></g>
+        <g class="feat-file feat-file-1"><rect x="35" y="55" width="20" height="15" rx="1"/></g>
+        <g class="feat-file feat-file-2"><rect x="65" y="55" width="20" height="15" rx="1"/></g>
+        <g class="feat-file feat-file-3"><rect x="50" y="75" width="20" height="15" rx="1"/></g>
+      </svg>
       {% elif feature.image == 'assets/images/rich-preview.svg' %}
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="15" y="10" width="50" height="65" rx="2"/><line x1="22" y1="22" x2="58" y2="22"/><line x1="22" y1="32" x2="50" y2="32"/><line x1="22" y1="42" x2="45" y2="42"/><rect x="55" y="25" width="45" height="45" rx="2" fill="currentColor" fill-opacity="0.15"/><circle cx="77" cy="47" r="8" stroke-width="1.5"/><path d="M70 58l7-7 7 7"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <g class="feat-doc"><rect x="15" y="10" width="50" height="65" rx="2"/><line x1="22" y1="22" x2="58" y2="22"/><line x1="22" y1="32" x2="50" y2="32"/><line x1="22" y1="42" x2="45" y2="42"/></g>
+        <g class="feat-preview"><rect x="55" y="25" width="45" height="45" rx="2" fill="currentColor" fill-opacity="0.15"/><circle cx="77" cy="47" r="8" stroke-width="1.5"/><path d="M70 58l7-7 7 7"/></g>
+      </svg>
       {% elif feature.image == 'assets/images/secure-auth.svg' %}
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M60 10L20 25v25c0 20 20 35 40 40 20-5 40-20 40-40V25L60 10z" fill="currentColor" fill-opacity="0.1"/><path d="M60 10L20 25v25c0 20 20 35 40 40 20-5 40-20 40-40V25L60 10z"/><circle cx="75" cy="55" r="12"/><path d="M75 43v-8a5 5 0 0 1 5 5h-5"/><rect x="72" y="62" width="6" height="18" rx="1"/><circle cx="75" cy="82" r="3"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" preserveAspectRatio="xMidYMid meet">
+        <g transform="translate(30, 15) scale(1, 0.833)">
+          <path class="feat-shield" d="M30 0 L0 10 V50 C0 65 30 80 30 80 C30 80 60 65 60 50 V10 Z"/>
+          <g class="feat-lock" transform="translate(15, 25)">
+            <path d="M15 0 A10 10 0 0 0 5 10 V20 H25 V10 A10 10 0 0 0 15 0 Z"/>
+            <rect x="0" y="20" width="30" height="25" rx="3"/>
+            <circle cx="15" cy="32" r="3" fill="var(--md-default-bg-color)"/>
+            <rect x="13.5" y="32" width="3" height="10" rx="1.5" fill="var(--md-default-bg-color)"/>
+          </g>
+        </g>
+      </svg>
+      {% elif feature.image == 'assets/images/simple-admin.svg' %}
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <g class="feat-config"><rect x="15" y="15" width="45" height="55" rx="2"/><line x1="22" y1="28" x2="52" y2="28"/><line x1="22" y1="38" x2="48" y2="38"/><line x1="22" y1="48" x2="45" y2="48"/></g>
+        <g class="feat-gear"><circle cx="82" cy="45" r="14"/><circle cx="82" cy="45" r="6" fill="currentColor" fill-opacity="0.15"/><line x1="82" y1="27" x2="82" y2="31"/><line x1="82" y1="59" x2="82" y2="63"/><line x1="68" y1="45" x2="64" y2="45"/><line x1="96" y1="45" x2="100" y2="45"/><line x1="72" y1="33" x2="69" y2="30"/><line x1="92" y1="57" x2="95" y2="60"/><line x1="72" y1="57" x2="69" y2="60"/><line x1="92" y1="33" x2="95" y2="30"/></g>
+      </svg>
+      {% elif feature.image == 'assets/images/signed-url.svg' %}
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <g class="feat-signed-left"><rect x="10" y="33" width="30" height="25" rx="2"/><path d="M18 58 L14 67 L36 67 L32 58"/><line x1="22" y1="67" x2="28" y2="67"/></g>
+        <g class="feat-signed-right"><rect x="80" y="33" width="30" height="25" rx="2"/><path d="M88 58 L84 67 L106 67 L102 58"/><line x1="92" y1="67" x2="98" y2="67"/></g>
+        <g transform="translate(48, 35)"><g class="feat-signed-file"><path d="M4 0 H18 L24 6 V24 H4 Z"/><path d="M18 0 V6 H24"/><path d="M9 14 C9 12 14 11 14 11 C14 11 19 12 19 14 C19 18 14 20 14 20 C14 20 9 18 9 14 Z" fill="currentColor" fill-opacity="0.15"/><path d="M12 16 L13.5 17.5 L16 15" fill="none" stroke-width="1.2"/></g></g>
+      </svg>
       {% else %}
       <img src="{{ feature.image }}" alt="{{ feature.title }}" loading="lazy" />
       {% endif %}

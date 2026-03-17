@@ -11,7 +11,6 @@
 
 .hero-container {
   padding: 2rem 0;
-  background: #2a2438;
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 200" preserveAspectRatio="none"><path fill="%23e8e7ec" fill-opacity="0.3" d="M0,100 Q360,50 720,100 T1440,100 V200 H0 Z"/><path fill="%23e8e7ec" fill-opacity="0.5" d="M0,120 Q360,70 720,120 T1440,120 V200 H0 Z"/><path fill="%23e8e7ec" fill-opacity="1" d="M0,140 Q360,90 720,140 T1440,140 V200 H0 Z"/></svg>'),
     linear-gradient(
       180deg,
@@ -32,7 +31,7 @@
       180deg,
       #3d3548 0%,
       #2a2438 50%,
-      #221e2e 80%
+      #221e2e 60%
     );
   background-repeat: no-repeat;
   background-position: bottom;
@@ -64,13 +63,13 @@
 }
 
 
-[data-md-color-scheme="slate"] .hero-illustration {
-  color: #e8e7ec;
-}
-
 .hero-illustration {
   display: block;
   width: 80%;
+  color: #e8e7ec;
+}
+
+[data-md-color-scheme="slate"] .hero-illustration {
   color: #e8e7ec;
 }
 
@@ -84,6 +83,46 @@
   transform: translateY(-3px);
 }
 
+/* Staggered file-change animation on hover */
+.hero-illustration:hover .hero-sidebar {
+  animation: heroFileChange 0.5s ease 0s both;
+  stroke: var(--md-primary-fg-color--light);
+  stroke-opacity: 0.9;
+}
+.hero-illustration:hover .hero-file-1 {
+  animation: heroFileChange 0.5s ease 0.08s both;
+  
+}
+.hero-illustration:hover .hero-file-2 {
+  animation: heroFileChange 0.5s ease 0.16s both;
+  stroke: var(--md-primary-fg-color--light);
+  stroke-opacity: 0.9;
+}
+.hero-illustration:hover .hero-file-3 {
+  animation: heroFileChange 0.5s ease 0.24s both;
+}
+.hero-illustration:hover .hero-file-4 {
+  animation: heroFileChange 0.5s ease 0.32s both;
+}
+.hero-illustration:hover .hero-file-5 {
+  animation: heroFileChange 0.5s ease 0.4s both;
+}
+
+@keyframes heroFileChange {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  40% {
+    opacity: 0.5;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .mdx-hero__content {
   text-align: center;
 }
@@ -92,18 +131,6 @@
   margin-bottom: 1rem;
   font-weight: 700;
   color: currentColor;
-}
-
-.mdx-features {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  grid-gap: 3rem;
-  margin-bottom: 3rem;
-}
-
-.mdx-features img {
-  height: 160px;
-  object-fit: fixed;
 }
 
 @media screen and (min-width: 960px) {
@@ -155,6 +182,60 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* Browse & manage: files appear as you browse */
+.md-feature-card--browse:hover .feat-file-1 {
+  animation: featFileAppear 0.4s ease 0s both;
+}
+.md-feature-card--browse:hover .feat-file-2 {
+  animation: featFileAppear 0.4s ease 0.1s both;
+}
+.md-feature-card--browse:hover .feat-file-3 {
+  animation: featFileAppear 0.4s ease 0.2s both;
+}
+
+@keyframes featFileAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Rich preview: content loads in browser */
+.md-feature-card--preview:hover .feat-preview {
+  animation: featPreviewLoad 0.5s ease 0.15s both;
+}
+
+@keyframes featPreviewLoad {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Secure auth: shield and lock appear (like Browse & manage) */
+.md-feature-card--auth:hover .feat-shield {
+  animation: featFileAppear 0.4s ease 0s both;
+}
+.md-feature-card--auth:hover .feat-lock {
+  animation: featFileAppear 0.4s ease 0.1s both;
+}
+
+/* Simple admin: config and gear appear (like Browse & manage) */
+.md-feature-card--simpleadmin:hover .feat-config {
+  animation: featFileAppear 0.4s ease 0s both;
+}
+.md-feature-card--simpleadmin:hover .feat-gear {
+  animation: featFileAppear 0.4s ease 0.1s both;
+}
+
 .md-feature-card__icon {
   display: flex;
   align-items: center;
@@ -181,15 +262,89 @@
 .md-feature-card__svg {
   display: block;
   width: 8rem;
-  height: auto;
+  aspect-ratio: 120 / 100;
   margin-bottom: 1rem;
   color: var(--md-default-fg-color);
+}
+
+/* Accent colors for focal elements */
+.md-feature-card--browse .feat-folder {
+  stroke: var(--md-primary-fg-color--light);
+  stroke-opacity: 0.9;
+}
+.md-feature-card--preview .feat-preview rect {
+  fill: var(--md-primary-fg-color--light);
+  fill-opacity: 0.2;
+}
+.md-feature-card--preview .feat-preview circle,
+.md-feature-card--preview .feat-preview path {
+  stroke: var(--md-primary-fg-color--light);
+  stroke-opacity: 0.9;
+}
+.md-feature-card--auth .feat-lock path,
+.md-feature-card--auth .feat-lock rect:first-of-type {
+  stroke: var(--md-primary-fg-color--light);
+  stroke-opacity: 0.9;
+}
+.md-feature-card--auth .feat-lock rect:first-of-type {
+  fill: var(--md-primary-fg-color--light);
+  fill-opacity: 0.4;
+}
+.md-feature-card--simpleadmin .feat-config {
+  stroke: var(--md-primary-fg-color--light);
+  stroke-opacity: 0.9;
+}
+.md-feature-card--signedurl .feat-signed-file path:first-child,
+.md-feature-card--signedurl .feat-signed-file path:nth-child(2) {
+  stroke: var(--md-primary-fg-color--light);
+  stroke-opacity: 0.9;
+}
+.md-feature-card--signedurl .feat-signed-file path:nth-child(3) {
+  fill: var(--md-primary-fg-color--light);
+  fill-opacity: 0.2;
+}
+.md-feature-card--signedurl .feat-signed-file path:nth-child(4) {
+  stroke: var(--md-primary-fg-color--light);
+  stroke-opacity: 0.9;
 }
 
 .md-feature-card__svg svg {
   width: 100%;
   height: auto;
   display: block;
+}
+
+.md-feature-card__svg .feat-file,
+.md-feature-card__svg .feat-preview,
+.md-feature-card__svg .feat-shield,
+.md-feature-card__svg .feat-lock,
+.md-feature-card__svg .feat-config,
+.md-feature-card__svg .feat-gear,
+.md-feature-card__svg .feat-signed-left,
+.md-feature-card__svg .feat-signed-right,
+.md-feature-card__svg .feat-signed-file {
+  transform-origin: center;
+}
+
+/* Signed URLs: pulse for computers, load-in for center file (like Rich preview) */
+.md-features .md-feature-card--signedurl:hover .feat-signed-left,
+.md-features .md-feature-card--signedurl:hover .feat-signed-right {
+  animation: featSignedPulse 0.5s ease both;
+}
+.md-features .md-feature-card--signedurl:hover .feat-signed-right { animation-delay: 0.5s; }
+
+.md-features .md-feature-card--signedurl:hover .feat-signed-file {
+  animation: featSignedFilePop 0.5s ease 0.15s both;
+}
+
+@keyframes featSignedFilePop {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+@keyframes featSignedPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
 }
 
 .md-feature-card__svg img {
