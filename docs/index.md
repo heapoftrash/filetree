@@ -1,6 +1,6 @@
 ---
 template: home.html
-title: Filetree
+title: Self-hosted web file manager
 hide: [navigation]
 hero:
   title: Self-hosted web file manager
