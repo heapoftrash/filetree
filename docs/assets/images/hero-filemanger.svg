@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Browser frame -->
+  <rect x="10" y="10" width="180" height="140" rx="6" fill="currentColor" fill-opacity="0.05"/>
+  <rect x="10" y="10" width="180" height="140" rx="6"/>
+  <line x1="10" y1="35" x2="190" y2="35"/>
+  <circle cx="22" cy="22" r="4" fill="currentColor" fill-opacity="0.3"/>
+  <circle cx="38" cy="22" r="4" fill="currentColor" fill-opacity="0.3"/>
+  <circle cx="54" cy="22" r="4" fill="currentColor" fill-opacity="0.3"/>
+  
+  <!-- Sidebar folder -->
+  <path d="M25 50h20l5 6h30v30H25V50z" fill="currentColor" fill-opacity="0.1"/>
+  <path d="M25 50h20l5 6h30v30H25V50z"/>
+  <rect x="30" y="65" width="25" height="4" rx="1" fill="currentColor" fill-opacity="0.4"/>
+  <rect x="30" y="74" width="20" height="4" rx="1" fill="currentColor" fill-opacity="0.4"/>
+  
+  <!-- Main area - file grid -->
+  <rect x="85" y="50" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
+  <rect x="85" y="50" width="28" height="35" rx="2"/>
+  <line x1="90" y1="58" x2="108" y2="58"/>
+  <line x1="90" y1="65" x2="105" y2="65"/>
+  
+  <rect x="120" y="50" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
+  <rect x="120" y="50" width="28" height="35" rx="2"/>
+  <line x1="125" y1="58" x2="143" y2="58"/>
+  <line x1="125" y1="65" x2="140" y2="65"/>
+  
+  <rect x="155" y="50" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
+  <rect x="155" y="50" width="28" height="35" rx="2"/>
+  <line x1="160" y1="58" x2="178" y2="58"/>
+  
+  <rect x="85" y="92" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
+  <rect x="85" y="92" width="28" height="35" rx="2"/>
+  <path d="M92 100 L98 100 L98 118 L92 118 Z" fill="currentColor" fill-opacity="0.3"/>
+  
+  <rect x="120" y="92" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
+  <rect x="120" y="92" width="28" height="35" rx="2"/>
+  <circle cx="134" cy="108" r="6" fill="currentColor" fill-opacity="0.2"/>
+</svg>
