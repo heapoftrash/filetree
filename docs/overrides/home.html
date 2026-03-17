@@ -1,0 +1,59 @@
+{% extends "main.html" %}
+<!--  -->
+{% block hero %}
+<section class="hero-container">
+  <div class="md-grid md-typeset">
+    <div class="mdx-hero">
+      <div class="mdx-hero__image">
+        <img
+          src="assets/logo.svg"
+          alt=""
+          width="60%"
+          draggable="false"
+        />
+      </div>
+      <div class="mdx-hero__content">
+        <h1>{{ page.meta.hero.title }}</h1>
+        <p>{{ page.meta.hero.subtitle }}</p>
+        <a
+          href="{{ page.next_page.url | url }}"
+          title="{{ page.next_page.title | e }}"
+          class="md-button md-button--primary"
+        >
+          {{ page.meta.hero.install_button }}
+        </a>
+        <a
+          href="{{ '//github.com/spaceship-prompt/spaceship-prompt' | url }}"
+          title="Source code of Spaceship"
+          class="md-button"
+          >{{ page.meta.hero.source_button }}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Content -->
+
+{% if page.meta.features %}
+<div class="md-features">
+  {% for feature in page.meta.features %}
+  <div class="md-feature-card">
+    {% if feature.image %}
+    <img src="{{ feature.image }}" alt="{{ feature.title }}" class="md-feature-card__image" loading="lazy" />
+    {% elif feature.icon %}
+    <span class="md-feature-card__icon">{% include ".icons/" ~ feature.icon ~ ".svg" %}</span>
+    {% endif %}
+    <h3 class="md-feature-card__title">{{ feature.title }}</h3>
+    <p class="md-feature-card__description">{{ feature.description }}</p>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{{ super() }}
+{% endblock %}
+

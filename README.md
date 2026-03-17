@@ -67,7 +67,7 @@ ROOT_PATH=/path/to/files CONFIG_FILE=./config.yaml ./backend/filetree
 
 Then open **http://localhost:8080**. The binary serves the built frontend from `frontend/dist` when present. Deploy by copying the binary and `frontend/dist` folder.
 
-See [docs/API.md](docs/API.md) for the full API reference.
+See [docs/API.md](docs/API.md) for the API reference. Full documentation (MkDocs Material) can be built with `pip install mkdocs-material && mkdocs serve`.
 
 ## Authentication
 

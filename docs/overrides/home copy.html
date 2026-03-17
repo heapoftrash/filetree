@@ -1,0 +1,45 @@
+{% extends "main.html" %}
+
+
+{% block hero %}
+{% if page and page.meta and page.meta.hero %}
+<div class="md-hero">
+  <div class="md-hero__content">
+    <h1 class="md-hero__title">{{ page.meta.hero.title }}</h1>
+    <p class="md-hero__subtitle">{{ page.meta.hero.subtitle }}</p>
+    <div class="md-hero__buttons">
+      <a href="getting-started/" class="md-button md-button--primary">
+        {{ page.meta.hero.install_button }}
+      </a>
+      <a href="{{ config.repo_url }}" class="md-button md-button--secondary" target="_blank" rel="noopener">
+        {{ page.meta.hero.source_button }}
+      </a>
+    </div>
+  </div>
+  <div class="md-hero__icon">
+    <img src="assets/logo.svg" alt="Filetree" width="160" height="160" />
+  </div>
+</div>
+{% if page.meta.features %}
+<div class="md-features">
+  {% for feature in page.meta.features %}
+  <div class="md-feature-card">
+    {% if feature.image %}
+    <img src="{{ feature.image }}" alt="{{ feature.title }}" class="md-feature-card__image" loading="lazy" />
+    {% elif feature.icon %}
+    <span class="md-feature-card__icon">{% include ".icons/" ~ feature.icon ~ ".svg" %}</span>
+    {% endif %}
+    <h3 class="md-feature-card__title">{{ feature.title }}</h3>
+    <p class="md-feature-card__description">{{ feature.description }}</p>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{{ super() }}
+{% endblock %}
+
+
