@@ -10,6 +10,9 @@ frontend/dist/
 # MkDocs
 site/
 
+# Video tooling (imageio-ffmpeg for trimming)
+vendor/
+
 # IDE / editor
 .idea/
 .vscode/
