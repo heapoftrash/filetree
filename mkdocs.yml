@@ -1,6 +1,6 @@
 site_name: Filetree
 site_description: Self-hosted web file manager — no database, simple YAML/JSON config. Browse, upload, preview, and manage files from your browser.
-site_url: ""
+site_url: https://heapoftrash.github.io/filetree/
 
 repo_url: https://github.com/heapoftrash/filetree
 repo_name: heapoftrash/filetree
