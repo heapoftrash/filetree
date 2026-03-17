@@ -7,6 +7,9 @@ backend/data/
 node_modules/
 frontend/dist/
 
+# MkDocs
+site/
+
 # IDE / editor
 .idea/
 .vscode/

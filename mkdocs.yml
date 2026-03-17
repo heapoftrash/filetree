@@ -1,0 +1,53 @@
+site_name: Filetree
+site_description: Self-hosted web file manager — no database, simple YAML/JSON config. Browse, upload, preview, and manage files from your browser.
+site_url: https://heapoftrash.github.io/filetree/
+
+repo_url: https://github.com/heapoftrash/filetree
+repo_name: heapoftrash/filetree
+
+theme:
+  name: material
+  custom_dir: docs/overrides
+  logo: assets/logo.svg
+  favicon: assets/favicon.svg
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.indexes
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - search.highlight
+    - toc.integrate
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Configuration: config.md
+  - Authentication: auth.md
+  - API Reference: API.md
+
+markdown_extensions:
+  - meta
+  - md_in_html
+  - attr_list
+  - toc:
+      permalink: true
+  - tables
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+
+extra_css:
+  - assets/styles/hero.css
+
+plugins:
+  - search

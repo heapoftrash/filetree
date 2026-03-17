@@ -1,0 +1,375 @@
+/* Header to match gradient (#2a2438 palette) */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #2a2438;
+  --md-primary-bg-color: #fff;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #3d3548;
+  --md-primary-bg-color: #f8f7fa;
+}
+
+.hero-container {
+  padding: 2rem 0;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 200" preserveAspectRatio="none"><path fill="%23e8e7ec" fill-opacity="0.3" d="M0,100 Q360,50 720,100 T1440,100 V200 H0 Z"/><path fill="%23e8e7ec" fill-opacity="0.5" d="M0,120 Q360,70 720,120 T1440,120 V200 H0 Z"/><path fill="%23e8e7ec" fill-opacity="1" d="M0,140 Q360,90 720,140 T1440,140 V200 H0 Z"/></svg>'),
+    linear-gradient(
+      180deg,
+      #2a2438 0%,
+      #3d3548 25%,
+      #5a5168 50%,
+      #8a8594 85%,
+      #e8e7ec 100%
+    );
+  background-repeat: no-repeat;
+  background-position: bottom;
+  background-size: contain;
+}
+
+[data-md-color-scheme="slate"] .hero-container {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 200" preserveAspectRatio="none"><path fill="%232a2438" fill-opacity="0.3" d="M0,100 Q360,50 720,100 T1440,100 V200 H0 Z"/><path fill="%232a2438" fill-opacity="0.5" d="M0,120 Q360,70 720,120 T1440,120 V200 H0 Z"/><path fill="%232a2438" fill-opacity="1" d="M0,140 Q360,90 720,140 T1440,140 V200 H0 Z"/></svg>'),
+    linear-gradient(
+      180deg,
+      #3d3548 0%,
+      #2a2438 50%,
+      #221e2e 60%
+    );
+  background-repeat: no-repeat;
+  background-position: bottom;
+  background-size: contain;
+}
+
+.mdx-hero {
+  color: #e8e7ec;
+  margin-bottom: 4rem;
+}
+
+.mdx-hero .md-button {
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
+  color: #e8e7ec;
+  border-color: #e8e7ec;
+}
+
+.mdx-hero .md-button--primary {
+  color: #2a2438;
+  background-color: #e8e7ec;
+  border-color: #e8e7ec;
+}
+
+.mdx-hero__image {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+
+.hero-illustration {
+  display: block;
+  width: 80%;
+  color: #e8e7ec;
+}
+
+[data-md-color-scheme="slate"] .hero-illustration {
+  color: #e8e7ec;
+}
+
+.hero-illustration svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mdx-hero__image:hover {
+  transform: translateY(-3px);
+}
+
+/* Staggered file-change animation on hover */
+.hero-illustration:hover .hero-sidebar {
+  animation: heroFileChange 0.5s ease 0s both;
+  stroke: var(--md-primary-fg-color--light);
+  stroke-opacity: 0.9;
+}
+.hero-illustration:hover .hero-file-1 {
+  animation: heroFileChange 0.5s ease 0.08s both;
+  
+}
+.hero-illustration:hover .hero-file-2 {
+  animation: heroFileChange 0.5s ease 0.16s both;
+  stroke: var(--md-primary-fg-color--light);
+  stroke-opacity: 0.9;
+}
+.hero-illustration:hover .hero-file-3 {
+  animation: heroFileChange 0.5s ease 0.24s both;
+}
+.hero-illustration:hover .hero-file-4 {
+  animation: heroFileChange 0.5s ease 0.32s both;
+}
+.hero-illustration:hover .hero-file-5 {
+  animation: heroFileChange 0.5s ease 0.4s both;
+}
+
+@keyframes heroFileChange {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  40% {
+    opacity: 0.5;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.mdx-hero__content {
+  text-align: center;
+}
+
+.mdx-hero__content h1 {
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: currentColor;
+}
+
+@media screen and (min-width: 960px) {
+  .md-sidebar--secondary {
+    display: none;
+  }
+
+  .mdx-hero {
+    display: flex;
+    align-items: stretch;
+  }
+
+  .mdx-hero__image {
+    order: 1;
+    width: 50%;
+  }
+
+  .mdx-hero__content {
+    width: 50%;
+    margin-top: 5rem;
+    padding-bottom: 20vh;
+    text-align: left;
+  }
+}
+
+/* Feature cards */
+.md-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem 1rem 3rem;
+  max-width: 64rem;
+  margin: 0 auto;
+}
+
+.md-feature-card {
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  background: var(--md-default-bg-color--light, rgba(0, 0, 0, 0.05));
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+[data-md-color-scheme="slate"] .md-feature-card {
+  background: var(--md-default-bg-color--lighter, rgba(255, 255, 255, 0.05));
+}
+
+.md-feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Browse & manage: files appear as you browse */
+.md-feature-card--browse:hover .feat-file-1 {
+  animation: featFileAppear 0.4s ease 0s both;
+}
+.md-feature-card--browse:hover .feat-file-2 {
+  animation: featFileAppear 0.4s ease 0.1s both;
+}
+.md-feature-card--browse:hover .feat-file-3 {
+  animation: featFileAppear 0.4s ease 0.2s both;
+}
+
+@keyframes featFileAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Rich preview: content loads in browser */
+.md-feature-card--preview:hover .feat-preview {
+  animation: featPreviewLoad 0.5s ease 0.15s both;
+}
+
+@keyframes featPreviewLoad {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Secure auth: shield and lock appear (like Browse & manage) */
+.md-feature-card--auth:hover .feat-shield {
+  animation: featFileAppear 0.4s ease 0s both;
+}
+.md-feature-card--auth:hover .feat-lock {
+  animation: featFileAppear 0.4s ease 0.1s both;
+}
+
+/* Simple admin: config and gear appear (like Browse & manage) */
+.md-feature-card--simpleadmin:hover .feat-config {
+  animation: featFileAppear 0.4s ease 0s both;
+}
+.md-feature-card--simpleadmin:hover .feat-gear {
+  animation: featFileAppear 0.4s ease 0.1s both;
+}
+
+.md-feature-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 1rem;
+  color: var(--md-primary-fg-color);
+}
+
+.md-feature-card__icon svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.md-feature-card__image {
+  width: 100%;
+  max-width: 8rem;
+  height: auto;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.md-feature-card__svg {
+  display: block;
+  width: 8rem;
+  aspect-ratio: 120 / 100;
+  margin-bottom: 1rem;
+  color: var(--md-default-fg-color);
+}
+
+/* Accent colors for focal elements */
+.md-feature-card--browse .feat-folder {
+  stroke: var(--md-primary-fg-color--light);
+  stroke-opacity: 0.9;
+}
+.md-feature-card--preview .feat-preview rect {
+  fill: var(--md-primary-fg-color--light);
+  fill-opacity: 0.2;
+}
+.md-feature-card--preview .feat-preview circle,
+.md-feature-card--preview .feat-preview path {
+  stroke: var(--md-primary-fg-color--light);
+  stroke-opacity: 0.9;
+}
+.md-feature-card--auth .feat-lock path,
+.md-feature-card--auth .feat-lock rect:first-of-type {
+  stroke: var(--md-primary-fg-color--light);
+  stroke-opacity: 0.9;
+}
+.md-feature-card--auth .feat-lock rect:first-of-type {
+  fill: var(--md-primary-fg-color--light);
+  fill-opacity: 0.4;
+}
+.md-feature-card--simpleadmin .feat-config {
+  stroke: var(--md-primary-fg-color--light);
+  stroke-opacity: 0.9;
+}
+.md-feature-card--signedurl .feat-signed-file path:first-child,
+.md-feature-card--signedurl .feat-signed-file path:nth-child(2) {
+  stroke: var(--md-primary-fg-color--light);
+  stroke-opacity: 0.9;
+}
+.md-feature-card--signedurl .feat-signed-file path:nth-child(3) {
+  fill: var(--md-primary-fg-color--light);
+  fill-opacity: 0.2;
+}
+.md-feature-card--signedurl .feat-signed-file path:nth-child(4) {
+  stroke: var(--md-primary-fg-color--light);
+  stroke-opacity: 0.9;
+}
+
+.md-feature-card__svg svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.md-feature-card__svg .feat-file,
+.md-feature-card__svg .feat-preview,
+.md-feature-card__svg .feat-shield,
+.md-feature-card__svg .feat-lock,
+.md-feature-card__svg .feat-config,
+.md-feature-card__svg .feat-gear,
+.md-feature-card__svg .feat-signed-left,
+.md-feature-card__svg .feat-signed-right,
+.md-feature-card__svg .feat-signed-file {
+  transform-origin: center;
+}
+
+/* Signed URLs: pulse for computers, load-in for center file (like Rich preview) */
+.md-features .md-feature-card--signedurl:hover .feat-signed-left,
+.md-features .md-feature-card--signedurl:hover .feat-signed-right {
+  animation: featSignedPulse 0.5s ease both;
+}
+.md-features .md-feature-card--signedurl:hover .feat-signed-right { animation-delay: 0.5s; }
+
+.md-features .md-feature-card--signedurl:hover .feat-signed-file {
+  animation: featSignedFilePop 0.5s ease 0.15s both;
+}
+
+@keyframes featSignedFilePop {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+@keyframes featSignedPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+
+.md-feature-card__svg img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.md-feature-card__title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.md-feature-card__description {
+  font-size: 0.9rem;
+  opacity: 0.85;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Content area centering when sidebars are hidden */
+.md-main__inner .md-content {
+  max-width: 64rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1rem;
+}
