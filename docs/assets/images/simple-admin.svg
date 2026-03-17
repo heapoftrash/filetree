@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <g class="feat-config">
+    <rect x="15" y="15" width="45" height="55" rx="2"/>
+    <line x1="22" y1="28" x2="52" y2="28"/>
+    <line x1="22" y1="38" x2="48" y2="38"/>
+    <line x1="22" y1="48" x2="45" y2="48"/>
+  </g>
+  <g class="feat-gear">
+    <circle cx="82" cy="45" r="14"/>
+    <circle cx="82" cy="45" r="6" fill="currentColor" fill-opacity="0.15"/>
+    <line x1="82" y1="27" x2="82" y2="31"/>
+    <line x1="82" y1="59" x2="82" y2="63"/>
+    <line x1="68" y1="45" x2="64" y2="45"/>
+    <line x1="96" y1="45" x2="100" y2="45"/>
+    <line x1="72" y1="33" x2="69" y2="30"/>
+    <line x1="92" y1="57" x2="95" y2="60"/>
+    <line x1="72" y1="57" x2="69" y2="60"/>
+    <line x1="92" y1="33" x2="95" y2="30"/>
+  </g>
+</svg>
