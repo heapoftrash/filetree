@@ -5,12 +5,37 @@
   <div class="md-grid md-typeset">
     <div class="mdx-hero">
       <div class="mdx-hero__image">
-        <img
-          src="assets/logo.svg"
-          alt=""
-          width="60%"
-          draggable="false"
-        />
+        <span class="hero-illustration" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="10" y="10" width="180" height="140" rx="6" fill="currentColor" fill-opacity="0.05"/>
+            <rect x="10" y="10" width="180" height="140" rx="6"/>
+            <line x1="10" y1="35" x2="190" y2="35"/>
+            <circle cx="22" cy="22" r="4" fill="currentColor" fill-opacity="0.3"/>
+            <circle cx="38" cy="22" r="4" fill="currentColor" fill-opacity="0.3"/>
+            <circle cx="54" cy="22" r="4" fill="currentColor" fill-opacity="0.3"/>
+            <path d="M25 50h20l5 6h30v30H25V50z" fill="currentColor" fill-opacity="0.1"/>
+            <path d="M25 50h20l5 6h30v30H25V50z"/>
+            <rect x="30" y="65" width="25" height="4" rx="1" fill="currentColor" fill-opacity="0.4"/>
+            <rect x="30" y="74" width="20" height="4" rx="1" fill="currentColor" fill-opacity="0.4"/>
+            <rect x="85" y="50" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
+            <rect x="85" y="50" width="28" height="35" rx="2"/>
+            <line x1="90" y1="58" x2="108" y2="58"/>
+            <line x1="90" y1="65" x2="105" y2="65"/>
+            <rect x="120" y="50" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
+            <rect x="120" y="50" width="28" height="35" rx="2"/>
+            <line x1="125" y1="58" x2="143" y2="58"/>
+            <line x1="125" y1="65" x2="140" y2="65"/>
+            <rect x="155" y="50" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
+            <rect x="155" y="50" width="28" height="35" rx="2"/>
+            <line x1="160" y1="58" x2="178" y2="58"/>
+            <rect x="85" y="92" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
+            <rect x="85" y="92" width="28" height="35" rx="2"/>
+            <path d="M92 100 L98 100 L98 118 L92 118 Z" fill="currentColor" fill-opacity="0.3"/>
+            <rect x="120" y="92" width="28" height="35" rx="2" fill="currentColor" fill-opacity="0.08"/>
+            <rect x="120" y="92" width="28" height="35" rx="2"/>
+            <circle cx="134" cy="108" r="6" fill="currentColor" fill-opacity="0.2"/>
+          </svg>
+        </span>
       </div>
       <div class="mdx-hero__content">
         <h1>{{ page.meta.hero.title }}</h1>
@@ -22,11 +47,8 @@
         >
           {{ page.meta.hero.install_button }}
         </a>
-        <a
-          href="{{ '//github.com/spaceship-prompt/spaceship-prompt' | url }}"
-          title="Source code of Spaceship"
-          class="md-button"
-          >{{ page.meta.hero.source_button }}
+        <a href="config/" class="md-button md-button--secondary" target="_blank" rel="noopener">
+          {{ page.meta.hero.config_button }}
         </a>
       </div>
     </div>
@@ -41,7 +63,17 @@
   {% for feature in page.meta.features %}
   <div class="md-feature-card">
     {% if feature.image %}
-    <img src="{{ feature.image }}" alt="{{ feature.title }}" class="md-feature-card__image" loading="lazy" />
+    <span class="md-feature-card__svg" aria-hidden="true">
+      {% if feature.image == 'assets/images/browse-manage.svg' %}
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 25h30l10 10h40v40H20V25z"/><path d="M50 35v-10H20"/><rect x="35" y="55" width="20" height="15" rx="1"/><rect x="65" y="55" width="20" height="15" rx="1"/><rect x="50" y="75" width="20" height="15" rx="1"/></svg>
+      {% elif feature.image == 'assets/images/rich-preview.svg' %}
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="15" y="10" width="50" height="65" rx="2"/><line x1="22" y1="22" x2="58" y2="22"/><line x1="22" y1="32" x2="50" y2="32"/><line x1="22" y1="42" x2="45" y2="42"/><rect x="55" y="25" width="45" height="45" rx="2" fill="currentColor" fill-opacity="0.15"/><circle cx="77" cy="47" r="8" stroke-width="1.5"/><path d="M70 58l7-7 7 7"/></svg>
+      {% elif feature.image == 'assets/images/secure-auth.svg' %}
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M60 10L20 25v25c0 20 20 35 40 40 20-5 40-20 40-40V25L60 10z" fill="currentColor" fill-opacity="0.1"/><path d="M60 10L20 25v25c0 20 20 35 40 40 20-5 40-20 40-40V25L60 10z"/><circle cx="75" cy="55" r="12"/><path d="M75 43v-8a5 5 0 0 1 5 5h-5"/><rect x="72" y="62" width="6" height="18" rx="1"/><circle cx="75" cy="82" r="3"/></svg>
+      {% else %}
+      <img src="{{ feature.image }}" alt="{{ feature.title }}" loading="lazy" />
+      {% endif %}
+    </span>
     {% elif feature.icon %}
     <span class="md-feature-card__icon">{% include ".icons/" ~ feature.icon ~ ".svg" %}</span>
     {% endif %}

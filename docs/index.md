@@ -7,15 +7,16 @@ hero:
   subtitle: Browse, upload, preview, and manage files from your browser. Google OAuth, GitHub OAuth, or local auth. Single binary deployment.
   install_button: Getting Started
   source_button: Source Code
+  config_button: Configuration
 features:
   - title: Browse & manage
-    icon: material/folder
+    image: assets/images/browse-manage.svg
     description: List, create folders, rename, move, copy, delete (with trash). Drag-and-drop uploads.
   - title: Rich previews
-    icon: material/file-document
+    image: assets/images/rich-preview.svg
     description: Images, video, audio, PDF, Markdown, JSON, CSV, HTML, text — preview in the browser.
   - title: Secure auth
-    icon: material/shield-account
+    image: assets/images/secure-auth.svg
     description: Google OAuth, GitHub OAuth, or local username/password. JWT-based sessions.
 ---
 
