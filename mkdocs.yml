@@ -49,5 +49,11 @@ markdown_extensions:
 extra_css:
   - assets/styles/hero.css
 
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/heapoftrash/filetree
+      name: GitHub
+
 plugins:
   - search
