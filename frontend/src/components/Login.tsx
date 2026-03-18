@@ -97,6 +97,7 @@ export default function Login() {
               <img
                 src="/favicon.svg"
                 alt="Filetree"
+                draggable={false}
                 style={{ width: 64, height: 64, marginBottom: 16 }}
               />
               <Title level={2} style={{ marginBottom: 8 }}>

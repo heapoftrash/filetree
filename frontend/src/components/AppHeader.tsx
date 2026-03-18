@@ -76,6 +76,7 @@ export default function AppHeader({
         <img
           src="/icon-light.svg"
           alt=""
+          draggable={false}
           style={{ width: 36, height: 41, objectFit: 'contain', display: 'block' }}
         />
         Filetree

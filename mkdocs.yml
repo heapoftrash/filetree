@@ -30,6 +30,7 @@ theme:
     - toc.integrate
 nav:
   - Home: index.md
+  - Features: features.md
   - Getting Started: getting-started.md
   - Configuration: config.md
   - Authentication: auth.md
