@@ -168,17 +168,6 @@
   color: var(--md-default-fg-color);
 }
 
-/* Features heading */
-.md-features-heading {
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0 auto 1.5rem;
-  max-width: 64rem;
-  padding: 0 1rem;
-  color: var(--md-default-fg-color);
-}
-
 /* Feature cards - grid layout (override theme flex) */
 .md-features {
   display: grid !important;

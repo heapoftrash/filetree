@@ -76,7 +76,6 @@
 {% endif %}
 
 {% if page.meta.features %}
-<h2 class="md-features-heading">Features</h2>
 <div class="md-features">
   {% for feature in page.meta.features %}
   <div class="md-feature-card md-feature-card--{% if feature.image == 'assets/images/browse-manage.svg' %}browse{% elif feature.image == 'assets/images/rich-preview.svg' %}preview{% elif feature.image == 'assets/images/secure-auth.svg' %}auth{% elif feature.image == 'assets/images/signed-url.svg' %}signedurl{% elif feature.image == 'assets/images/simple-admin.svg' %}simpleadmin{% else %}default{% endif %}">
