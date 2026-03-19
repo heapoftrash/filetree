@@ -25,6 +25,28 @@ features:
   - title: Simple admin
     image: assets/images/simple-admin.svg
     description: No database. YAML or JSON config file. Simple admin UI to manage auth providers and settings.
+showcase:
+  - title: Social login
+    description: Google OAuth, GitHub OAuth, or local auth.
+    link: features/#secure-auth
+    image: assets/images/social-login.png
+    icon: material/login
+  - title: Easy user management
+    description: Add, edit, and manage users in the admin UI.
+    link: features/#simple-admin
+    image: assets/images/user-management.png
+    icon: material/account-cog
+  - title: Drag and drop
+    description: Upload files by dragging them into the browser.
+    link: features/#browse-manage
+    image: assets/images/drag-drop.png
+    icon: material/drag
+
+  - title: Drag and drop
+    description: Upload files by dragging them into the browser.
+    link: features/#browse-manage
+    image: assets/images/drag-drop.png
+    icon: material/drag
 ---
 
 <!-- ## Tech stack

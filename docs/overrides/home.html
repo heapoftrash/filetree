@@ -139,50 +139,25 @@
       </div>
     </section>
 
-    <!-- Screenshots showcase: tiled cards (follows features layout) -->
+    {% if page.meta.showcase %}
     <section class="md-showcase">
       <div class="md-showcase__items">
+        {% for item in page.meta.showcase %}
         <div class="md-showcase-item">
-          <div class="md-showcase-item__icon-col">
-            <span class="md-showcase-item__icon"><span class="md-showcase-item__icon-bg">{% include ".icons/material/login.svg" %}</span></span>
+          <div class="md-showcase-item__header">
+            <span class="md-showcase-item__icon"><span class="md-showcase-item__icon-bg">{% include ".icons/" ~ item.icon ~ ".svg" %}</span></span>
+            <h3 class="md-showcase-item__title">{{ item.title }}</h3>
           </div>
-          <div class="md-showcase-item__content">
-            <p class="md-showcase-item__title">Social login</p>
-            <p class="md-showcase-item__description">Google OAuth, GitHub OAuth, or local auth.</p>
-            <a href="features/#secure-auth" class="md-showcase-item__link">Learn more →</a>
-            <a href="features/#secure-auth" class="md-showcase-item__img">
-              <img src="assets/images/social-login.png" alt="Social login" loading="lazy" />
-            </a>
-          </div>
+          <p class="md-showcase-item__description">{{ item.description }}</p>
+          <a href="{{ item.link }}" class="md-showcase-item__link">Learn more →</a>
+          <a href="{{ item.link }}" class="md-showcase-item__img">
+            <img src="{{ item.image }}" alt="{{ item.title }}" loading="lazy" />
+          </a>
         </div>
-        <div class="md-showcase-item">
-          <div class="md-showcase-item__icon-col">
-            <span class="md-showcase-item__icon"><span class="md-showcase-item__icon-bg">{% include ".icons/material/account-cog.svg" %}</span></span>
-          </div>
-          <div class="md-showcase-item__content">
-            <p class="md-showcase-item__title">Easy user management</p>
-            <p class="md-showcase-item__description">Add, edit, and manage users in the admin UI.</p>
-            <a href="features/#simple-admin" class="md-showcase-item__link">Learn more →</a>
-            <a href="features/#simple-admin" class="md-showcase-item__img">
-              <img src="assets/images/user-management.png" alt="User management" loading="lazy" />
-            </a>
-          </div>
-        </div>
-        <div class="md-showcase-item">
-          <div class="md-showcase-item__icon-col">
-            <span class="md-showcase-item__icon"><span class="md-showcase-item__icon-bg">{% include ".icons/material/drag.svg" %}</span></span>
-          </div>
-          <div class="md-showcase-item__content">
-            <p class="md-showcase-item__title">Drag and drop</p>
-            <p class="md-showcase-item__description">Upload files by dragging them into the browser.</p>
-            <a href="features/#browse-manage" class="md-showcase-item__link">Learn more →</a>
-            <a href="features/#browse-manage" class="md-showcase-item__img">
-              <img src="assets/images/drag-drop.png" alt="Drag and drop" loading="lazy" />
-            </a>
-          </div>
-        </div>
+        {% endfor %}
       </div>
     </section>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
