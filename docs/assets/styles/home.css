@@ -79,7 +79,7 @@
 }
 
 .mdx-hero__image:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
 }
 
 .hero-illustration:hover .hero-sidebar {
@@ -453,6 +453,11 @@
   min-width: 20rem;
   height: auto;
   color: var(--md-default-fg-color);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.md-demo__frame:hover svg {
+  transform: translateY(-4px);
 }
 
 /* Showcase: 3 per row, icon left, title+description right */

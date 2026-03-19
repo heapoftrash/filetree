@@ -54,7 +54,7 @@ showcase:
 demo:
   heading: More than just a file browser
   title: Simple and feature rich web interface
-  description: "Browse, upload, preview, and manage files from your browser. **Drag-and-drop** uploads, **rich previews** for images and documents, and a **responsive layout** that works on desktop, tablet, and mobile."
+  description: "Browse, upload, preview, and manage files from your browser. <strong>Drag-and-drop</strong> uploads, <strong>rich previews</strong> for images and documents, and a <strong>responsive layout</strong> that works on desktop, tablet, and mobile."
   link: features/
 ---
 
