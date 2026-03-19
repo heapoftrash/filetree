@@ -27,7 +27,7 @@ features:
     description: No database. YAML or JSON config file. Simple admin UI to manage auth providers and settings.
 ---
 
-## Tech stack
+<!-- ## Tech stack
 
 - **Backend:** Go, Gin, JWT, OAuth2 (Google, GitHub)
-- **Frontend:** React, TypeScript, Ant Design, Vite
+- **Frontend:** React, TypeScript, Ant Design, Vite -->
