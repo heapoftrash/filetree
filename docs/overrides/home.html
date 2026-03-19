@@ -131,28 +131,22 @@
     </div>
     {% endif %}
 
-    <!-- Centered demo GIF -->
-    <section class="md-demo">
-      <h2 class="md-demo__title">Simple and feature rich web interface</h2>
-      <div class="md-demo__gif">
-        <img src="assets/images/filetree-demo.gif" alt="Filetree demo" loading="lazy" />
-      </div>
-    </section>
-
     {% if page.meta.showcase %}
     <section class="md-showcase">
+      {% if page.meta.showcase_title %}
+      <h2 class="md-showcase__title">{{ page.meta.showcase_title }}</h2>
+      {% endif %}
       <div class="md-showcase__items">
         {% for item in page.meta.showcase %}
         <div class="md-showcase-item">
-          <div class="md-showcase-item__header">
+          <div class="md-showcase-item__icon-col">
             <span class="md-showcase-item__icon"><span class="md-showcase-item__icon-bg">{% include ".icons/" ~ item.icon ~ ".svg" %}</span></span>
-            <h3 class="md-showcase-item__title">{{ item.title }}</h3>
           </div>
-          <p class="md-showcase-item__description">{{ item.description }}</p>
-          <a href="{{ item.link }}" class="md-showcase-item__link">Learn more →</a>
-          <a href="{{ item.link }}" class="md-showcase-item__img">
-            <img src="{{ item.image }}" alt="{{ item.title }}" loading="lazy" />
-          </a>
+          <div class="md-showcase-item__content">
+            <h3 class="md-showcase-item__title">{{ item.title }}</h3>
+            <p class="md-showcase-item__description">{{ item.description }}</p>
+            {% if item.link %}<a href="{{ item.link }}" class="md-showcase-item__link">Learn more →</a>{% endif %}
+          </div>
         </div>
         {% endfor %}
       </div>

@@ -25,28 +25,32 @@ features:
   - title: Simple admin
     image: assets/images/simple-admin.svg
     description: No database. YAML or JSON config file. Simple admin UI to manage auth providers and settings.
+showcase_title: Built for simplicity. Minimalistic to configure. Rich in features.
 showcase:
   - title: Social login
-    description: Google OAuth, GitHub OAuth, or local auth.
+    description: Sign in with Google OAuth, GitHub OAuth, or use local username and password. JWT-based sessions keep you authenticated securely across requests.
     link: features/#secure-auth
-    image: assets/images/social-login.png
     icon: material/login
   - title: Easy user management
-    description: Add, edit, and manage users in the admin UI.
+    description: Add, edit, and manage users directly in the admin UI. No database required — users are stored in your YAML or JSON config file.
     link: features/#simple-admin
-    image: assets/images/user-management.png
     icon: material/account-cog
   - title: Drag and drop
-    description: Upload files by dragging them into the browser.
+    description: Upload files by dragging them into the browser. Supports multiple file selection and works seamlessly with the folder tree view.
     link: features/#browse-manage
-    image: assets/images/drag-drop.png
     icon: material/drag
-
-  - title: Drag and drop
-    description: Upload files by dragging them into the browser.
+  - title: Works on all devices
+    description: Responsive web interface that runs on desktop, tablet, and mobile. Access your files from any browser, anywhere.
     link: features/#browse-manage
-    image: assets/images/drag-drop.png
-    icon: material/drag
+    icon: material/cellphone
+  - title: Fast and lightweight
+    description: Single binary, no database, minimal dependencies. Starts in milliseconds and uses little memory. Built with Go for performance.
+    link: getting-started/
+    icon: material/lightning-bolt
+  - title: Open Source
+    description: MIT licensed. Host it yourself, modify it, contribute. No vendor lock-in — your files stay under your control.
+    link: https://github.com/heapoftrash/filetree
+    icon: material/github
 ---
 
 <!-- ## Tech stack
