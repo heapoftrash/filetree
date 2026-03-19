@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://heapoftrash.github.io/filetree/">
-    <img src="frontend/public/favicon.svg" width="320" alt="Material for MkDocs">
+    <img src="docs/assets/logo-animated.svg" width="320" alt="Material for MkDocs">
   </a>
 </p>
 
