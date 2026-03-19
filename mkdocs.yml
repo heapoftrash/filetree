@@ -27,8 +27,7 @@ theme:
     - navigation.top
     - search.highlight
     - toc.integrate
-    - navigation.instant
-    - navigation.instant.prefetch
+
 
 nav:
   - Home: index.md

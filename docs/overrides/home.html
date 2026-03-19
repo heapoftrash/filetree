@@ -152,6 +152,38 @@
       </div>
     </section>
     {% endif %}
+
+    {% if page.meta.demo %}
+    <!-- Demo: heading first, then two-column layout - text left, GIF right -->
+    <section class="md-demo">
+      <h2 class="md-demo__heading md-showcase__title">{{ page.meta.demo.heading }}</h2>
+      <div class="md-demo__grid">
+        <div class="md-demo__content">
+          <h3 class="md-demo__title">{{ page.meta.demo.title }}</h3>
+          <div class="md-demo__description">{{ page.meta.demo.description | safe }}</div>
+          <a href="{{ page.meta.demo.link }}" class="md-demo__link">→ Learn more</a>
+        </div>
+        <div class="md-demo__frame">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <defs>
+              <clipPath id="demo-clip">
+                <rect x="10" y="35" width="180" height="105"/>
+              </clipPath>
+            </defs>
+            <!-- Browser frame -->
+            <rect x="10" y="10" width="180" height="140" rx="6" fill="currentColor" fill-opacity="0.05"/>
+            <rect x="10" y="10" width="180" height="140" rx="6"/>
+            <line x1="10" y1="35" x2="190" y2="35"/>
+            <circle cx="22" cy="22" r="4" fill="currentColor" fill-opacity="0.3"/>
+            <circle cx="38" cy="22" r="4" fill="currentColor" fill-opacity="0.3"/>
+            <circle cx="54" cy="22" r="4" fill="currentColor" fill-opacity="0.3"/>
+            <!-- GIF inside the frame (content area below title bar) -->
+            <image href="assets/images/filetree-demo.gif" x="10" y="35" width="180" height="105" preserveAspectRatio="xMidYMid slice" clip-path="url(#demo-clip)"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+    {% endif %}
 {% endblock %}
 
 {% block content %}

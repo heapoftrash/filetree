@@ -51,6 +51,11 @@ showcase:
     description: MIT licensed. Host it yourself, modify it, contribute. No vendor lock-in — your files stay under your control.
     link: https://github.com/heapoftrash/filetree
     icon: material/github
+demo:
+  heading: More than just a file browser
+  title: Simple and feature rich web interface
+  description: "Browse, upload, preview, and manage files from your browser. **Drag-and-drop** uploads, **rich previews** for images and documents, and a **responsive layout** that works on desktop, tablet, and mobile."
+  link: features/
 ---
 
 <!-- ## Tech stack
