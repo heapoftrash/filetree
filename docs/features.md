@@ -27,11 +27,6 @@ Filetree provides a focused set of features for self-hosted file management. No 
 
 ## Browse & manage
 
-<figure markdown="span">
-  ![Image title](https://dummyimage.com/600x400/){ width="300" }
-  <figcaption>Image caption</figcaption>
-</figure>
-
 Browse your files in a familiar folder layout. Create folders, rename, move, copy, and delete files. Deleted items go to a trash folder so you can recover them before permanent removal.
 
 **Highlights:**

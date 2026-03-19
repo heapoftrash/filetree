@@ -1,3 +1,7 @@
+---
+title: Getting Started
+icon: material/rocket-launch
+---
 # Getting Started
 
 ## Prerequisites

@@ -27,11 +27,14 @@ theme:
     - navigation.top
     - search.highlight
     - toc.integrate
+    - navigation.instant
+    - navigation.instant.prefetch
 
 nav:
   - Home: index.md
   - Features: features.md
-  - Getting Started: getting-started.md
+  - Getting Started:
+    - Installation: getting-started.md
   - Configuration: config.md
   - Authentication: auth.md
   - API Reference: API.md
