@@ -26,6 +26,31 @@ Filetree runs as a single binary that serves both the API and the frontend. Prer
     ROOT_PATH=/path/to/files CONFIG_FILE=./config.yaml ./backend/filetree
     ```
 
+=== "with Docker"
+
+    Build and run with Docker or Podman:
+
+    ```bash
+    docker build -f Containerfile -t filetree .
+    docker run -p 8080:8080 -v /path/to/files:/data filetree
+    ```
+
+    Or with Podman:
+
+    ```bash
+    podman build -f Containerfile -t filetree .
+    podman run -p 8080:8080 -v /path/to/files:/data filetree
+    ```
+
+    Then open **http://localhost:8080**. The image uses `ROOT_PATH=/data` by default; mount your files at `/data`.
+
+    For custom config:
+
+    ```bash
+    docker run -p 8080:8080 -v /path/to/files:/data -v /path/to/config.yaml:/app/config.yaml \
+      -e CONFIG_FILE=/app/config.yaml filetree
+    ```
+
 === "from source"
 
     Build the frontend and backend manually:
