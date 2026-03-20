@@ -1,0 +1,16 @@
+docs:
+  - docs/**/*
+  - mkdocs.yml
+
+backend:
+  - backend/**/*
+
+frontend:
+  - frontend/**/*
+
+container:
+  - Containerfile
+  - .dockerignore
+
+github_actions:
+  - .github/**/*

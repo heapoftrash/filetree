@@ -1,0 +1,54 @@
+name: Labeler
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  label-files:
+    name: Label by changed files
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+  label-commits:
+    name: Label by conventional commits
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            const prefixToLabel = {
+              'feat:': 'enhancement',
+              'fix:': 'bug',
+              'docs:': 'documentation',
+              'chore:': 'chore',
+              'refactor:': 'refactor',
+              'perf:': 'performance',
+              'test:': 'testing',
+              'ci:': 'ci',
+              'build:': 'build',
+            };
+            let label = null;
+            for (const [prefix, lbl] of Object.entries(prefixToLabel)) {
+              if (title.startsWith(prefix)) {
+                label = lbl;
+                break;
+              }
+            }
+            if (label) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                labels: [label],
+              });
+            }
