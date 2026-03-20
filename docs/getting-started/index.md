@@ -34,7 +34,7 @@ Open **http://localhost:8080**. You'll see the file manager — browse, upload, 
 
 | Step | What to do |
 |------|------------|
-| [Installation](installation.md) | Choose your path: make, from source, or development mode with hot reload |
+| [Installation](installation.md) | Choose your path: make, Docker, from source, or development mode with hot reload |
 | [Production](production.md) | Deploy to a server — reverse proxy, HTTPS, and production config |
 | [Configuration](../configuration/index.md) | Set up your config file and environment variables |
 | [Authentication](../authentication/index.md) | Enable Google OAuth, GitHub OAuth, or local username/password |
