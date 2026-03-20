@@ -2,7 +2,6 @@
 .github
 docs
 node_modules
-frontend/dist
 backend/filetree
 backend/filetree.exe
 *.md

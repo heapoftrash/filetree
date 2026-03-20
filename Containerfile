@@ -1,9 +1,8 @@
 FROM node:20-alpine AS frontend
 WORKDIR /app/frontend
-COPY frontend/package*.json ./
-RUN npm ci
 COPY frontend/ ./
-RUN npm run build
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+RUN if [ ! -f dist/index.html ]; then npm ci && npm run build; fi
 
 FROM golang:1.25-alpine AS backend
 WORKDIR /app
