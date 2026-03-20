@@ -1,0 +1,19 @@
+docs:
+  - changed-files:
+      any-glob-to-any-file: ['docs/**/*', 'mkdocs.yml']
+
+backend:
+  - changed-files:
+      any-glob-to-any-file: ['backend/**/*']
+
+frontend:
+  - changed-files:
+      any-glob-to-any-file: ['frontend/**/*']
+
+container:
+  - changed-files:
+      any-glob-to-any-file: ['Containerfile', '.dockerignore']
+
+github_actions:
+  - changed-files:
+      any-glob-to-any-file: ['.github/**/*']
