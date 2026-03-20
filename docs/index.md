@@ -1,5 +1,6 @@
 ---
 template: home.html
+icon: material/home
 title: Self-hosted web file manager
 hide: [navigation]
 hero:
@@ -29,23 +30,23 @@ showcase_title: Built for simplicity. Minimalistic to configure. Rich in feature
 showcase:
   - title: Social login
     description: Sign in with Google OAuth, GitHub OAuth, or use local username and password. JWT-based sessions keep you authenticated securely across requests.
-    link: features/#secure-auth
+    link: features/secure-auth/
     icon: material/login
   - title: Easy user management
     description: Add, edit, and manage users directly in the admin UI. No database required — users are stored in your YAML or JSON config file.
-    link: features/#simple-admin
+    link: features/simple-admin/
     icon: material/account-cog
   - title: Drag and drop
     description: Upload files by dragging them into the browser. Supports multiple file selection and works seamlessly with the folder tree view.
-    link: features/#browse-manage
+    link: features/browse-manage/
     icon: material/drag
   - title: Works on all devices
     description: Responsive web interface that runs on desktop, tablet, and mobile. Access your files from any browser, anywhere.
-    link: features/#browse-manage
+    link: features/browse-manage/
     icon: material/cellphone
   - title: Fast and lightweight
     description: Single binary, no database, minimal dependencies. Starts in milliseconds and uses little memory. Built with Go for performance.
-    link: getting-started/
+    link: getting-started/installation/
     icon: material/lightning-bolt
   - title: Open Source
     description: MIT licensed. Host it yourself, modify it, contribute. No vendor lock-in — your files stay under your control.

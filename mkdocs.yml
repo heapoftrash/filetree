@@ -31,20 +31,38 @@ theme:
 
 nav:
   - Home: index.md
-  - Features: features.md
+  - Features:
+    - Overview: features/index.md
+    - Browse & manage: features/browse-manage.md
+    - Rich previews: features/rich-previews.md
+    - Secure auth: features/secure-auth.md
+    - Signed URLs: features/signed-urls.md
+    - Simple admin: features/simple-admin.md
   - Getting Started:
-    - Installation: getting-started.md
-  - Configuration: config.md
-  - Authentication: auth.md
-  - API Reference: API.md
+    - Overview: getting-started/index.md
+    - Installation: getting-started/installation.md
+    - Production: getting-started/production.md
+  - Configuration:
+    - Overview: configuration/index.md
+    - Config file: configuration/config-file.md
+    - Environment variables: configuration/environment-variables.md
+  - Authentication:
+    - Overview: authentication/index.md
+    - Setup: authentication/setup.md
+    - OAuth providers: authentication/oauth-providers.md
+    - API Reference: API.md
 
 markdown_extensions:
   - meta
   - md_in_html
   - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - toc:
       permalink: true
   - tables
+  - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
   - admonition
