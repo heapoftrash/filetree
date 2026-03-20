@@ -1,4 +1,4 @@
-name: Deploy docs
+name: documentation
 
 on:
   push:
@@ -6,7 +6,14 @@ on:
     paths:
       - 'docs/**'
       - 'mkdocs.yml'
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
   workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.12'
 
 permissions:
   contents: read
@@ -18,28 +25,41 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    name: Deploy to GitHub Pages
+  documentation:
+    name: Build documentation
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    if: github.event_name != 'pull_request'
 
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          sparse-checkout: |
+            docs
+            mkdocs.yml
 
-      - name: Set up Python
+      - name: Set up Python runtime
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-          cache: 'pip'
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
           cache-dependency-path: docs/requirements.txt
 
       - name: Install dependencies
         run: pip install -r docs/requirements.txt
 
-      - name: Build
+      - name: Build documentation
         run: mkdocs build --strict
+
+      - name: Adjust permissions
+        run: |
+          chmod -c -R +rX site/ | while read line; do
+            echo "::warning title=Invalid file permissions automatically fixed::$line"
+          done
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -52,3 +72,30 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  documentation-check:
+    name: Check documentation
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          sparse-checkout: |
+            docs
+            mkdocs.yml
+
+      - name: Set up Python runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: docs/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r docs/requirements.txt
+
+      - name: Build documentation
+        run: mkdocs build --strict
