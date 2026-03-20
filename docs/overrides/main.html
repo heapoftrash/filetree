@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block announce %}
+  {% if config.extra.get('announce') %}
+  <span class="announce">
+    <span class="announce__icon">{% include ".icons/" ~ (config.extra.announce.get('icon') or "material/information") ~ ".svg" %}</span>
+    <span class="announce__content">
+      <span class="announce__text">{{ config.extra.announce.title }}</span>
+      {% if config.extra.announce.get('link') %}
+      <a href="{{ config.extra.announce.link }}" class="announce__link">learn more</a>
+      {% endif %}
+    </span>
+  </span>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% if page and page.meta and page.meta.get('template') != 'home.html' %}
+    {% if page.meta.get('image') %}
+    <section class="md-page-hero">
+      <img src="{{ base_url }}/{{ page.meta.image }}" alt="" class="md-page-hero__img" loading="lazy" />
+    </section>
+    {% endif %}
+    {% if page.meta.get('features') %}
+    <div class="md-page-features">
+      {% for feature in page.meta.features %}
+      <div class="md-page-feature-card">
+        {% if feature.get('image') %}
+        <span class="md-page-feature-card__img">
+          <img src="{{ base_url }}/{{ feature.image }}" alt="{{ feature.title }}" loading="lazy" />
+        </span>
+        {% endif %}
+        <div class="md-page-feature-card__body">
+          {% if feature.get('icon') %}
+          <span class="md-page-feature-card__icon">
+            {% include ".icons/" ~ feature.icon ~ ".svg" %}
+          </span>
+          {% endif %}
+          <div class="md-page-feature-card__text">
+            <p class="md-page-feature-card__title">{{ feature.title }}</p>
+            <p class="md-page-feature-card__description">{{ feature.description }}</p>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endif %}
+  {{ super() }}
+{% endblock %}

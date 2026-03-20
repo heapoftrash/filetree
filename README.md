@@ -1,13 +1,28 @@
-<p align="left">
-  <img src="frontend/public/favicon.svg" width="64"/>
+<p align="center">
+  <a href="https://heapoftrash.github.io/filetree/">
+    <img src="docs/assets/logo-animated.svg" width="320" alt="Material for MkDocs">
+  </a>
 </p>
 
-# Filetree
+<p align="center">
+  <strong>
+    Browse, upload, preview, and manage files from your browser.
+  </strong>
+</p>
 
-**Self-hosted web file manager** — browse, upload, preview, and manage files from your browser. No database — config in YAML or JSON. Google OAuth, GitHub OAuth, or local username/password. Single binary deployment.
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/heapoftrash/filetree)](https://goreportcard.com/report/github.com/heapoftrash/filetree)
-[![CI](https://github.com/heapoftrash/filetree/actions/workflows/ci.yml/badge.svg)](https://github.com/heapoftrash/filetree/actions/workflows/ci.yml)
+<p align="center">
+  <a href="https://goreportcard.com/report/github.com/heapoftrash/filetree">
+    <img src="https://goreportcard.com/report/github.com/heapoftrash/filetree">
+  </a>
+  <a href="https://github.com/heapoftrash/filetree/actions/workflows/ci.yml">
+    <img src="https://github.com/heapoftrash/filetree/actions/workflows/ci.yml/badge.svg">
+  </a>
+</p>
+<p align="center">
+<strong>Filetree</strong> is a minimalistic, self-hosted file manager — browse, upload, preview, and manage files from your browser. No cloud lock-in, no database. Simple YAML or JSON config, single binary deployment.
+</p>
+
 
 ## Features
 
