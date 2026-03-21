@@ -12,8 +12,8 @@
 
 
 <p align="center">
-  <a href="https://goreportcard.com/report/github.com/heapoftrash/filetree">
-    <img src="https://goreportcard.com/report/github.com/heapoftrash/filetree">
+  <a href="https://goreportcard.com/report/github.com/heapoftrash/filetree/backend">
+    <img src="https://goreportcard.com/badge/github.com/heapoftrash/filetree/backend">
   </a>
   <a href="https://github.com/heapoftrash/filetree/actions/workflows/ci.yml">
     <img src="https://github.com/heapoftrash/filetree/actions/workflows/ci.yml/badge.svg">
