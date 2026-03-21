@@ -5,47 +5,88 @@ icon: material/rocket-launch
 
 # Getting Started
 
-You're minutes away from a self-hosted file manager. No database to configure, no cloud sign-up, no vendor lock-in — just a single binary and a config file. Your files stay under your control.
+<strong>Filetree</strong> is minimalistic, self-hosted file manager. No database to configure, no cloud sign-up, no vendor lock-in — just a single binary and a config file. Your files stay under your control.
 
-## Why Filetree?
+## From homelab to open source
 
-- **Minimal setup** — Build once, run anywhere. One process serves both the API and the web UI.
-- **No database** — Everything lives in a YAML or JSON file. Add users, toggle auth providers, and adjust settings without migrations or extra services.
-- **Fast and lightweight** — Built with Go. Starts in milliseconds, uses little memory. Copy the binary and `frontend/dist` to deploy.
+Filetree started as a simple homelab project — a way to browse and manage files on my home server without exposing it to the cloud or dealing with heavy, database-backed alternatives. I wanted something minimal: one binary, a config file and control over my own data.
+
+Over time, it grew, I added auth, previews, signed URLs, and an admin UI. What began as a personal tool became something I thought others might find useful. If you're running a homelab, a small team server, or just want your files under your control, Filetree is for you.
+
+## Features
+
+- **Minimal setup** — Build once, run anywhere. Single binary or a small Container image.
+- **No database** — No complex setup, everything lives in a [config](/configuration) file. Add local users, toggle auth providers, and adjust settings without migrations or extra services.
+- **Fast and lightweight** — Built with Go. Starts in milliseconds, uses little memory.
 - **Works everywhere** — Responsive interface for desktop, tablet, and mobile. Access your files from any browser.
-
-## Prerequisites
-
-- **Go 1.21+** — For the backend
-- **Node.js 18+** — For building the frontend assets (only needed at build time; not required at runtime)
-
-## Quick start
-
-From the project root:
-
-```bash
-make build
-ROOT_PATH=./data ./backend/filetree
-```
-
-Open **http://localhost:8080**. You'll see the file manager — browse, upload, preview, and manage files from your browser. Drag-and-drop uploads, rich previews for images and documents, and a folder tree for quick navigation.
-
-## What's next?
-
-| Step | What to do |
-|------|------------|
-| [Installation](installation.md) | Choose your path: make, Docker, from source, or development mode with hot reload |
-| [Production](production.md) | Deploy to a server — reverse proxy, HTTPS, and production config |
-| [Configuration](../configuration/index.md) | Set up your config file and environment variables |
-| [Authentication](../authentication/index.md) | Enable Google OAuth, GitHub OAuth, or local username/password |
-
-## Features at a glance
-
 - **Browse & manage** — Create folders, rename, move, copy, delete (with trash). Drag-and-drop to upload.
 - **Rich previews** — Images, video, audio, PDF, Markdown, JSON, CSV, HTML, text — preview in the browser.
 - **Secure auth** — Sign in with Google, GitHub, or local users. JWT-based sessions.
 - **Signed URLs** — Share short-lived links for previews and downloads. Time-limited, no long-lived links.
 - **Admin UI** — Manage auth providers and users from the Settings page. No config editing required.
+
+## Quick start
+
+## Quick start
+
+=== "Single binary"
+
+    **Download** pre-built binaries from [GitHub Releases](https://github.com/heapoftrash/filetree/releases/latest). Extract the archive, copy `frontend/dist` next to the binary, then:
+
+    ```bash
+    ROOT_PATH=./data ./filetree
+    ```
+
+    Or build from source:
+
+    ```bash
+    make build
+    ROOT_PATH=./data ./backend/filetree
+    ```
+
+    For production:
+
+    ```bash
+    ROOT_PATH=/path/to/files CONFIG_FILE=./config.yaml ./filetree
+    ```
+
+=== "Container image <small>recommended</small>"
+
+    The prebuilt OCI complaint container image is a great way to get up and running in a few minutes, as it comes with all dependencies pre-installed. 
+    **Pull** the pre-built image from [GitHub Container Registry](https://github.com/heapoftrash/filetree/pkgs/container/filetree):
+
+    ```bash
+    docker pull ghcr.io/heapoftrash/filetree:latest
+    docker run -p 8080:8080 -v /path/to/files:/data ghcr.io/heapoftrash/filetree:latest
+    ```
+
+    Or build from source:
+
+    ```bash
+    docker build -f Containerfile -t filetree .
+    docker run -p 8080:8080 -v /path/to/files:/data filetree
+    ```
+
+    Then open **http://localhost:8080**. Use `ghcr.io/heapoftrash/filetree:v1.0.0` for a specific version.
+
+=== "From git"
+
+    Filetree can be directly used from GitHub by cloning the repository into a subfolder of your project root which might be useful if you want to use the very latest version:
+
+    Clone and build from source:
+    ```bash
+    git clone https://github.com/heapoftrash/filetree.git
+    cd filetree
+    ```
+    Build the frontend and backend:
+    ```bash
+    make build
+    ```
+    Run from the project root:
+    ```bash
+    ROOT_PATH=./data ./backend/filetree
+    ```
+    Then open **http://localhost:8080**.
 
 ## Open source
 
