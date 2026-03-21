@@ -12,6 +12,9 @@ jobs:
       contents: read
       pull-requests: write
     steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - uses: actions/labeler@v5
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
