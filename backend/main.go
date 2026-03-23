@@ -16,8 +16,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("config: %v", err)
 	}
-	if _, err := config.BootstrapDefaultAdmin(cfg); err != nil {
-		log.Fatalf("config bootstrap default admin: %v", err)
+	if err := config.BootstrapUsers(cfg); err != nil {
+		log.Fatalf("config bootstrap: %v", err)
 	}
 
 	if err := os.MkdirAll(cfg.Server.RootPath, 0750); err != nil {
@@ -58,7 +58,7 @@ func main() {
 				localAdminUsernames = append(localAdminUsernames, u.Username)
 			}
 		}
-		if cfg.Users.DefaultAdmin != nil && cfg.Users.DefaultAdmin.PasswordHash != "" {
+		if cfg.Users.DefaultAdmin != nil && cfg.Users.DefaultAdmin.Password != "" {
 			localAdminUsernames = append(localAdminUsernames, cfg.Users.DefaultAdmin.Username)
 		}
 		configGroup := api.Group("/config", middleware.Auth(), middleware.RequireAdmin(cfg.Users.AdminEmails, localAdminUsernames))

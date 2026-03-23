@@ -31,4 +31,4 @@ users:
   # default_admin: bootstrap on startup (password hashed, stored in default_admin; not added to local_users)
   # default_admin:
   #   username: admin
-  #   password: changeme   # replaced by password_hash after first run
+  #   password: changeme   # plaintext hashed on first run and replaced in-place
