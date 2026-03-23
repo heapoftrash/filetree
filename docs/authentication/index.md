@@ -1,23 +1,254 @@
 ---
 title: Authentication
 icon: material/shield-account
+features:
+  - title: Local users
+    icon: fontawesome/regular/user
+    description: Local with username and password stored in the config file in bcrypt hash format.
+  - title: Social Authentication
+    icon: material/login
+    description: Use <strong>Google</strong> or <strong>Github</strong> as OAuth providers.
+
 ---
 
-# Authentication
+# :material-account-check-outline: Authentication
 
-The app supports **Google OAuth**, **GitHub OAuth**, and **local username/password**. All `/api/entries/*` routes require a valid JWT.
+Filetree supports **Google OAuth**, **GitHub OAuth**, and **local username/password**. Protected routes require a valid JWT.
 
-## Flow
+## :fontawesome-regular-user: Local users
 
-1. **Unauthenticated** — Users hitting protected routes are redirected to `/login`
-2. **Sign in** — User chooses Google, GitHub, or local username/password
-3. **OAuth** — Backend redirects to provider, receives callback with code, exchanges for token, fetches user info, issues JWT
-4. **Local** — Backend verifies username/password against bcrypt hash, issues JWT
-5. **Session** — Frontend stores JWT and sends it as `Authorization: Bearer <token>` (or `?token=` for GET). JWT expires after 24 hours
+Local auth uses username and password stored in the config file. No OAuth or external provider is required. Filetree stores the password in a bcrypt hash format. On success, a JWT is issued and the frontend stores it for subsequent requests.
 
-## Next steps
+=== "YAML"
+    ``` yaml title="config.yaml"
+    auth:
+      jwt_secret: your-secret-here
+      local_auth_enabled: true
+      oauth_redirect_url: ""
 
-| Topic | Description |
-|-------|-------------|
-| [Setup](setup.md) | Config file and environment variables for auth |
-| [OAuth providers](oauth-providers.md) | Google and GitHub OAuth setup steps |
+    users:
+      default_admin:
+        username: admin
+        password: changeme
+      local_users:
+        username: heapoftrash
+        password_hash: $2a$10$...
+        is_admin: false
+    ```
+
+=== "JSON"
+    ```json title="config.json"
+    {
+      "auth": {
+        "jwt_secret": "your-secret-here",
+        "local_auth_enabled": true,
+        "oauth_redirect_url": ""
+      },
+      "users": {
+        "default_admin": {
+          "username": "admin",
+          "password": "changeme"
+        },
+        "local_users": {
+          "username": "heapoftrash",
+          "password_hash": "$2a$10$...",
+          "is_admin": false
+        }
+      }
+    }
+    ```
+
+## :material-google: Google OAuth
+
+Setup Google as OAuth provider
+
+=== "YAML"
+    ```yaml title="config.yaml"
+    auth:
+      jwt_secret: your-secret-here
+      oauth_redirect_url: https://your-domain.com/api/auth/google/callback
+      providers:
+        google:
+          enabled: true
+          client_id: xxx.apps.googleusercontent.com
+          client_secret: xxx
+
+    users:
+      admin_emails: [admin@example.com]
+    ```
+
+=== "JSON"
+    ```json title="config.json"
+    {
+      "auth": {
+        "jwt_secret": "your-secret-here",
+        "oauth_redirect_url": "https://your-domain.com/api/auth/google/callback",
+        "providers": {
+          "google": {
+            "enabled": true,
+            "client_id": "xxx.apps.googleusercontent.com",
+            "client_secret": "xxx"
+          }
+        }
+      },
+      "users": {
+        "admin_emails": [
+          "admin@example.com"
+        ]
+      }
+    }
+    ```
+
+## :simple-github: GitHub OAuth
+
+Setup Google as OAuth provider
+
+=== "YAML"
+    ```yaml title="config.yaml"
+    auth:
+      jwt_secret: your-secret-here
+      oauth_redirect_url: https://your-domain.com/api/auth/github/callback
+      providers:
+        github:
+          enabled: true
+          client_id: xxx
+          client_secret: xxx
+
+    users:
+      admin_emails: [admin@example.com]
+    ```
+=== "JSON"
+    ```json title="config.json"
+    {
+      "auth": {
+        "jwt_secret": "your-secret-here",
+        "oauth_redirect_url": "https://your-domain.com/api/auth/github/callback",
+        "providers": {
+          "github": {
+            "enabled": true,
+            "client_id": "xxx",
+            "client_secret": "xxx"
+          }
+        }
+      },
+      "users": {
+        "admin_emails": [
+          "admin@example.com"
+        ]
+      }
+    }
+    ```
+## Config snippet
+
+An example config of all authentication methods
+
+=== "YAML"
+    ```yaml title="config.yaml"
+    auth:
+      jwt_secret: your-secret-here
+      oauth_redirect_url: https://your-domain.com/api/auth/google/callback
+      local_auth_enabled: true
+      providers:
+        google:
+          enabled: true
+          client_id: xxx.apps.googleusercontent.com
+          client_secret: xxx
+        github:
+          enabled: true
+          client_id: xxx
+          client_secret: xxx
+
+    users:
+      admin_emails: [admin@example.com]
+      local_users:
+        - username: bob
+          password_hash: $2a$10$...   # set via Admin UI or default_admin
+          is_admin: false
+      default_admin:
+        username: admin
+        password: changeme
+    ```
+=== "JSON"
+    ```json title="config.json"
+    {
+      "auth": {
+        "jwt_secret": "your-secret-here",
+        "oauth_redirect_url": "https://your-domain.com/api/auth/google/callback",
+        "local_auth_enabled": true,
+        "providers": {
+          "google": {
+            "enabled": true,
+            "client_id": "xxx.apps.googleusercontent.com",
+            "client_secret": "xxx"
+          },
+          "github": {
+            "enabled": true,
+            "client_id": "xxx",
+            "client_secret": "xxx"
+          }
+        }
+      },
+      "users": {
+        "admin_emails": [
+          "admin@example.com"
+        ],
+        "local_users": [
+          {
+            "username": "bob",
+            "password_hash": "$2a$10$...",
+            "is_admin": false
+          }
+        ],
+        "default_admin": {
+          "username": "admin",
+          "password": "changeme"
+        }
+      }
+    }
+    ```
+
+!!! note "OAuth admins"
+    `admin_emails` applies **only to OAuth users** (Google/GitHub). For local users, set `is_admin: true` per user in `local_users`.
+
+
+!!! note "OAuth redirect URL"
+    - `oauth_redirect_url` must contain `https://your-domain.com/api/auth/` Filetree replace the path with `https://your-domain.com/api/auth/{provider}/callback`.
+    
+    - `callback_url` can also be set explicitely for a Oauth provider
+
+    | Config | Purpose |
+    |--------|---------|
+    | `auth.oauth_redirect_url` | Base callback URL; used to derive provider-specific URLs when provider `callback_url` is not set |
+    | `auth.providers.google.callback_url` | Optional; full callback URL for Google. If empty, derived from `oauth_redirect_url` |
+    | `auth.providers.github.callback_url` | Optional; full callback URL for GitHub. If empty, derived from `oauth_redirect_url` |
+
+    === "Single base callback URL :material-information:{ .info } <small> recommended </small>"
+        ```yaml title="config.yaml"
+        auth:
+        oauth_redirect_url: https://myapp.com/api/auth/google/callback
+        providers:
+          google:
+            enabled: true
+            client_id: xxx
+            client_secret: xxx
+          github:
+            enabled: true
+            client_id: xxx
+            client_secret: xxx
+        ```
+
+    === "Provider Specific callback URL"
+        ```yaml title="config.yaml"
+        auth:
+        providers:
+          google:
+            enabled: true
+            client_id: xxx
+            client_secret: xxx
+            callback_url: https://myapp.com/api/auth/google/callback
+          github:
+            enabled: true
+            client_id: xxx
+            client_secret: xxx
+            callback_url: https://myapp.com/auth/github/callback
+        ```

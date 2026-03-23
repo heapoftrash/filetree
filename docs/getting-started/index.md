@@ -50,7 +50,7 @@ Over time, it grew, I added auth, previews, signed URLs, and an admin UI. What b
     ROOT_PATH=/path/to/files CONFIG_FILE=./config.yaml ./filetree
     ```
 
-=== "Container image <small>recommended</small>"
+=== "Container image :material-information:{ .info } <small>recommended</small>"
 
     The prebuilt OCI complaint container image is a great way to get up and running in a few minutes, as it comes with all dependencies pre-installed. 
     **Pull** the pre-built image from [GitHub Container Registry](https://github.com/heapoftrash/filetree/pkgs/container/filetree):

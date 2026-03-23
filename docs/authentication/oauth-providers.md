@@ -27,11 +27,39 @@ icon: material/login
     4. Set **Authorization callback URL**: `https://your-domain.com/api/auth/github/callback` (must use HTTPS in production)
     5. Copy **Client ID** and generate **Client secret** into config or env vars
 
+## Config and environment
+
+=== "Config file"
+
+    ```yaml
+    auth:
+      oauth_redirect_url: https://your-domain.com/api/auth/google/callback
+      providers:
+        google:
+          enabled: true
+          client_id: xxx.apps.googleusercontent.com
+          client_secret: xxx
+        github:
+          enabled: true
+          client_id: xxx
+          client_secret: xxx
+    ```
+
+=== "Environment variables"
+
+    ```bash
+    export OAUTH_REDIRECT_URL="https://your-domain.com/api/auth/google/callback"
+    export GOOGLE_CLIENT_ID="xxx.apps.googleusercontent.com"
+    export GOOGLE_CLIENT_SECRET="xxx"
+    export GITHUB_CLIENT_ID="xxx"
+    export GITHUB_CLIENT_SECRET="xxx"
+    ```
+
 ## Callback URLs
 
 The backend derives callback URLs from `oauth_redirect_url`:
 
-- Google: `{oauth_redirect_url}` (use the Google callback path)
-- GitHub: Replace `/google/` with `/github/` in the path
+- **Google**: `{oauth_redirect_url}` (use the Google callback path)
+- **GitHub**: Replace `/google/` with `/github/` in the path
 
 So if `oauth_redirect_url` is `https://example.com/api/auth/google/callback`, the GitHub callback is `https://example.com/api/auth/github/callback`.

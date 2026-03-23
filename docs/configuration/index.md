@@ -21,7 +21,7 @@ Configuration is loaded in this order: **environment variables** override **conf
 
     auth:
       jwt_secret: change-me-in-production
-      oauth_redirect_url: http://localhost:8080/api/auth/google/callback
+      oauth_redirect_url: http://example.com/api/auth/google/callback
       local_auth_enabled: false
       providers:
         google:
@@ -33,7 +33,7 @@ Configuration is loaded in this order: **environment variables** override **conf
           client_id: ""
 
     frontend:
-      url: http://localhost:5173
+      url: http://example.com
 
     users:
       admin_emails: []
@@ -53,7 +53,7 @@ Configuration is loaded in this order: **environment variables** override **conf
       },
       "auth": {
         "jwt_secret": "change-me-in-production",
-        "oauth_redirect_url": "http://localhost:8080/api/auth/google/callback",
+        "oauth_redirect_url": "http://example.com/api/auth/google/callback",
         "local_auth_enabled": false,
         "providers": {
           "google": {
@@ -65,7 +65,7 @@ Configuration is loaded in this order: **environment variables** override **conf
         }
       },
       "frontend": {
-        "url": "http://localhost:5173"
+        "url": "http://example.com"
       },
       "users": {
         "admin_emails": [],
@@ -89,9 +89,9 @@ Configuration is loaded in this order: **environment variables** override **conf
     export GOOGLE_CLIENT_SECRET="xxx"
     export GITHUB_CLIENT_ID=""
     export GITHUB_CLIENT_SECRET=""
-    export OAUTH_REDIRECT_URL="http://localhost:8080/api/auth/google/callback"
+    export OAUTH_REDIRECT_URL="http://example.com/api/auth/google/callback"
 
-    export FRONTEND_URL="http://localhost:5173"
+    export FRONTEND_URL="http://example.com"
     export CORS_ORIGINS="http://localhost:5173"
 
     export ADMIN_EMAILS="admin@example.com"
