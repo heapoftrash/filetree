@@ -26,4 +26,4 @@ Changes are written back to the config file. No database migrations or extra set
 
 ## Default admin bootstrap
 
-When no users exist, you can define a `default_admin` in config with `username` and `password`. On first successful login, the password is hashed and stored in `default_admin.password_hash`. The user is not added to `local_users`; change the password via the admin UI or config to persist.
+When no users exist, you can define a `default_admin` in config with `username` and `password`. On first startup, plaintext password is hashed and replaced in-place. The user is not added to `local_users`; change the password via the admin UI or config to persist.

@@ -22,8 +22,8 @@ Copy `config.example.yaml` to `config.yaml` and set `CONFIG_FILE=./config.yaml`.
     users:
       default_admin:
         username: admin
-        password: changeme   # hashed on first run; add more users via Settings
-      local_users: []       # or add {username, password_hash, is_admin} here
+        password: changeme   # hashed on first run
+      local_users: []       # or add {username, password, is_admin} — password hashed on first run
     ```
 
 === "Environment variables"
@@ -99,7 +99,7 @@ Copy `config.example.yaml` to `config.yaml` and set `CONFIG_FILE=./config.yaml`.
     users:
       local_users:
         - username: admin
-          password_hash: $2a$10$...
+          password: $2a$10$...
           is_admin: true
     ```
 

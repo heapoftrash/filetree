@@ -20,6 +20,7 @@ import {
 import {
   CloudServerOutlined,
   DeleteOutlined,
+  InfoCircleOutlined,
   SafetyOutlined,
   GoogleOutlined,
   GithubOutlined,
@@ -45,6 +46,17 @@ const SECTION_ICONS: Record<string, React.ReactNode> = {
   server: <CloudServerOutlined />,
   auth_providers: <SafetyOutlined />,
   users: <TeamOutlined />,
+}
+
+const ExtraWithIcon = ({ children }: { children: React.ReactNode }) => {
+  const { token } = theme.useToken()
+  if (!children) return null
+  return (
+    <Space size={4} style={{ display: 'inline-flex' }}>
+      <InfoCircleOutlined style={{ color: token.colorPrimary, fontSize: 12 }} />
+      <span>{children}</span>
+    </Space>
+  )
 }
 
 const TOP_LEVEL_SECTIONS = [
@@ -341,7 +353,7 @@ export default function Settings() {
             style={{ marginBottom: 16 }}
           />
           <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-            Changes may require a server restart to take effect.
+            <ExtraWithIcon>Changes may require a server restart to take effect.</ExtraWithIcon>
           </Text>
           <Form
             form={form}
@@ -515,7 +527,7 @@ const ProviderField = React.memo(function ProviderField({
       <Form.Item
         name={namePath}
         label={field.label}
-        extra={clientSecretSet ? 'Value is set. Cannot be changed after save.' : 'Enter client secret to save.'}
+        extra={<ExtraWithIcon>{clientSecretSet ? 'Value is set. Cannot be changed after save.' : 'Enter client secret to save.'}</ExtraWithIcon>}
         style={{ marginBottom: 12 }}
       >
         <Input.Password
@@ -531,7 +543,7 @@ const ProviderField = React.memo(function ProviderField({
   if (field.secret && !field.editable) {
     const isSet = !!value
     return (
-      <Form.Item label={field.label} extra={isSet ? 'Value is set.' : 'Not set.'} style={{ marginBottom: 12 }}>
+      <Form.Item label={field.label} extra={<ExtraWithIcon>{isSet ? 'Value is set.' : 'Not set.'}</ExtraWithIcon>} style={{ marginBottom: 12 }}>
         <Input.Password placeholder={isSet ? '••••••••' : undefined} disabled size="small" />
       </Form.Item>
     )
@@ -549,7 +561,7 @@ const ProviderField = React.memo(function ProviderField({
     <Form.Item
       name={namePath}
       label={field.label}
-      extra={field.extra}
+      extra={field.extra ? <ExtraWithIcon>{field.extra}</ExtraWithIcon> : undefined}
       style={{ marginBottom: 12 }}
     >
       <Input placeholder={field.placeholder} disabled={!field.editable} size="small" />
@@ -581,7 +593,7 @@ const ConfigField = React.memo(function ConfigField({
   if (field.secret && !field.editable) {
     const isSet = !!rawValue
     return (
-      <Form.Item label={field.label} key={field.key} extra={isSet ? 'Value is set.' : 'Not set.'} style={{ marginBottom: 12 }}>
+      <Form.Item label={field.label} key={field.key} extra={<ExtraWithIcon>{isSet ? 'Value is set.' : 'Not set.'}</ExtraWithIcon>} style={{ marginBottom: 12 }}>
         <Input.Password placeholder={isSet ? '••••••••' : undefined} disabled size="small" />
       </Form.Item>
     )
@@ -593,7 +605,7 @@ const ConfigField = React.memo(function ConfigField({
       <Form.Item
         name={[sectionId, field.key]}
         label={field.label}
-        extra={isSet ? 'Value is set. Enter a new value to change it.' : 'Enter password for first-time setup.'}
+        extra={<ExtraWithIcon>{isSet ? 'Value is set. Enter a new value to change it.' : 'Enter password for first-time setup.'}</ExtraWithIcon>}
         style={{ marginBottom: 12 }}
       >
         <Input.Password placeholder={isSet ? '••••••••' : undefined} autoComplete="new-password" size="small" />
@@ -622,7 +634,7 @@ const ConfigField = React.memo(function ConfigField({
       <Form.Item
         label={labelInRow ? null : field.label}
         required={isAdminEmails && oauthEnabled}
-        extra={adminEmailsDisabled ? 'Enable an OAuth provider (Google or GitHub) to add admin emails.' : undefined}
+        extra={adminEmailsDisabled ? <ExtraWithIcon>Enable an OAuth provider (Google or GitHub) to add admin emails.</ExtraWithIcon> : undefined}
         style={{ marginBottom: 12 }}
       >
         <Form.List name={namePath} initialValue={initialList}>
@@ -688,7 +700,7 @@ const ConfigField = React.memo(function ConfigField({
     return (
       <Form.Item
         label={addInLabelRow ? null : field.label}
-        extra={!localAuthEnabled ? 'Enable "Local users enabled" above to add local users.' : undefined}
+        extra={!localAuthEnabled ? <ExtraWithIcon>Enable "Local users enabled" above to add local users.</ExtraWithIcon> : undefined}
       >
         <Form.List name={namePath} initialValue={list.length ? list : [{ username: '', password: '', is_admin: false }]}>
           {(fields, { add, remove }) => (
@@ -708,7 +720,7 @@ const ConfigField = React.memo(function ConfigField({
                 </div>
               )}
               {fields.map(({ key, name, ...restField }) => {
-                const item = localUsersFormValues[name]
+                const item = list[name] ?? localUsersFormValues?.[name] ?? {}
                 const passwordSet = !!item?.password_set
                 return (
                 <Card key={key} size="small" style={{ marginBottom: 6 }}>
@@ -725,7 +737,7 @@ const ConfigField = React.memo(function ConfigField({
                           name={[name, 'password']}
                           label="Password"
                           rules={!passwordSet ? [{ required: true, message: 'Password is required for new users' }] : undefined}
-                          extra={passwordSet ? 'Value is set. Enter a new value to change it.' : undefined}
+                          extra={passwordSet ? <ExtraWithIcon>Value is set. Enter a new value to change it.</ExtraWithIcon> : undefined}
                           style={{ marginBottom: 0 }}
                         >
                           <Input.Password
@@ -779,7 +791,7 @@ const ConfigField = React.memo(function ConfigField({
     <Form.Item
       name={namePath}
       label={field.label}
-      extra={field.extra}
+      extra={field.extra ? <ExtraWithIcon>{field.extra}</ExtraWithIcon> : undefined}
       style={{ marginBottom: 12 }}
       rules={
         isBytes

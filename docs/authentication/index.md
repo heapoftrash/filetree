@@ -4,7 +4,7 @@ icon: material/shield-account
 features:
   - title: Local users
     icon: fontawesome/regular/user
-    description: Local with username and password stored in the config file in bcrypt hash format.
+    description: Local username and password. Use `password` (plaintext or bcrypt; plaintext hashed on first run).
   - title: Social Authentication
     icon: material/login
     description: Use <strong>Google</strong> or <strong>Github</strong> as OAuth providers.
@@ -19,6 +19,8 @@ Filetree supports **Google OAuth**, **GitHub OAuth**, and **local username/passw
 
 Local auth uses username and password stored in the config file. No OAuth or external provider is required. Filetree stores the password in a bcrypt hash format. On success, a JWT is issued and the frontend stores it for subsequent requests.
 
+Both `default_admin` and `local_users` use a single `password` field. Use plaintext (e.g. `changeme`) — on first startup, Filetree hashes it and replaces it in-place. You can also provide a bcrypt hash (e.g. from `htpasswd -nbB user pass`).
+
 === "YAML"
     ``` yaml title="config.yaml"
     auth:
@@ -31,9 +33,9 @@ Local auth uses username and password stored in the config file. No OAuth or ext
         username: admin
         password: changeme
       local_users:
-        username: heapoftrash
-        password_hash: $2a$10$...
-        is_admin: false
+        - username: heapoftrash
+          password: changeme
+          is_admin: false
     ```
 
 === "JSON"
@@ -49,11 +51,13 @@ Local auth uses username and password stored in the config file. No OAuth or ext
           "username": "admin",
           "password": "changeme"
         },
-        "local_users": {
-          "username": "heapoftrash",
-          "password_hash": "$2a$10$...",
-          "is_admin": false
-        }
+        "local_users": [
+          {
+            "username": "heapoftrash",
+            "password": "changeme",
+            "is_admin": false
+          }
+        ]
       }
     }
     ```
@@ -162,7 +166,7 @@ An example config of all authentication methods
       admin_emails: [admin@example.com]
       local_users:
         - username: bob
-          password_hash: $2a$10$...   # set via Admin UI or default_admin
+          password: changeme          # plaintext hashed on first run, or use bcrypt hash
           is_admin: false
       default_admin:
         username: admin
@@ -195,7 +199,7 @@ An example config of all authentication methods
         "local_users": [
           {
             "username": "bob",
-            "password_hash": "$2a$10$...",
+            "password": "changeme",
             "is_admin": false
           }
         ],
@@ -206,6 +210,9 @@ An example config of all authentication methods
       }
     }
     ```
+
+!!! note "Password bootstrap"
+    `default_admin` and `local_users` use a single `password` field. Plaintext is hashed on first startup and replaced in-place. You can also provide a bcrypt hash directly.
 
 !!! note "OAuth admins"
     `admin_emails` applies **only to OAuth users** (Google/GitHub). For local users, set `is_admin: true` per user in `local_users`.

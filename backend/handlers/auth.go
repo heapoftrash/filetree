@@ -92,7 +92,7 @@ func NewAuthHandler(cfg *config.Config) *AuthHandler {
 		localUsers = []config.LocalUser{}
 	}
 	oauthProviders := buildOAuthProviders(cfg)
-	hasLocalAuth := cfg.Auth.LocalAuthEnabled && (len(localUsers) > 0 || (cfg.Users.DefaultAdmin != nil && cfg.Users.DefaultAdmin.PasswordHash != ""))
+	hasLocalAuth := cfg.Auth.LocalAuthEnabled && (len(localUsers) > 0 || (cfg.Users.DefaultAdmin != nil && cfg.Users.DefaultAdmin.Password != ""))
 	return &AuthHandler{
 		oauth2Configs:    oauth2Configs,
 		jwtSecret:        []byte(cfg.Auth.JWTSecret),
@@ -164,7 +164,7 @@ func (h *AuthHandler) LocalLogin(c *gin.Context) {
 	// Check local_users first
 	for i := range h.localUsers {
 		if strings.EqualFold(h.localUsers[i].Username, username) {
-			if err := bcrypt.CompareHashAndPassword([]byte(h.localUsers[i].PasswordHash), []byte(password)); err != nil {
+			if err := bcrypt.CompareHashAndPassword([]byte(h.localUsers[i].Password), []byte(password)); err != nil {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid username or password"})
 				return
 			}
@@ -173,9 +173,9 @@ func (h *AuthHandler) LocalLogin(c *gin.Context) {
 		}
 	}
 	// Check default_admin if not found in local_users
-	if authUsername == "" && h.defaultAdmin != nil && h.defaultAdmin.PasswordHash != "" &&
+	if authUsername == "" && h.defaultAdmin != nil && h.defaultAdmin.Password != "" &&
 		strings.EqualFold(h.defaultAdmin.Username, username) {
-		if err := bcrypt.CompareHashAndPassword([]byte(h.defaultAdmin.PasswordHash), []byte(password)); err != nil {
+		if err := bcrypt.CompareHashAndPassword([]byte(h.defaultAdmin.Password), []byte(password)); err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid username or password"})
 			return
 		}
@@ -430,7 +430,7 @@ func (h *AuthHandler) Me(c *gin.Context) {
 			}
 		}
 	}
-	if !isAdmin && h.defaultAdmin != nil && h.defaultAdmin.PasswordHash != "" &&
+	if !isAdmin && h.defaultAdmin != nil && h.defaultAdmin.Password != "" &&
 		strings.EqualFold(h.defaultAdmin.Username, emailStr) {
 		isAdmin = true
 	}

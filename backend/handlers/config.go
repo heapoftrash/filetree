@@ -136,13 +136,13 @@ func (h *ConfigHandler) GetConfig(c *gin.Context) {
 		}
 	}
 
-	// Build local_users for UI (no password_hash)
+	// Build local_users for UI (password not exposed)
 	localUsersUI := make([]map[string]interface{}, 0, len(cfg.Users.LocalUsers))
 	for _, u := range cfg.Users.LocalUsers {
 		localUsersUI = append(localUsersUI, map[string]interface{}{
 			"username":     u.Username,
 			"is_admin":     u.IsAdmin,
-			"password_set": u.PasswordHash != "",
+			"password_set": u.Password != "",
 		})
 	}
 
@@ -152,7 +152,7 @@ func (h *ConfigHandler) GetConfig(c *gin.Context) {
 	defaultAdminPasswordSet := false
 	if cfg.Users.DefaultAdmin != nil {
 		defaultAdminUsername = cfg.Users.DefaultAdmin.Username
-		defaultAdminPasswordSet = cfg.Users.DefaultAdmin.Password != "" || cfg.Users.DefaultAdmin.PasswordHash != ""
+		defaultAdminPasswordSet = cfg.Users.DefaultAdmin.Password != ""
 	}
 
 	values := ConfigValuesResponse{
@@ -295,7 +295,6 @@ func (h *ConfigHandler) UpdateConfig(c *gin.Context) {
 				da := &config.DefaultAdminUser{Username: v}
 				if prev != nil {
 					da.Password = prev.Password
-					da.PasswordHash = prev.PasswordHash
 				}
 				cfg.Users.DefaultAdmin = da
 			} else {
@@ -310,8 +309,8 @@ func (h *ConfigHandler) UpdateConfig(c *gin.Context) {
 					// Keep existing credentials on hash failure
 				} else {
 					cfg.Users.DefaultAdmin = &config.DefaultAdminUser{
-						Username:     cfg.Users.DefaultAdmin.Username,
-						PasswordHash: string(hash),
+						Username: cfg.Users.DefaultAdmin.Username,
+						Password: string(hash),
 					}
 				}
 			}
@@ -369,9 +368,9 @@ func toLocalUsers(v interface{}, existing []config.LocalUser) ([]config.LocalUse
 	if !ok {
 		return nil, false
 	}
-	existingByUser := make(map[string]string) // username -> password_hash
+	existingByUser := make(map[string]string) // username -> stored password (hash)
 	for _, u := range existing {
-		existingByUser[u.Username] = u.PasswordHash
+		existingByUser[u.Username] = u.Password
 	}
 	out := make([]config.LocalUser, 0, len(arr))
 	for _, a := range arr {
@@ -406,7 +405,7 @@ func toLocalUsers(v interface{}, existing []config.LocalUser) ([]config.LocalUse
 				}
 			}
 		}
-		out = append(out, config.LocalUser{Username: username, PasswordHash: hash, IsAdmin: isAdmin})
+		out = append(out, config.LocalUser{Username: username, Password: hash, IsAdmin: isAdmin})
 	}
 	return out, true
 }

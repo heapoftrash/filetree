@@ -76,15 +76,19 @@ type UsersConfig struct {
 }
 
 type LocalUser struct {
-	Username     string `yaml:"username" json:"username"`
-	PasswordHash string `yaml:"password_hash" json:"password_hash"`
-	IsAdmin      bool   `yaml:"is_admin" json:"is_admin"`
+	Username string `yaml:"username" json:"username"`
+	Password string `yaml:"password,omitempty" json:"password,omitempty"` // plaintext or bcrypt; hashed on first run if plaintext
+	IsAdmin  bool   `yaml:"is_admin" json:"is_admin"`
 }
 
 type DefaultAdminUser struct {
-	Username     string `yaml:"username" json:"username"`
-	Password     string `yaml:"password,omitempty" json:"password,omitempty"`         // plaintext, used only on first bootstrap
-	PasswordHash string `yaml:"password_hash,omitempty" json:"password_hash,omitempty"` // bcrypt hash, stored after bootstrap
+	Username string `yaml:"username" json:"username"`
+	Password string `yaml:"password,omitempty" json:"password,omitempty"` // plaintext or bcrypt; hashed on first run if plaintext
+}
+
+// isBcryptHash returns true if s looks like a bcrypt hash ($2a$, $2b$, $2y$).
+func isBcryptHash(s string) bool {
+	return len(s) >= 60 && (strings.HasPrefix(s, "$2a$") || strings.HasPrefix(s, "$2b$") || strings.HasPrefix(s, "$2y$"))
 }
 
 // sources tracks where each config key got its value.
@@ -290,35 +294,54 @@ func Load(configPath string) (*Config, error) {
 	return c, nil
 }
 
-// BootstrapDefaultAdmin hashes the default admin password and stores it in default_admin.
-// Does not add to local_users or clear default_admin. Call after Load.
-func BootstrapDefaultAdmin(c *Config) (bool, error) {
-	if c.ConfigPath == "" || c.Users.DefaultAdmin == nil {
-		return false, nil
+// BootstrapUsers hashes plaintext passwords for default_admin and local_users, then writes the config.
+// If password looks like plaintext (not bcrypt), it is hashed and replaced in-place. Call after Load.
+func BootstrapUsers(c *Config) error {
+	if c.ConfigPath == "" {
+		return nil
 	}
-	da := c.Users.DefaultAdmin
-	if da.Username == "" || da.Password == "" {
-		return false, nil
+	modified := false
+
+	// Default admin
+	if c.Users.DefaultAdmin != nil {
+		da := c.Users.DefaultAdmin
+		if da.Username != "" && da.Password != "" && !isBcryptHash(da.Password) {
+			hash, err := bcrypt.GenerateFromPassword([]byte(da.Password), bcrypt.DefaultCost)
+			if err != nil {
+				return fmt.Errorf("hash default admin password: %w", err)
+			}
+			da.Password = string(hash)
+			modified = true
+			log.Printf("[config] bootstrapped default admin %q (password hashed)", da.Username)
+		}
 	}
-	// Already bootstrapped (hash present)
-	if da.PasswordHash != "" {
-		return false, nil
+
+	// Local users
+	for i := range c.Users.LocalUsers {
+		u := &c.Users.LocalUsers[i]
+		if u.Password == "" || isBcryptHash(u.Password) {
+			continue
+		}
+		hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return fmt.Errorf("hash password for local user %q: %w", u.Username, err)
+		}
+		u.Password = string(hash)
+		modified = true
+		log.Printf("[config] bootstrapped local user %q (password hashed)", u.Username)
 	}
-	hash, err := bcrypt.GenerateFromPassword([]byte(da.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return false, fmt.Errorf("hash default admin password: %w", err)
+
+	if !modified {
+		return nil
 	}
-	da.PasswordHash = string(hash)
-	da.Password = ""
 	data, err := marshalConfigForPath(c)
 	if err != nil {
-		return false, err
+		return err
 	}
 	if err := os.WriteFile(c.ConfigPath, data, 0600); err != nil {
-		return false, fmt.Errorf("write config after bootstrap: %w", err)
+		return fmt.Errorf("write config after bootstrap: %w", err)
 	}
-	log.Printf("[config] bootstrapped default admin %q (password hashed, stored in default_admin)", da.Username)
-	return true, nil
+	return nil
 }
 
 func marshalConfigForPath(c *Config) ([]byte, error) {

@@ -53,8 +53,8 @@ Copy `config.example.yaml` or `config.example.json` to `config.yaml` / `config.j
 | Key | Type | Description |
 |-----|------|-------------|
 | `admin_emails` | []string | OAuth user emails that get admin role |
-| `local_users` | []object | `{username, password_hash, is_admin}` |
-| `default_admin` | object | `{username, password}` for bootstrap when no users exist |
+| `local_users` | []object | `{username, password, is_admin}` — `password` accepts plaintext (hashed on first run) or bcrypt hash |
+| `default_admin` | object | `{username, password}` — `password` accepts plaintext (hashed on first run) or bcrypt hash |
 
 ## Example
 
