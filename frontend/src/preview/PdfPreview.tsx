@@ -5,7 +5,7 @@ interface Props {
 
 export default function PdfPreview({ src, name }: Props) {
   return (
-    <div style={{ height: '100%', minHeight: 0 }}>
+    <div style={{ height: '100%', minHeight: '70vh' }}>
       <iframe
         src={src}
         title={name}

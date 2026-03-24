@@ -27,6 +27,7 @@ export default function MarkdownPreview({ content, searchQuery }: Props) {
           style={{
             padding: 16,
             background: token.colorBgContainer,
+            color: token.colorText,
             borderRadius: 8,
             margin: 0,
             whiteSpace: 'pre-wrap',
@@ -50,6 +51,7 @@ export default function MarkdownPreview({ content, searchQuery }: Props) {
         overflow: 'auto',
         padding: 16,
         background: token.colorBgContainer,
+        color: token.colorText,
         borderRadius: 8,
         lineHeight: 1.6,
       }}

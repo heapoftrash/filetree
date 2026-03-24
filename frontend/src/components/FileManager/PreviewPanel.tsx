@@ -18,8 +18,6 @@ import type { Entry } from '../../types'
 import { getFileIcon, formatSize, formatDate } from '../../utils/fileUtils'
 import { isInTrash } from '../../utils/pathUtils'
 import { getPreviewCategory } from '../../preview'
-import { getSignedPreviewUrl } from '../../api/client'
-import { getApiErrorMessage } from '../../utils/errors'
 import PreviewContent from './PreviewContent'
 
 interface PreviewPanelProps {
@@ -74,6 +72,8 @@ export default function PreviewPanel({
         padding: 16,
         borderRadius: 8,
         height: '100%',
+        width: '100%',
+        minWidth: 0,
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
@@ -88,6 +88,9 @@ export default function PreviewPanel({
           marginBottom: 12,
           borderBottom: `1px solid ${token.colorBorder}`,
           flexShrink: 0,
+          flexWrap: 'wrap',
+          minWidth: 0,
+          overflowX: 'auto',
         }}
       >
         <span style={{ fontSize: 18, flexShrink: 0 }}>{getFileIcon(entry.name, token)}</span>
@@ -103,12 +106,12 @@ export default function PreviewPanel({
         >
           {entry.name}
         </span>
-        <Button type="text" icon={<ArrowLeftOutlined />} onClick={onPrevFile} disabled={!hasPrevFile} title="Previous file" />
-        <Button type="text" icon={<ArrowRightOutlined />} onClick={onNextFile} disabled={!hasNextFile} title="Next file" />
-        <Button icon={<CopyOutlined />} size="small" onClick={onCopyClick} title="Copy this file">
+        <Button type="text" icon={<ArrowLeftOutlined />} onClick={onPrevFile} disabled={!hasPrevFile} title="Previous file" style={{ flexShrink: 0 }} />
+        <Button type="text" icon={<ArrowRightOutlined />} onClick={onNextFile} disabled={!hasNextFile} title="Next file" style={{ flexShrink: 0 }} />
+        <Button icon={<CopyOutlined />} size="small" onClick={onCopyClick} title="Copy this file" style={{ flexShrink: 0 }}>
           Copy
         </Button>
-        <Button icon={<SwapOutlined />} size="small" onClick={onMoveClick} title="Move this file">
+        <Button icon={<SwapOutlined />} size="small" onClick={onMoveClick} title="Move this file" style={{ flexShrink: 0 }}>
           Move
         </Button>
         <Button
@@ -117,6 +120,7 @@ export default function PreviewPanel({
           onClick={onDownloadClick}
           loading={bulkDownloading}
           title="Download this file"
+          style={{ flexShrink: 0 }}
         >
           Download
         </Button>
@@ -125,17 +129,15 @@ export default function PreviewPanel({
           icon={<LinkOutlined />}
           size="small"
           onClick={() => {
-            getSignedPreviewUrl(entry.path, true)
-              .then((url) => {
-                const w = window.open(url, '_blank', 'noopener,noreferrer')
-                if (!w) message.warning('Popup blocked. Allow popups to open in new tab.')
-              })
-              .catch((err) => message.error(getApiErrorMessage(err)))
+            const url = `/preview?path=${encodeURIComponent(entry.path)}`
+            const w = window.open(url, '_blank', 'noopener,noreferrer')
+            if (!w) message.warning('Popup blocked. Allow popups to open in new tab.')
           }}
           title="Open in new tab"
+          style={{ flexShrink: 0 }}
         />
         {copyableContent != null && (
-          <Button icon={<SnippetsOutlined />} size="small" onClick={onCopyContent} title="Copy content to clipboard">
+          <Button icon={<SnippetsOutlined />} size="small" onClick={onCopyContent} title="Copy content to clipboard" style={{ flexShrink: 0 }}>
             Copy content
           </Button>
         )}
@@ -146,6 +148,7 @@ export default function PreviewPanel({
             size="small"
             onClick={onFullscreenToggle}
             title={previewFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+            style={{ flexShrink: 0 }}
           />
         )}
         <Popconfirm
@@ -155,7 +158,7 @@ export default function PreviewPanel({
           okText="Delete"
           okButtonProps={{ danger: true }}
         >
-          <Button danger icon={<DeleteOutlined />} size="small" title="Delete this file">
+          <Button danger icon={<DeleteOutlined />} size="small" title="Delete this file" style={{ flexShrink: 0 }}>
             Delete
           </Button>
         </Popconfirm>
@@ -174,11 +177,11 @@ export default function PreviewPanel({
           cancelButtonProps={{ style: { display: 'none' } }}
           onConfirm={() => {}}
         >
-          <Button icon={<InfoCircleOutlined />} size="small" title="Show file info">
+          <Button icon={<InfoCircleOutlined />} size="small" title="Show file info" style={{ flexShrink: 0 }}>
             Info
           </Button>
         </Popconfirm>
-        <Button type="text" icon={<CloseOutlined />} onClick={onClose} title="Close preview" />
+        <Button type="text" icon={<CloseOutlined />} onClick={onClose} title="Close preview" style={{ flexShrink: 0 }} />
       </div>
       {showSearch && (
         <div style={{ flexShrink: 0, marginBottom: 8 }}>
