@@ -3,7 +3,7 @@ import { FolderOutlined, EditOutlined, DeleteOutlined, DownloadOutlined, UndoOut
 import type { ColumnsType } from 'antd/es/table'
 import type { Entry } from '../../types'
 import { getFileIcon, formatSize, formatDate } from '../../utils/fileUtils'
-import { isInTrash, isRestorableTrashPath, listDisplayName } from '../../utils/pathUtils'
+import { isInTrash, isRestorableTrashPath, listDisplayName, listNameSortKey } from '../../utils/pathUtils'
 import { getSignedDownloadUrl } from '../../api/client'
 import { getApiErrorMessage } from '../../utils/errors'
 import type { GlobalToken } from 'antd/es/theme'
@@ -52,7 +52,7 @@ export default function FileListTable({
       key: 'name',
       sortOrder: sortField === 'name' ? sortOrder : undefined,
       sorter: (a: Entry, b: Entry) =>
-        listDisplayName(a, listParentPath).localeCompare(listDisplayName(b, listParentPath)),
+        listNameSortKey(a, listParentPath).localeCompare(listNameSortKey(b, listParentPath)),
       render: (_name: string, record: Entry) => {
         const label = listDisplayName(record, listParentPath)
         return (

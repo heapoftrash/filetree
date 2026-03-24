@@ -36,6 +36,18 @@ export function listDisplayName(entry: Entry, listParentPath: string): string {
   return entry.name
 }
 
+/**
+ * Sort key for the name column: trash buckets use raw `entry.name` (Unix time digits) so order
+ * stays chronological; `localeCompare` on `listDisplayName` would mis-order (e.g. "Deleted 9/…"
+ * after "Deleted 10/…").
+ */
+export function listNameSortKey(entry: Entry, listParentPath: string): string {
+  if (listParentPath === '.trash' && entry.isDir && isTrashTimestampBucketName(entry.name)) {
+    return entry.name
+  }
+  return listDisplayName(entry, listParentPath)
+}
+
 /** Breadcrumb chip label (Trash root + timestamp buckets). */
 export function breadcrumbSegmentLabel(segment: { label: string; path: string }, parentPath: string): string {
   if (segment.path === '.trash' && segment.label === '.trash') return 'Trash'
