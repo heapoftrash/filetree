@@ -26,6 +26,11 @@
 <strong>Filetree</strong> is a minimalistic, self-hosted file manager — browse, upload, preview, and manage files from your browser. No cloud lock-in, no database. Simple YAML or JSON config, single binary deployment.
 </p>
 
+<p align="center">
+  <img src="docs/assets/images/demo.gif" width="800"/>
+</p>
+<hr/>
+
 
 ## Features
 
