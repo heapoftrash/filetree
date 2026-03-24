@@ -19,7 +19,9 @@ interface FileListProps {
   onOpenPreview: (record: Entry) => void
   onRename: (record: Entry) => void
   onDelete: (path: string) => void
+  onRestore?: (path: string) => void
   onDragStart: (e: React.DragEvent, record: Entry) => void
+  listParentPath: string
 }
 
 export default function FileList({
@@ -37,7 +39,9 @@ export default function FileList({
   onOpenPreview,
   onRename,
   onDelete,
+  onRestore,
   onDragStart,
+  listParentPath,
 }: FileListProps) {
   const { token } = theme.useToken()
 
@@ -59,6 +63,8 @@ export default function FileList({
           onOpenPreview={onOpenPreview}
           onRename={onRename}
           onDelete={onDelete}
+          onRestore={onRestore}
+          listParentPath={listParentPath}
         />
       ) : (
         <FileListGrid
@@ -67,6 +73,7 @@ export default function FileList({
           selectedRowKeys={selectedRowKeys}
           previewPath={previewPath}
           token={token}
+          listParentPath={listParentPath}
           onNavigate={onNavigate}
           onOpenPreview={onOpenPreview}
           onSelectionChange={onSelectionChange}

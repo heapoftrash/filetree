@@ -5,15 +5,31 @@ import {
   renameEntry,
   deleteEntry,
   restoreFromTrash,
+  listEntries,
   uploadFiles,
   moveEntry,
   copyEntry,
   downloadZip,
 } from '../../api/client'
 import type { Entry } from '../../types'
-import { getApiErrorMessage, isConflictError } from '../../utils/errors'
-import { uniqueName } from '../../utils/pathUtils'
+import { getApiErrorMessage, isConflictError, isNotFoundError } from '../../utils/errors'
+import { uniqueName, isRestorableTrashPath, parentLogicalPath } from '../../utils/pathUtils'
 import type { ConflictModalState } from './useFileManagerState'
+
+/** Walk up until list succeeds (handles trash bucket removed after restore). */
+async function firstListablePath(start: string): Promise<string> {
+  let p = start
+  while (true) {
+    try {
+      await listEntries(p)
+      return p
+    } catch (e) {
+      if (!isNotFoundError(e)) throw e
+      if (p === '') return ''
+      p = parentLogicalPath(p)
+    }
+  }
+}
 
 export interface UseFileManagerActionsParams {
   currentPath: string
@@ -27,6 +43,10 @@ export interface UseFileManagerActionsParams {
   moveCopyDest: string
   loadEntries: (path: string) => Promise<void>
   loadTree: () => Promise<void>
+  /** Latest routed path (ref) so undo handlers do not use a stale closure */
+  getCurrentPath: () => string
+  /** Navigate file manager to a logical path (`''` = home) */
+  navigateToFilesPath: (logicalPath: string) => void
   setSelectedRowKeys: React.Dispatch<React.SetStateAction<React.Key[]>>
   setNewFolderOpen: (v: boolean) => void
   setNewFolderName: (v: string) => void
@@ -56,6 +76,8 @@ export function useFileManagerActions(params: UseFileManagerActionsParams) {
     moveCopyDest,
     loadEntries,
     loadTree,
+    getCurrentPath,
+    navigateToFilesPath,
     setSelectedRowKeys,
     setNewFolderOpen,
     setNewFolderName,
@@ -71,6 +93,21 @@ export function useFileManagerActions(params: UseFileManagerActionsParams) {
     setMoveCopyLoading,
     copyableContent,
   } = params
+
+  const syncListAfterTrashRestore = useCallback(async () => {
+    const cp = getCurrentPath()
+    try {
+      const next = await firstListablePath(cp)
+      if (next !== cp) {
+        navigateToFilesPath(next)
+      } else {
+        await loadEntries(cp)
+      }
+    } catch (e: unknown) {
+      message.error(getApiErrorMessage(e))
+    }
+    await loadTree()
+  }, [getCurrentPath, navigateToFilesPath, loadEntries, loadTree])
 
   const handleNewFolder = useCallback(async () => {
     if (!newFolderName.trim()) return
@@ -147,8 +184,7 @@ export function useFileManagerActions(params: UseFileManagerActionsParams) {
                     restoreFromTrash(res.trashPath!)
                       .then(() => {
                         message.success('Restored')
-                        loadEntries(currentPath)
-                        loadTree()
+                        return syncListAfterTrashRestore()
                       })
                       .catch((e) => message.error(getApiErrorMessage(e)))
                   }}
@@ -167,7 +203,40 @@ export function useFileManagerActions(params: UseFileManagerActionsParams) {
         message.error(getApiErrorMessage(e))
       }
     },
-    [currentPath, setSelectedRowKeys, loadEntries, loadTree],
+    [currentPath, setSelectedRowKeys, loadEntries, loadTree, syncListAfterTrashRestore],
+  )
+
+  const handleRestore = useCallback(
+    async (path: string) => {
+      if (!isRestorableTrashPath(path)) return
+      try {
+        await restoreFromTrash(path)
+        message.success('Restored')
+        setSelectedRowKeys((k) => k.filter((x) => x !== path))
+        if (previewEntry?.path === path) setPreviewEntry(null)
+        await syncListAfterTrashRestore()
+      } catch (e: unknown) {
+        message.error(getApiErrorMessage(e))
+      }
+    },
+    [previewEntry, setSelectedRowKeys, setPreviewEntry, syncListAfterTrashRestore],
+  )
+
+  const handleBulkRestore = useCallback(
+    async (pathsOverride?: string[]) => {
+      const keys = (pathsOverride ?? (selectedRowKeys as string[])).filter((p) => isRestorableTrashPath(p))
+      if (keys.length === 0) return
+      try {
+        await Promise.all(keys.map((p) => restoreFromTrash(p)))
+        message.success(`Restored ${keys.length} item(s)`)
+        setSelectedRowKeys([])
+        if (previewEntry && keys.includes(previewEntry.path)) setPreviewEntry(null)
+        await syncListAfterTrashRestore()
+      } catch (e: unknown) {
+        message.error(getApiErrorMessage(e))
+      }
+    },
+    [selectedRowKeys, previewEntry, setSelectedRowKeys, setPreviewEntry, syncListAfterTrashRestore],
   )
 
   const handleBulkDelete = useCallback(
@@ -195,8 +264,7 @@ export function useFileManagerActions(params: UseFileManagerActionsParams) {
                     Promise.all(trashPaths.map((p) => restoreFromTrash(p)))
                       .then(() => {
                         message.success('Restored')
-                        loadEntries(currentPath)
-                        loadTree()
+                        return syncListAfterTrashRestore()
                       })
                       .catch((e) => message.error(getApiErrorMessage(e)))
                   }}
@@ -216,7 +284,7 @@ export function useFileManagerActions(params: UseFileManagerActionsParams) {
         message.error(getApiErrorMessage(e))
       }
     },
-    [currentPath, selectedRowKeys, previewEntry, setSelectedRowKeys, setPreviewEntry, loadEntries, loadTree],
+    [currentPath, selectedRowKeys, previewEntry, setSelectedRowKeys, setPreviewEntry, loadEntries, loadTree, syncListAfterTrashRestore],
   )
 
   const handleMoveCopyRef = useRef<((overwrite?: boolean, newName?: string) => Promise<void>) | undefined>(undefined)
@@ -402,6 +470,8 @@ export function useFileManagerActions(params: UseFileManagerActionsParams) {
     handleNewFolder,
     handleRename,
     handleDelete,
+    handleRestore,
+    handleBulkRestore,
     handleBulkDelete,
     handleMoveCopy,
     handleUpload,

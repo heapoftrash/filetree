@@ -1,9 +1,9 @@
 import { Table, Button, Space, Popconfirm, Empty, message } from 'antd'
-import { FolderOutlined, EditOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons'
+import { FolderOutlined, EditOutlined, DeleteOutlined, DownloadOutlined, UndoOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import type { Entry } from '../../types'
 import { getFileIcon, formatSize, formatDate } from '../../utils/fileUtils'
-import { isInTrash } from '../../utils/pathUtils'
+import { isInTrash, isRestorableTrashPath, listDisplayName } from '../../utils/pathUtils'
 import { getSignedDownloadUrl } from '../../api/client'
 import { getApiErrorMessage } from '../../utils/errors'
 import type { GlobalToken } from 'antd/es/theme'
@@ -23,6 +23,8 @@ interface FileListTableProps {
   onOpenPreview: (record: Entry) => void
   onRename: (record: Entry) => void
   onDelete: (path: string) => void
+  onRestore?: (path: string) => void
+  listParentPath: string
 }
 
 export default function FileListTable({
@@ -40,6 +42,8 @@ export default function FileListTable({
   onOpenPreview,
   onRename,
   onDelete,
+  onRestore,
+  listParentPath,
 }: FileListTableProps) {
   const columns: ColumnsType<Entry> = [
     {
@@ -47,61 +51,66 @@ export default function FileListTable({
       dataIndex: 'name',
       key: 'name',
       sortOrder: sortField === 'name' ? sortOrder : undefined,
-      sorter: (a: Entry, b: Entry) => a.name.localeCompare(b.name),
-      render: (name: string, record: Entry) => (
-        <Space>
-          {record.isDir ? (
-            <FolderOutlined style={{ color: token.colorWarning }} />
-          ) : (
-            getFileIcon(record.name, token)
-          )}
-          {record.isDir ? (
-            <a
-              href="#"
-              onClick={(e) => {
-                e.preventDefault()
-                onNavigate(`/files/${record.path}`)
-              }}
-            >
-              {name}
-            </a>
-          ) : (
-            <>
+      sorter: (a: Entry, b: Entry) =>
+        listDisplayName(a, listParentPath).localeCompare(listDisplayName(b, listParentPath)),
+      render: (_name: string, record: Entry) => {
+        const label = listDisplayName(record, listParentPath)
+        return (
+          <Space>
+            {record.isDir ? (
+              <FolderOutlined style={{ color: token.colorWarning }} />
+            ) : (
+              getFileIcon(record.name, token)
+            )}
+            {record.isDir ? (
               <a
                 href="#"
+                title={record.name !== label ? record.name : undefined}
                 onClick={(e) => {
                   e.preventDefault()
-                  onOpenPreview(record)
+                  onNavigate(`/files/${record.path}`)
                 }}
               >
-                {name}
+                {label}
               </a>
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault()
-                  const hide = message.loading('Preparing download...', 0)
-                  getSignedDownloadUrl(record.path)
-                    .then((url) => {
-                      hide()
-                      const w = window.open(url, '_blank', 'noopener,noreferrer')
-                      if (!w) message.warning('Popup blocked. Allow popups to download.')
-                      else message.success('Download started')
-                    })
-                    .catch((err) => {
-                      hide()
-                      message.error(getApiErrorMessage(err))
-                    })
-                }}
-                style={{ marginLeft: 4 }}
-                rel="noreferrer"
-              >
-                <DownloadOutlined title="Download" />
-              </a>
-            </>
-          )}
-        </Space>
-      ),
+            ) : (
+              <>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    onOpenPreview(record)
+                  }}
+                >
+                  {label}
+                </a>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    const hide = message.loading('Preparing download...', 0)
+                    getSignedDownloadUrl(record.path)
+                      .then((url) => {
+                        hide()
+                        const w = window.open(url, '_blank', 'noopener,noreferrer')
+                        if (!w) message.warning('Popup blocked. Allow popups to download.')
+                        else message.success('Download started')
+                      })
+                      .catch((err) => {
+                        hide()
+                        message.error(getApiErrorMessage(err))
+                      })
+                  }}
+                  style={{ marginLeft: 4 }}
+                  rel="noreferrer"
+                >
+                  <DownloadOutlined title="Download" />
+                </a>
+              </>
+            )}
+          </Space>
+        )
+      },
     },
     {
       title: 'Size',
@@ -129,6 +138,15 @@ export default function FileListTable({
       render: (_: unknown, record: Entry) => (
         <Space>
           <Button type="link" size="small" icon={<EditOutlined />} onClick={() => onRename(record)} title="Rename" />
+          {onRestore && isRestorableTrashPath(record.path) && (
+            <Button
+              type="link"
+              size="small"
+              icon={<UndoOutlined />}
+              onClick={() => onRestore(record.path)}
+              title="Restore to original location"
+            />
+          )}
           <Popconfirm
             title={isInTrash(record.path) ? 'Permanently delete from trash?' : 'Delete?'}
             description={

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import FileManagerLayout from './FileManagerLayout'
 import { useDefaultLayout } from 'react-resizable-panels'
 import { useFileManagerState, useFileManagerUI, useFileManagerActions, usePreviewNavigation, useFileManagerKeyboard, PREVIEW_PANEL_LAYOUT_KEY } from './hooks'
+import { listDisplayName } from '../../utils/pathUtils'
 
 function useCurrentPath(): string {
   const { '*': splat } = useParams<{ '*': string }>()
@@ -11,6 +12,8 @@ function useCurrentPath(): string {
 
 export default function FileManagerMain() {
   const currentPath = useCurrentPath()
+  const currentPathRef = useRef(currentPath)
+  currentPathRef.current = currentPath
   const navigate = useNavigate()
   const tableRef = useRef<HTMLDivElement>(null)
   const savedScrollTopRef = useRef<number | null>(null)
@@ -30,6 +33,9 @@ export default function FileManagerMain() {
     moveCopyDest: state.moveCopyDest,
     loadEntries: state.loadEntries,
     loadTree: state.loadTree,
+    getCurrentPath: () => currentPathRef.current,
+    navigateToFilesPath: (logicalPath: string) =>
+      navigate(logicalPath === '' ? '/files' : `/files/${logicalPath}`),
     setSelectedRowKeys: state.setSelectedRowKeys,
     setNewFolderOpen: state.setNewFolderOpen,
     setNewFolderName: state.setNewFolderName,
@@ -46,11 +52,22 @@ export default function FileManagerMain() {
     copyableContent: ui.copyableContent,
   })
 
-  const filteredEntries = ui.searchQuery.trim()
-    ? state.entries.filter((e) =>
-        e.name.toLowerCase().includes(ui.searchQuery.trim().toLowerCase()),
-      )
-    : state.entries
+  const filteredEntries = (() => {
+    let list =
+      currentPath === '' ? state.entries.filter((e) => e.path !== '.trash') : state.entries
+    if (ui.searchQuery.trim()) {
+      const q = ui.searchQuery.trim().toLowerCase()
+      list = list.filter((e) => {
+        const display = listDisplayName(e, currentPath)
+        return (
+          display.toLowerCase().includes(q) ||
+          e.name.toLowerCase().includes(q) ||
+          e.path.toLowerCase().includes(q)
+        )
+      })
+    }
+    return list
+  })()
 
   const previewNav = usePreviewNavigation(
     filteredEntries,
@@ -64,7 +81,7 @@ export default function FileManagerMain() {
 
   useFileManagerKeyboard({
     selectedRowKeys: state.selectedRowKeys,
-    entries: state.entries,
+    entries: filteredEntries,
     navigate,
     handleBulkDelete: actions.handleBulkDelete,
     previewEntry: state.previewEntry,
@@ -99,7 +116,9 @@ export default function FileManagerMain() {
     onOpenPreview: previewNav.openPreview,
     onRename: actions.openRename,
     onDelete: actions.handleDelete,
+    onRestore: actions.handleRestore,
     onDragStart: actions.handleDragStart,
+    listParentPath: currentPath,
   }
 
   const { defaultLayout: previewPanelLayout, onLayoutChanged: onPreviewLayoutChanged } =
@@ -115,6 +134,8 @@ export default function FileManagerMain() {
       sidebarVisible={ui.sidebarVisible}
       onSidebarToggle={() => ui.setSidebarVisibleAndSave(!ui.sidebarVisible)}
       treeData={state.treeData}
+      trashTreeData={state.trashTreeData}
+      trashTreeHydrated={state.trashTreeHydrated}
       onTreeLoadData={state.onTreeLoadData}
       onTreeSelect={(keys) => onTreeSelect(keys, null)}
       onDrop={(e, targetPath) => actions.handleDrop(e, targetPath)}
@@ -143,8 +164,13 @@ export default function FileManagerMain() {
       }}
       onDownloadClick={() => actions.handleBulkDownload()}
       onDeleteClick={() => actions.handleBulkDelete()}
+      onRestoreSelection={() => actions.handleBulkRestore()}
       onDownloadPreview={() => actions.handleBulkDownload([state.previewEntry!.path])}
       onDeletePreview={() => actions.handleBulkDelete([state.previewEntry!.path])}
+      onRestorePreview={() => {
+        const p = state.previewEntry?.path
+        if (p) void actions.handleRestore(p)
+      }}
       onCopyContent={actions.handleCopyContent}
       onClosePreview={() => state.setPreviewEntry(null)}
       previewFullscreen={ui.previewFullscreen}

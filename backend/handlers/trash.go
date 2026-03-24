@@ -126,7 +126,22 @@ func (h *Handler) Restore(c *gin.Context) {
 			return
 		}
 	}
+	h.removeEmptyTrashParents(abs)
 	c.JSON(http.StatusOK, gin.H{"ok": true, "path": originalRel})
+}
+
+// removeEmptyTrashParents deletes empty directories from filepath.Dir(abs) upward,
+// stopping before the `.trash` root (never removes `.trash` itself).
+func (h *Handler) removeEmptyTrashParents(abs string) {
+	trashRootAbs, ok := h.safePath(trashPrefix)
+	if !ok {
+		return
+	}
+	for d := filepath.Dir(abs); pathUnderRoot(d, trashRootAbs) && d != trashRootAbs; d = filepath.Dir(d) {
+		if err := os.Remove(d); err != nil {
+			break
+		}
+	}
 }
 
 func copyThenRemove(src, dest string) error {

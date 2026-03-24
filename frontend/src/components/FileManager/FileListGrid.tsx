@@ -2,6 +2,7 @@ import { Card, Empty } from 'antd'
 import { FolderOutlined } from '@ant-design/icons'
 import type { Entry } from '../../types'
 import { getFileIcon, formatSize } from '../../utils/fileUtils'
+import { listDisplayName } from '../../utils/pathUtils'
 import type { GlobalToken } from 'antd/es/theme'
 
 interface FileListGridProps {
@@ -10,6 +11,7 @@ interface FileListGridProps {
   selectedRowKeys: React.Key[]
   previewPath: string | null
   token: GlobalToken
+  listParentPath: string
   onNavigate: (path: string) => void
   onOpenPreview: (record: Entry) => void
   onSelectionChange: (keys: React.Key[]) => void
@@ -22,6 +24,7 @@ export default function FileListGrid({
   selectedRowKeys,
   previewPath,
   token,
+  listParentPath,
   onNavigate,
   onOpenPreview,
   onSelectionChange,
@@ -40,7 +43,9 @@ export default function FileListGrid({
 
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
-      {entries.map((record) => (
+      {entries.map((record) => {
+        const label = listDisplayName(record, listParentPath)
+        return (
         <Card
           key={record.path}
           size="small"
@@ -88,7 +93,7 @@ export default function FileListGrid({
               fontSize: 12,
             }}
           >
-            {record.name}
+            <span title={record.name !== label ? record.name : undefined}>{label}</span>
           </div>
           {!record.isDir && (
             <div style={{ fontSize: 11, color: token.colorTextTertiary, marginTop: 4 }}>
@@ -96,7 +101,8 @@ export default function FileListGrid({
             </div>
           )}
         </Card>
-      ))}
+        )
+      })}
     </div>
   )
 }

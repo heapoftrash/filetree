@@ -8,9 +8,10 @@ import {
   SwapOutlined,
   DownloadOutlined,
   DeleteOutlined,
+  UndoOutlined,
 } from '@ant-design/icons'
 import FileBreadcrumb from './FileBreadcrumb'
-import { isInTrash } from '../../utils/pathUtils'
+import { isInTrash, isRestorableTrashPath } from '../../utils/pathUtils'
 
 interface FileListToolbarProps {
   currentPath: string
@@ -24,6 +25,7 @@ interface FileListToolbarProps {
   onMoveClick: () => void
   onDownloadClick: () => void
   onDeleteClick: () => void
+  onRestoreClick: () => void
   bulkDownloading: boolean
 }
 
@@ -39,6 +41,7 @@ export default function FileListToolbar({
   onMoveClick,
   onDownloadClick,
   onDeleteClick,
+  onRestoreClick,
   bulkDownloading,
 }: FileListToolbarProps) {
   const goBack = () => {
@@ -49,6 +52,7 @@ export default function FileListToolbar({
 
   const hasSelection = selectedRowKeys.length > 0
   const anyInTrash = selectedRowKeys.some((k) => isInTrash(k as string))
+  const restorableSelected = selectedRowKeys.filter((k) => isRestorableTrashPath(k as string))
 
   return (
     <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
@@ -89,6 +93,11 @@ export default function FileListToolbar({
           <Button icon={<DownloadOutlined />} size="small" onClick={onDownloadClick} loading={bulkDownloading}>
             Download ({selectedRowKeys.length})
           </Button>
+          {restorableSelected.length > 0 && (
+            <Button icon={<UndoOutlined />} size="small" onClick={onRestoreClick}>
+              Restore ({restorableSelected.length})
+            </Button>
+          )}
           <Popconfirm
             title={anyInTrash ? 'Permanently delete from trash?' : 'Delete selected?'}
             description={anyInTrash ? 'This cannot be undone.' : `Delete ${selectedRowKeys.length} item(s)?`}

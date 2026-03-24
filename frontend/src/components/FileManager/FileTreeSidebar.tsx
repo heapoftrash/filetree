@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Layout, Tag, Tree } from 'antd'
-import { HomeOutlined, MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import { HomeOutlined, DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import type { DataNode } from 'antd/es/tree'
 import { theme } from 'antd'
 
@@ -17,6 +17,8 @@ function getAllKeys(nodes: DataNode[]): React.Key[] {
 
 interface FileTreeSidebarProps {
   treeData: DataNode[]
+  trashTreeData: DataNode[]
+  trashTreeHydrated: boolean
   onTreeLoadData: (node: DataNode) => Promise<void>
   onTreeSelect: (keys: React.Key[]) => void
   currentPath: string
@@ -25,6 +27,8 @@ interface FileTreeSidebarProps {
 
 export default function FileTreeSidebar({
   treeData,
+  trashTreeData,
+  trashTreeHydrated,
   onTreeLoadData,
   onTreeSelect,
   currentPath,
@@ -62,18 +66,47 @@ export default function FileTreeSidebar({
       children: n.children ? wrapTreeData(n.children as DataNode[]) : undefined,
     }))
 
-  const treeWithHome: DataNode[] = [
-    {
-      key: '',
-      title: wrapWithDropTarget('', 'Home'),
-      icon: <HomeOutlined />,
-      isLeaf: treeData.length === 0,
-      children: treeData.length ? wrapTreeData(treeData) : undefined,
-    },
-  ]
+  const homeRoot: DataNode = {
+    key: '',
+    title: wrapWithDropTarget('', 'Home'),
+    icon: <HomeOutlined />,
+    isLeaf: treeData.length === 0,
+    children: treeData.length ? wrapTreeData(treeData) : undefined,
+  }
 
-  const handleExpandAll = () => setExpandedKeys(getAllKeys(treeWithHome))
+  const trashRoot: DataNode = {
+    key: '.trash',
+    title: wrapWithDropTarget(
+      '.trash',
+      <span style={{ color: token.colorWarning }}>Trash</span>,
+    ),
+    icon: <DeleteOutlined style={{ color: token.colorWarning }} />,
+    isLeaf: trashTreeHydrated && trashTreeData.length === 0,
+    children: !trashTreeHydrated
+      ? undefined
+      : trashTreeData.length
+        ? wrapTreeData(trashTreeData)
+        : [],
+  }
+
+  const homeTreeData = [homeRoot]
+  const trashTreeNodes = [trashRoot]
+
+  const handleExpandAll = () =>
+    setExpandedKeys([...getAllKeys(homeTreeData), ...getAllKeys(trashTreeNodes)])
+
   const handleCollapseAll = () => setExpandedKeys([])
+
+  const selectedKeys = currentPath ? [currentPath] : ['']
+
+  const treeShared = {
+    showIcon: true as const,
+    blockNode: true as const,
+    expandedKeys,
+    onExpand: (keys: React.Key[]) => setExpandedKeys(keys),
+    onSelect: onTreeSelect,
+    selectedKeys,
+  }
 
   return (
     <Sider width={220} style={{ background: token.colorBgContainer, padding: 8 }}>
@@ -129,18 +162,19 @@ export default function FileTreeSidebar({
           </Tag>
         </div>
         <Tree
-          showIcon
-          blockNode
-          expandedKeys={expandedKeys}
-          onExpand={(keys) => setExpandedKeys(keys)}
-          treeData={treeWithHome}
+          {...treeShared}
+          treeData={homeTreeData}
           loadData={(node) => {
             if ((node.key as string) === '') return Promise.resolve()
             return onTreeLoadData(node)
           }}
-          onSelect={onTreeSelect}
-          selectedKeys={currentPath ? [currentPath] : ['']}
           style={{ marginTop: 8 }}
+        />
+        <Tree
+          {...treeShared}
+          treeData={trashTreeNodes}
+          loadData={(node) => onTreeLoadData(node)}
+          style={{ marginTop: 12 }}
         />
       </div>
     </Sider>

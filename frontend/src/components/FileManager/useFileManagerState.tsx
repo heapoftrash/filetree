@@ -5,6 +5,7 @@ import type { DataNode } from 'antd/es/tree'
 import { listEntries } from '../../api/client'
 import type { Entry } from '../../types'
 import { getApiErrorMessage } from '../../utils/errors'
+import { isTrashTimestampBucketName, trashBucketDisplayLabel } from '../../utils/pathUtils'
 
 function updateTreeData(list: DataNode[], key: React.Key, children: DataNode[]): DataNode[] {
   return list.map((node) => {
@@ -18,6 +19,20 @@ function updateTreeData(list: DataNode[], key: React.Key, children: DataNode[]):
   })
 }
 
+function dirToTreeNode(listPath: string, e: Entry): DataNode {
+  const title =
+    listPath === '.trash' && e.isDir && isTrashTimestampBucketName(e.name)
+      ? trashBucketDisplayLabel(e.name)
+      : e.name
+  return {
+    key: e.path,
+    title,
+    icon: <FolderOutlined />,
+    isLeaf: false,
+    children: [],
+  }
+}
+
 export interface ConflictModalState {
   type: 'rename' | 'move'
   onOverwrite: () => void
@@ -28,6 +43,8 @@ export function useFileManagerState(currentPath: string) {
   const [entries, setEntries] = useState<Entry[]>([])
   const [loading, setLoading] = useState(true)
   const [treeData, setTreeData] = useState<DataNode[]>([])
+  const [trashTreeData, setTrashTreeData] = useState<DataNode[]>([])
+  const [trashTreeHydrated, setTrashTreeHydrated] = useState(false)
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
   const [newFolderOpen, setNewFolderOpen] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
@@ -46,7 +63,7 @@ export function useFileManagerState(currentPath: string) {
     setLoading(true)
     try {
       const { entries: list } = await listEntries(path)
-      setEntries(list)
+      setEntries(Array.isArray(list) ? list : [])
     } catch (e: unknown) {
       message.error(getApiErrorMessage(e))
       setEntries([])
@@ -56,21 +73,17 @@ export function useFileManagerState(currentPath: string) {
   }, [])
 
   useEffect(() => {
-    loadEntries(currentPath)
+    void loadEntries(currentPath)
   }, [currentPath, loadEntries])
 
   const loadTree = useCallback(async () => {
+    setTrashTreeData([])
+    setTrashTreeHydrated(false)
     try {
       const { entries: list } = await listEntries('')
       const nodes: DataNode[] = (list || [])
-        .filter((e) => e.isDir)
-        .map((e) => ({
-          key: e.path,
-          title: e.name,
-          icon: <FolderOutlined />,
-          isLeaf: false,
-          children: [],
-        }))
+        .filter((e) => e.isDir && e.path !== '.trash')
+        .map((e) => dirToTreeNode('', e))
       setTreeData(nodes)
     } catch {
       setTreeData([])
@@ -81,6 +94,30 @@ export function useFileManagerState(currentPath: string) {
     loadTree()
   }, [loadTree])
 
+  useEffect(() => {
+    if (trashTreeHydrated) return
+    if (currentPath !== '.trash' && !currentPath.startsWith('.trash/')) return
+    let cancelled = false
+    listEntries('.trash')
+      .then(({ entries: list }) => {
+        if (cancelled) return
+        const children: DataNode[] = (list || [])
+          .filter((e) => e.isDir)
+          .map((e) => dirToTreeNode('.trash', e))
+        setTrashTreeData(children)
+        setTrashTreeHydrated(true)
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setTrashTreeData([])
+          setTrashTreeHydrated(true)
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [currentPath, trashTreeHydrated])
+
   const onTreeLoadData = useCallback(
     (node: DataNode) =>
       new Promise<void>((resolve, reject) => {
@@ -89,18 +126,20 @@ export function useFileManagerState(currentPath: string) {
           resolve()
           return
         }
+        const underTrash = path === '.trash' || path.startsWith('.trash/')
         listEntries(path)
           .then(({ entries: list }) => {
             const children: DataNode[] = (list || [])
-              .filter((e) => e.isDir)
-              .map((e) => ({
-                key: e.path,
-                title: e.name,
-                icon: <FolderOutlined />,
-                isLeaf: false,
-                children: [],
-              }))
-            setTreeData((prev) => updateTreeData(prev, node.key as React.Key, children))
+              .filter((e) => e.isDir && (underTrash || e.path !== '.trash'))
+              .map((e) => dirToTreeNode(path, e))
+            if (path === '.trash') {
+              setTrashTreeData(children)
+              setTrashTreeHydrated(true)
+            } else if (underTrash) {
+              setTrashTreeData((prev) => updateTreeData(prev, node.key as React.Key, children))
+            } else {
+              setTreeData((prev) => updateTreeData(prev, node.key as React.Key, children))
+            }
             resolve()
           })
           .catch(reject)
@@ -112,6 +151,8 @@ export function useFileManagerState(currentPath: string) {
     entries,
     loading,
     treeData,
+    trashTreeData,
+    trashTreeHydrated,
     selectedRowKeys,
     setSelectedRowKeys,
     newFolderOpen,

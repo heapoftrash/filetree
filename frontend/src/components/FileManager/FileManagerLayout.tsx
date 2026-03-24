@@ -18,6 +18,7 @@ import { theme } from 'antd'
 import AppHeader from '../AppHeader'
 import type { Entry } from '../../types'
 import type { DataNode } from 'antd/es/tree'
+import { isInTrash } from '../../utils/pathUtils'
 
 const { Content } = Layout
 
@@ -36,7 +37,10 @@ export interface FileListProps {
   onOpenPreview: (record: Entry) => void
   onRename: (record: Entry) => void
   onDelete: (path: string) => void
+  onRestore?: (path: string) => void
   onDragStart: (e: React.DragEvent, record: Entry) => void
+  /** Parent path of the listed folder (for trash timestamp display names). */
+  listParentPath: string
 }
 
 export interface FileManagerLayoutProps {
@@ -44,6 +48,8 @@ export interface FileManagerLayoutProps {
   sidebarVisible: boolean
   onSidebarToggle: () => void
   treeData: DataNode[]
+  trashTreeData: DataNode[]
+  trashTreeHydrated: boolean
   onTreeLoadData: (node: DataNode) => Promise<void>
   onTreeSelect: (keys: React.Key[]) => void
   onDrop: (e: React.DragEvent, targetPath: string) => void
@@ -66,8 +72,10 @@ export interface FileManagerLayoutProps {
   onMoveClick: () => void
   onDownloadClick: () => void
   onDeleteClick: () => void
+  onRestoreSelection: () => void
   onDownloadPreview: () => void
   onDeletePreview: () => void
+  onRestorePreview: () => void
   onCopyContent: () => void
   onClosePreview: () => void
   previewFullscreen: boolean
@@ -104,6 +112,8 @@ export default function FileManagerLayout(props: FileManagerLayoutProps) {
     sidebarVisible,
     onSidebarToggle,
     treeData,
+    trashTreeData,
+    trashTreeHydrated,
     onTreeLoadData,
     onTreeSelect,
     onDrop,
@@ -126,8 +136,10 @@ export default function FileManagerLayout(props: FileManagerLayoutProps) {
     onMoveClick,
     onDownloadClick,
     onDeleteClick,
+    onRestoreSelection,
     onDownloadPreview,
     onDeletePreview,
+    onRestorePreview,
     onCopyContent,
     onClosePreview,
     previewFullscreen,
@@ -157,6 +169,8 @@ export default function FileManagerLayout(props: FileManagerLayoutProps) {
     onUpload,
   } = props
 
+  const hideCreateActions = isInTrash(currentPath)
+
   return (
     <Layout style={{ minHeight: '100vh', height: '100%', display: 'flex', flexDirection: 'column' }}>
       <AppHeader
@@ -164,22 +178,26 @@ export default function FileManagerLayout(props: FileManagerLayoutProps) {
         sidebarVisible={sidebarVisible}
         onSidebarToggle={onSidebarToggle}
         rightActions={
-          <>
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => onNewFolderOpen(true)}>
-              New folder
-            </Button>
-            <Upload beforeUpload={onUpload} showUploadList={false} multiple>
-              <Button icon={<UploadOutlined />} loading={uploading}>
-                Upload
+          hideCreateActions ? null : (
+            <>
+              <Button type="primary" icon={<PlusOutlined />} onClick={() => onNewFolderOpen(true)}>
+                New folder
               </Button>
-            </Upload>
-          </>
+              <Upload beforeUpload={onUpload} showUploadList={false} multiple>
+                <Button icon={<UploadOutlined />} loading={uploading}>
+                  Upload
+                </Button>
+              </Upload>
+            </>
+          )
         }
       />
       <Layout style={{ flex: 1, minHeight: 0, display: 'flex', overflow: 'hidden' }}>
         {sidebarVisible && (
           <FileTreeSidebar
             treeData={treeData}
+            trashTreeData={trashTreeData}
+            trashTreeHydrated={trashTreeHydrated}
             onTreeLoadData={onTreeLoadData}
             onTreeSelect={(keys) => onTreeSelect(keys)}
             currentPath={currentPath}
@@ -209,6 +227,7 @@ export default function FileManagerLayout(props: FileManagerLayoutProps) {
             onMoveClick={onMoveClick}
             onDownloadClick={onDownloadClick}
             onDeleteClick={onDeleteClick}
+            onRestoreClick={onRestoreSelection}
             bulkDownloading={bulkDownloading}
           />
           <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -271,6 +290,7 @@ export default function FileManagerLayout(props: FileManagerLayoutProps) {
                     onDownloadClick={onDownloadPreview}
                     onCopyContent={onCopyContent}
                     onDeleteClick={onDeletePreview}
+                    onRestoreClick={onRestorePreview}
                     onClose={onClosePreview}
                     previewFullscreen={previewFullscreen}
                     onFullscreenToggle={onFullscreenToggle}
