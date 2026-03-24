@@ -6,6 +6,11 @@ Backend:
 - changed-files:
   - any-glob-to-any-file: backend/**
 
-Brontend:
+Frontend:
 - changed-files:
   - any-glob-to-any-file: frontend/**
+
+Github_actions:
+- changed-files:
+  - any-glob-to-any-file: .github/**
+
