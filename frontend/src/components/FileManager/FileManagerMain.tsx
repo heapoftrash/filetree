@@ -17,6 +17,7 @@ export default function FileManagerMain() {
 
   const state = useFileManagerState(currentPath)
   const ui = useFileManagerUI()
+
   const actions = useFileManagerActions({
     currentPath,
     entries: state.entries,

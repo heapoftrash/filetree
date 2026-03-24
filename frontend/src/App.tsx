@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Spin } from 'antd'
 import FileManager from './components/FileManager'
+import StandalonePreview from './components/StandalonePreview'
 import Login from './components/Login'
 import ProtectedRoute from './components/ProtectedRoute'
 import ProtectedAdminRoute from './components/ProtectedAdminRoute'
@@ -21,6 +22,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <FileManager />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/preview"
+            element={
+              <ProtectedRoute>
+                <StandalonePreview />
               </ProtectedRoute>
             }
           />

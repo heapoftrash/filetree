@@ -58,11 +58,11 @@ export default function CsvPreview({ content, searchQuery }: Props) {
   if (rows.length === 0) {
     const highlighted = searchQuery?.trim() ? highlightMatches(content || '(empty)', searchQuery) : [content || '(empty)']
     return (
-      <pre style={{ padding: 16, margin: 0 }}>{highlighted}</pre>
+      <pre style={{ padding: 16, margin: 0, color: token.colorText }}>{highlighted}</pre>
     )
   }
   return (
-    <div style={{ height: '100%', minHeight: 0, overflow: 'auto' }}>
+    <div style={{ height: '100%', minHeight: 0, overflow: 'auto', color: token.colorText }}>
       <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 13 }}>
         <tbody>
           {rows.map((row, i) => (

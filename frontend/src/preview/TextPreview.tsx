@@ -73,6 +73,7 @@ export default function TextPreview({ content, filename, searchQuery }: Props) {
         style={{
           ...basePreStyle,
           background: token.colorFillQuaternary,
+          color: token.colorText,
           fontSize: 13,
         }}
       >
@@ -88,6 +89,7 @@ export default function TextPreview({ content, filename, searchQuery }: Props) {
         style={{
           ...basePreStyle,
           background: token.colorFillQuaternary,
+          color: token.colorText,
         }}
       >
         {content}

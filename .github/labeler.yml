@@ -6,6 +6,7 @@ Backend:
 - changed-files:
   - any-glob-to-any-file: backend/**
 
-Brontend:
+Frontend:
 - changed-files:
   - any-glob-to-any-file: frontend/**
+
