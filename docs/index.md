@@ -6,7 +6,8 @@ hide: [navigation]
 hero:
   title: Self-hosted web file manager
   subtitle: Browse, upload, preview, and manage files from your browser.
-  intro: "<strong>Filetree</strong> is a minimalistic, self-hosted file manager — browse, upload, preview, and manage files from your browser. No cloud lock-in, no database. Simple YAML or JSON config, single binary deployment."
+  intro: "<strong>Filetree</strong> is a minimalistic, self-hosted file manager — browse, upload, preview, and manage files from your browser. No cloud lock-in, no database. Simple YAML or JSON config, single binary deployment.
+  It started as a simple homelab project — a way to browse and manage files on home server without exposing it to the cloud or dealing with heavy, database-backed alternatives."
   install_button: Getting Started
   features_button: Features
   config_button: Configuration
@@ -58,8 +59,3 @@ demo:
   description: "Browse, upload, preview, and manage files from your browser. <strong>Drag-and-drop</strong> uploads, <strong>rich previews</strong> for images and documents, and a <strong>responsive layout</strong> that works on desktop, tablet, and mobile."
   link: features/
 ---
-
-<!-- ## Tech stack
-
-- **Backend:** Go, Gin, JWT, OAuth2 (Google, GitHub)
-- **Frontend:** React, TypeScript, Ant Design, Vite -->
