@@ -24,3 +24,9 @@ export function isConflictError(e: unknown): boolean {
   const err = e as ApiErrorResponse
   return err.response?.status === 409 || err.response?.data?.conflict === true
 }
+
+/** List/stat 404 — e.g. current folder was removed after trash restore */
+export function isNotFoundError(e: unknown): boolean {
+  const err = e as ApiErrorResponse
+  return err.response?.status === 404
+}

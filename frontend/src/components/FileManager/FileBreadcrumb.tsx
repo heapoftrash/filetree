@@ -3,7 +3,7 @@ import { Breadcrumb, Dropdown } from 'antd'
 import { FolderOutlined, HomeOutlined, DownOutlined } from '@ant-design/icons'
 import { listEntries } from '../../api/client'
 import type { Entry } from '../../types'
-import { pathSegments } from '../../utils/pathUtils'
+import { pathSegments, breadcrumbSegmentLabel, listDisplayName } from '../../utils/pathUtils'
 
 function BreadcrumbHome({ navigate }: { navigate: (path: string) => void }) {
   return (
@@ -21,12 +21,12 @@ function BreadcrumbHome({ navigate }: { navigate: (path: string) => void }) {
 }
 
 function BreadcrumbSegmentDropdown({
-  segment,
   parentPath,
+  displayLabel,
   navigate,
 }: {
-  segment: { label: string; path: string }
   parentPath: string
+  displayLabel: string
   navigate: (path: string) => void
 }) {
   const [siblings, setSiblings] = useState<Entry[]>([])
@@ -45,7 +45,7 @@ function BreadcrumbSegmentDropdown({
     : siblings.map((e) => ({
         key: e.path,
         icon: <FolderOutlined />,
-        label: e.name,
+        label: listDisplayName(e, parentPath),
         onClick: () => navigate(`/files/${e.path}`),
       }))
 
@@ -56,25 +56,27 @@ function BreadcrumbSegmentDropdown({
       trigger={['click']}
     >
       <a onClick={(e) => e.preventDefault()} style={{ color: 'inherit', cursor: 'pointer' }}>
-        {segment.label} <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} />
+        {displayLabel} <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} />
       </a>
     </Dropdown>
   )
 }
 
 function BreadcrumbSegment({
-  segment,
   parentPath,
+  displayLabel,
   isHome,
   navigate,
 }: {
-  segment: { label: string; path: string }
   parentPath: string
+  displayLabel: string
   isHome: boolean
   navigate: (path: string) => void
 }) {
   if (isHome) return <BreadcrumbHome navigate={navigate} />
-  return <BreadcrumbSegmentDropdown segment={segment} parentPath={parentPath} navigate={navigate} />
+  return (
+    <BreadcrumbSegmentDropdown parentPath={parentPath} displayLabel={displayLabel} navigate={navigate} />
+  )
 }
 
 interface FileBreadcrumbProps {
@@ -86,16 +88,20 @@ export default function FileBreadcrumb({ currentPath, navigate }: FileBreadcrumb
   const segments = pathSegments(currentPath)
   return (
     <Breadcrumb
-      items={segments.map((s, i) => ({
-        title: (
-          <BreadcrumbSegment
-            segment={s}
-            parentPath={i === 0 ? '' : segments[i - 1].path}
-            isHome={i === 0}
-            navigate={navigate}
-          />
-        ),
-      }))}
+      items={segments.map((s, i) => {
+        const parentPath = i === 0 ? '' : segments[i - 1].path
+        const displayLabel = breadcrumbSegmentLabel(s, parentPath)
+        return {
+          title: (
+            <BreadcrumbSegment
+              parentPath={parentPath}
+              displayLabel={displayLabel}
+              isHome={i === 0}
+              navigate={navigate}
+            />
+          ),
+        }
+      })}
     />
   )
 }

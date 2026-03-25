@@ -8,6 +8,7 @@ import {
   LinkOutlined,
   SnippetsOutlined,
   DeleteOutlined,
+  UndoOutlined,
   InfoCircleOutlined,
   CloseOutlined,
   FullscreenOutlined,
@@ -16,7 +17,7 @@ import {
 import { theme } from 'antd'
 import type { Entry } from '../../types'
 import { getFileIcon, formatSize, formatDate } from '../../utils/fileUtils'
-import { isInTrash } from '../../utils/pathUtils'
+import { isInTrash, isRestorableTrashPath, originalPathFromTrash } from '../../utils/pathUtils'
 import { getPreviewCategory } from '../../preview'
 import PreviewContent from './PreviewContent'
 
@@ -35,6 +36,7 @@ interface PreviewPanelProps {
   onDownloadClick: () => void
   onCopyContent: () => void
   onDeleteClick: () => void
+  onRestoreClick: () => void
   onClose: () => void
   previewFullscreen: boolean
   onFullscreenToggle: () => void
@@ -56,6 +58,7 @@ export default function PreviewPanel({
   onDownloadClick,
   onCopyContent,
   onDeleteClick,
+  onRestoreClick,
   onClose,
   previewFullscreen,
   onFullscreenToggle,
@@ -64,6 +67,7 @@ export default function PreviewPanel({
   const { token } = theme.useToken()
   const showSearch = ['markdown', 'json', 'csv', 'html', 'text'].includes(getPreviewCategory(entry.name))
   const showFullscreen = ['image', 'video'].includes(getPreviewCategory(entry.name))
+  const restoreTarget = originalPathFromTrash(entry.path)
 
   return (
     <div
@@ -108,12 +112,16 @@ export default function PreviewPanel({
         </span>
         <Button type="text" icon={<ArrowLeftOutlined />} onClick={onPrevFile} disabled={!hasPrevFile} title="Previous file" style={{ flexShrink: 0 }} />
         <Button type="text" icon={<ArrowRightOutlined />} onClick={onNextFile} disabled={!hasNextFile} title="Next file" style={{ flexShrink: 0 }} />
-        <Button icon={<CopyOutlined />} size="small" onClick={onCopyClick} title="Copy this file" style={{ flexShrink: 0 }}>
-          Copy
-        </Button>
-        <Button icon={<SwapOutlined />} size="small" onClick={onMoveClick} title="Move this file" style={{ flexShrink: 0 }}>
-          Move
-        </Button>
+        {!isInTrash(entry.path) && (
+          <>
+            <Button icon={<CopyOutlined />} size="small" onClick={onCopyClick} title="Copy this file" style={{ flexShrink: 0 }}>
+              Copy
+            </Button>
+            <Button icon={<SwapOutlined />} size="small" onClick={onMoveClick} title="Move this file" style={{ flexShrink: 0 }}>
+              Move
+            </Button>
+          </>
+        )}
         <Button
           icon={<DownloadOutlined />}
           size="small"
@@ -150,6 +158,17 @@ export default function PreviewPanel({
             title={previewFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
             style={{ flexShrink: 0 }}
           />
+        )}
+        {isRestorableTrashPath(entry.path) && (
+          <Button
+            icon={<UndoOutlined />}
+            size="small"
+            onClick={onRestoreClick}
+            title={restoreTarget ? `Restore to ${restoreTarget}` : 'Restore to original location'}
+            style={{ flexShrink: 0 }}
+          >
+            Restore
+          </Button>
         )}
         <Popconfirm
           title={isInTrash(entry.path) ? 'Permanently delete from trash?' : 'Delete this file?'}
