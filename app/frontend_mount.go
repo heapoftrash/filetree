@@ -23,6 +23,13 @@ func mountEmbeddedFrontend(r *gin.Engine) bool {
 	if !ok {
 		return false
 	}
+	attachDistRoutes(r, distFS)
+	log.Println("Serving embedded frontend (built with -tags embed)")
+	return true
+}
+
+// attachDistRoutes serves a Vite-style dist tree (index.html, assets/, optional root SVGs) for tests and embed.
+func attachDistRoutes(r *gin.Engine, distFS fs.FS) {
 	httpDist := http.FS(distFS)
 	if assetsFS, err := fs.Sub(distFS, "assets"); err == nil {
 		r.StaticFS("/assets", http.FS(assetsFS))
@@ -46,8 +53,6 @@ func mountEmbeddedFrontend(r *gin.Engine) bool {
 	r.NoRoute(func(c *gin.Context) {
 		serveIndexHTML(c, distFS)
 	})
-	log.Println("Serving embedded frontend (built with -tags embed)")
-	return true
 }
 
 func mountDiskFrontend(r *gin.Engine) {
