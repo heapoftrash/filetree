@@ -17,9 +17,9 @@ Then open **http://localhost:8080**.
 
 ### Option A: Binary
 
-**Embedded UI (recommended for a single file to deploy):** from a source tree, run `make build-frontend` then `make build-app-embed`. Deploy only `app/filetree` (plus your config). The UI is baked into the binary via `go:embed` and `-tags embed` (Vite output is `app/web/dist` at compile time).
+**Embedded UI (recommended for a single file to deploy):** from a source tree, run `make build-frontend` then `make build-app-embed`. Deploy only `app/filetree` (plus your config). The UI is baked into the binary via `go:embed` and `-tags embed`. The build copies Vite output from `app/web/dist` into `app/uiembed/dist` so the embed package stays Go-only.
 
-**UI on disk:** if you build with `make build` (or `go build` without `embed`), ensure `app/web/dist` exists — e.g. run from the repository root after `make build`, or run the binary from the `app/` directory with `./web/dist` present.
+**UI on disk:** if you build with `make build` (or `go build` without `embed`), ensure `app/web/dist` exists — e.g. run from the repository root after `make build`, or use `./web/dist` / `./uiembed/dist` when running with working directory `app/`.
 
 Then:
 
@@ -37,7 +37,7 @@ Then:
 
 ## Serving the UI
 
-- **Embedded build** (`-tags embed`, with `app/web/dist` populated at compile time): the server serves the UI from the binary; no separate static directory at runtime.
-- **Disk layout:** when `./app/web/dist` or `./web/dist` exists (relative to the process working directory), those files are served instead.
+- **Embedded build** (`-tags embed`, with `app/uiembed/dist` populated at compile time): the server serves the UI from the binary; no separate static directory at runtime.
+- **Disk layout:** if there is no usable embedded bundle (e.g. plain `go build` without `-tags embed`, or an empty embed), the server looks for `./app/web/dist`, `./app/uiembed/dist`, `./web/dist`, or `./uiembed/dist` (relative to the working directory) and serves those files.
 
 No separate web server is required for the UI. For HTTPS and custom domains, put a reverse proxy in front.

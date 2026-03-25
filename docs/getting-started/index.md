@@ -42,7 +42,7 @@ Over time, it grew, I added auth, previews, signed URLs, and an admin UI. What b
     ROOT_PATH=./data ./app/filetree
     ```
 
-    Or `make build` and run `./app/filetree` from the repo root so it serves `app/web/dist` from disk.
+    Or `make build` and run `./app/filetree` from the repo root so it serves `app/web/dist` from disk (or `app/uiembed/dist` if you staged an embed tree there).
 
     For production:
 

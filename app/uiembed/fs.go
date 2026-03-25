@@ -1,10 +1,10 @@
-package web
+package uiembed
 
 import (
 	"io/fs"
 )
 
-// DistRoot returns an fs.FS rooted at the embedded or copied dist/ tree when index.html is present.
+// DistRoot returns an fs.FS rooted at the embedded dist/ tree when index.html is present.
 func DistRoot() (fs.FS, bool) {
 	sub, err := fs.Sub(Dist, "dist")
 	if err != nil {

@@ -11,7 +11,7 @@ WORKDIR /app
 COPY app/go.mod app/go.sum ./
 RUN go mod download
 COPY app/ ./
-COPY --from=frontend /app/web/dist ./web/dist
+COPY --from=frontend /app/web/dist ./uiembed/dist
 RUN CGO_ENABLED=0 go build -tags embed -o filetree .
 
 FROM alpine:3.20

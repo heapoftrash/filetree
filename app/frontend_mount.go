@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/heapoftrash/filetree/app/web"
+	"github.com/heapoftrash/filetree/app/uiembed"
 )
 
 func mountFrontend(r *gin.Engine) {
@@ -18,7 +18,7 @@ func mountFrontend(r *gin.Engine) {
 }
 
 func mountEmbeddedFrontend(r *gin.Engine) bool {
-	distFS, ok := web.DistRoot()
+	distFS, ok := uiembed.DistRoot()
 	if !ok {
 		return false
 	}
@@ -45,7 +45,7 @@ func mountEmbeddedFrontend(r *gin.Engine) bool {
 
 func mountDiskFrontend(r *gin.Engine) {
 	var frontendDir string
-	for _, p := range []string{"./web/dist", "./app/web/dist"} {
+	for _, p := range []string{"./app/web/dist", "./app/uiembed/dist", "./web/dist", "./uiembed/dist"} {
 		if _, err := os.Stat(p + "/index.html"); err == nil {
 			frontendDir = p
 			break

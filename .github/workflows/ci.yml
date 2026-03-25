@@ -130,7 +130,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend-dist
-          path: app/web/dist
+          path: .
+
+      - name: Stage UI for embed
+        run: |
+          rm -rf app/uiembed/dist
+          mkdir -p app/uiembed/dist
+          cp -R app/web/dist/. app/uiembed/dist/
 
       - name: Build with embedded frontend
         run: cd app && go build -tags embed -o filetree .
@@ -166,12 +172,6 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v6
-
-      - name: Download frontend artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-dist
-          path: app/web/dist
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3

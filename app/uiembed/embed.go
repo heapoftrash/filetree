@@ -1,6 +1,6 @@
 //go:build embed
 
-package web
+package uiembed
 
 import "embed"
 

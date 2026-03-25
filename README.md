@@ -70,7 +70,7 @@ If the package is private, run `docker login ghcr.io` before `docker pull`.
 
 ### Production binary
 
-**Embedded UI (single artifact)** — the Vite app lives in `app/web/` and writes to `app/web/dist`; build the frontend, then compile the Go app with the `embed` tag:
+**Embedded UI (single artifact)** — the Vite app lives in `app/web/` and writes to `app/web/dist`. For embedding, that output is copied into `app/uiembed/dist` (Go-only package) before `go build -tags embed`. From the repo root:
 
 ```bash
 git clone https://github.com/heapoftrash/filetree.git
@@ -79,9 +79,11 @@ make build-app-embed
 ROOT_PATH=/path/to/files CONFIG_FILE=./config.yaml ./app/filetree
 ```
 
+(`make build-app-embed` runs `embed-ui`, which performs the copy, then compiles.)
+
 The **prebuilt container image** already uses an embedded UI (no separate static bundle directory in the image).
 
-**UI on disk (optional)** — `make build` and run `./app/filetree` from the repo root; the binary still serves files from `app/web/dist` or `./web/dist` when you run it from the `app/` directory (see [documentation](https://heapoftrash.github.io/filetree/)).
+**UI on disk (optional)** — `make build` and run `./app/filetree` from the repo root; the binary serves files from `app/web/dist` when present, or from `app/uiembed/dist` / `./web/dist` / `./uiembed/dist` depending on your working directory (see [documentation](https://heapoftrash.github.io/filetree/)).
 
 See [docs/API.md](docs/API.md) for the API. Build docs locally: `pip install mkdocs-material && mkdocs serve`.
 

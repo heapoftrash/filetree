@@ -11,9 +11,7 @@ Backend:
   - any-glob-to-any-file: app/frontend_mount.go
   - any-glob-to-any-file: app/go.mod
   - any-glob-to-any-file: app/go.sum
-  - any-glob-to-any-file: app/web/embed.go
-  - any-glob-to-any-file: app/web/embed_stub.go
-  - any-glob-to-any-file: app/web/fs.go
+  - any-glob-to-any-file: app/uiembed/**
 
 Frontend:
 - changed-files:

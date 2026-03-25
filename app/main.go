@@ -83,7 +83,7 @@ func main() {
 		}
 	}
 
-	// Embedded UI (-tags embed + app/web/dist) or ./web/dist, ./app/web/dist on disk
+	// Embedded UI (-tags embed + app/uiembed/dist at compile time) or disk under ./app/web/dist, ./app/uiembed/dist, etc.
 	mountFrontend(r)
 
 	log.Printf("filetree API listening on :8080 (ROOT_PATH=%s)", cfg.Server.RootPath)

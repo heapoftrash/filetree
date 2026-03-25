@@ -1,4 +1,4 @@
-.PHONY: build build-app build-frontend build-app-embed test commitlint clean run run-frontend
+.PHONY: build build-app build-frontend embed-ui build-app-embed test commitlint clean run run-frontend
 
 # Build Go binary (output: app/filetree or app/filetree.exe)
 build-app:
@@ -8,8 +8,14 @@ build-app:
 build-frontend:
 	cd app/web && npm run build
 
-# Single binary with embedded UI (Vite writes to app/web/dist; no copy step)
-build-app-embed: build-frontend
+# Copy Vite output into app/uiembed/dist for go:embed (Go-only package)
+embed-ui:
+	rm -rf app/uiembed/dist
+	mkdir -p app/uiembed/dist
+	cp -R app/web/dist/. app/uiembed/dist/
+
+# Single binary with embedded UI
+build-app-embed: build-frontend embed-ui
 	cd app && go build -tags embed -o filetree .
 
 # Build both Go binary and frontend assets
@@ -38,4 +44,4 @@ run-frontend:
 # Remove build artifacts
 clean:
 	rm -f app/filetree app/filetree.exe
-	rm -rf app/web/dist frontend/dist
+	rm -rf app/web/dist app/uiembed/dist frontend/dist
