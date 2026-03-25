@@ -24,7 +24,7 @@ func mountEmbeddedFrontend(r *gin.Engine) bool {
 		return false
 	}
 	attachDistRoutes(r, distFS)
-	log.Println("Serving embedded frontend (built with -tags embed)")
+	log.Println("Serving embedded frontend")
 	return true
 }
 
