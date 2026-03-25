@@ -1,10 +1,11 @@
 # Go
-backend/filetree
-backend/filetree.exe
-backend/data/
+app/filetree
+app/filetree.exe
+app/data/
 
-# Node / frontend
+# Node / UI (also legacy paths)
 node_modules/
+app/web/dist/
 frontend/dist/
 
 # MkDocs

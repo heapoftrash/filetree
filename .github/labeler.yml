@@ -4,9 +4,23 @@ Documentation:
 
 Backend:
 - changed-files:
-  - any-glob-to-any-file: backend/**
+  - any-glob-to-any-file: app/config/**
+  - any-glob-to-any-file: app/handlers/**
+  - any-glob-to-any-file: app/middleware/**
+  - any-glob-to-any-file: app/main.go
+  - any-glob-to-any-file: app/frontend_mount.go
+  - any-glob-to-any-file: app/go.mod
+  - any-glob-to-any-file: app/go.sum
+  - any-glob-to-any-file: app/web/embed.go
+  - any-glob-to-any-file: app/web/embed_stub.go
+  - any-glob-to-any-file: app/web/fs.go
 
 Frontend:
 - changed-files:
-  - any-glob-to-any-file: frontend/**
-
+  - any-glob-to-any-file: app/web/src/**
+  - any-glob-to-any-file: app/web/public/**
+  - any-glob-to-any-file: app/web/index.html
+  - any-glob-to-any-file: app/web/package.json
+  - any-glob-to-any-file: app/web/package-lock.json
+  - any-glob-to-any-file: app/web/vite.config.*
+  - any-glob-to-any-file: app/web/tsconfig*.json

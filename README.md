@@ -12,8 +12,8 @@
 
 
 <p align="center">
-  <a href="https://goreportcard.com/report/github.com/heapoftrash/filetree/backend">
-    <img src="https://goreportcard.com/badge/github.com/heapoftrash/filetree/backend" alt="Go Report Card"/>
+  <a href="https://goreportcard.com/report/github.com/heapoftrash/filetree/app">
+    <img src="https://goreportcard.com/badge/github.com/heapoftrash/filetree/app" alt="Go Report Card"/>
   </a>
   <a href="https://github.com/heapoftrash/filetree/actions/workflows/ci.yml">
     <img src="https://github.com/heapoftrash/filetree/actions/workflows/ci.yml/badge.svg" alt="Build status"/>
@@ -70,28 +70,26 @@ If the package is private, run `docker login ghcr.io` before `docker pull`.
 
 ### Production binary
 
-**Embedded UI (single artifact)** — build the frontend, copy its output into `backend/web/dist`, then compile with the `embed` tag:
+**Embedded UI (single artifact)** — the Vite app lives in `app/web/` and writes to `app/web/dist`; build the frontend, then compile the Go app with the `embed` tag:
 
 ```bash
 git clone https://github.com/heapoftrash/filetree.git
 make build-frontend
-make build-backend-embed
-ROOT_PATH=/path/to/files CONFIG_FILE=./config.yaml ./backend/filetree
+make build-app-embed
+ROOT_PATH=/path/to/files CONFIG_FILE=./config.yaml ./app/filetree
 ```
 
-Or run `make embed-frontend` after `make build-frontend`; both populate `backend/web/dist` before `go build -tags embed`.
+The **prebuilt container image** already uses an embedded UI (no separate static bundle directory in the image).
 
-The **prebuilt container image** already uses an embedded UI (no separate `frontend/dist` in the image).
-
-**UI on disk (optional)** — `make build` and run `./backend/filetree` from the repo root; the binary still serves `frontend/dist` when that folder exists next to the working directory.
+**UI on disk (optional)** — `make build` and run `./app/filetree` from the repo root; the binary still serves files from `app/web/dist` or `./web/dist` when you run it from the `app/` directory (see [documentation](https://heapoftrash.github.io/filetree/)).
 
 See [docs/API.md](docs/API.md) for the API. Build docs locally: `pip install mkdocs-material && mkdocs serve`.
 
 ### Development
 
-**API** — `cd backend && go mod tidy && go run .` → **http://localhost:8080**
+**API** — `cd app && go mod tidy && go run .` → **http://localhost:8080**
 
-**UI** — `cd frontend && npm install && npm run dev` → **http://localhost:5173** (proxies `/api` to the backend)
+**UI** — `cd app/web && npm install && npm run dev` → **http://localhost:5173** (proxies `/api` to the API)
 
 Set `frontend.url` in config to `http://localhost:5173` for CORS and OAuth.
 

@@ -8,7 +8,7 @@ icon: material/application-export
 Build with `make build` (or see [Installation](installation.md)), then run:
 
 ```bash
-ROOT_PATH=/path/to/files CONFIG_FILE=./config.yaml ./backend/filetree
+ROOT_PATH=/path/to/files CONFIG_FILE=./config.yaml ./app/filetree
 ```
 
 Then open **http://localhost:8080**.
@@ -17,9 +17,9 @@ Then open **http://localhost:8080**.
 
 ### Option A: Binary
 
-**Embedded UI (recommended for a single file to deploy):** from a source tree, run `make build-frontend` then `make build-backend-embed`. Deploy only `backend/filetree` (plus your config). The UI is baked into the binary via `go:embed` and `-tags embed`.
+**Embedded UI (recommended for a single file to deploy):** from a source tree, run `make build-frontend` then `make build-app-embed`. Deploy only `app/filetree` (plus your config). The UI is baked into the binary via `go:embed` and `-tags embed` (Vite output is `app/web/dist` at compile time).
 
-**UI beside the binary:** if you build with `make build` (or `go build` without `embed`), copy **`frontend/dist`** next to the runtime layout the binary expects (`./frontend/dist` or `../frontend/dist` relative to the process working directory), or run from the repository root after `make build`.
+**UI on disk:** if you build with `make build` (or `go build` without `embed`), ensure `app/web/dist` exists — e.g. run from the repository root after `make build`, or run the binary from the `app/` directory with `./web/dist` present.
 
 Then:
 
@@ -37,7 +37,7 @@ Then:
 
 ## Serving the UI
 
-- **Embedded build** (`-tags embed`, with `backend/web/dist` populated at compile time): the backend serves the UI from memory; no `frontend/dist` folder at runtime.
-- **Disk layout:** when `./frontend/dist` or `../frontend/dist` exists (from the process working directory), the backend serves those files instead.
+- **Embedded build** (`-tags embed`, with `app/web/dist` populated at compile time): the server serves the UI from the binary; no separate static directory at runtime.
+- **Disk layout:** when `./app/web/dist` or `./web/dist` exists (relative to the process working directory), those files are served instead.
 
-No separate web server is required for the frontend. For HTTPS and custom domains, put a reverse proxy in front.
+No separate web server is required for the UI. For HTTPS and custom domains, put a reverse proxy in front.

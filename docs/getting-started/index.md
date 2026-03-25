@@ -29,7 +29,7 @@ Over time, it grew, I added auth, previews, signed URLs, and an admin UI. What b
 
 === "Single binary"
 
-    **Download** pre-built binaries from [GitHub Releases](https://github.com/heapoftrash/filetree/releases/latest) if available. If the release ships a UI bundle, place `frontend/dist` where the binary expects it (see [Installation](installation.md)), then:
+    **Download** pre-built binaries from [GitHub Releases](https://github.com/heapoftrash/filetree/releases/latest) if available. If the release ships a UI bundle, place it where the binary expects it (see [Installation](installation.md)), then:
 
     ```bash
     ROOT_PATH=./data ./filetree
@@ -38,11 +38,11 @@ Over time, it grew, I added auth, previews, signed URLs, and an admin UI. What b
     Or build from source with the **embedded UI** (one file to run):
 
     ```bash
-    make build-frontend && make build-backend-embed
-    ROOT_PATH=./data ./backend/filetree
+    make build-frontend && make build-app-embed
+    ROOT_PATH=./data ./app/filetree
     ```
 
-    Or `make build` and run `./backend/filetree` from the repo root so it serves `frontend/dist` from disk.
+    Or `make build` and run `./app/filetree` from the repo root so it serves `app/web/dist` from disk.
 
     For production:
 
@@ -78,13 +78,13 @@ Over time, it grew, I added auth, previews, signed URLs, and an admin UI. What b
     git clone https://github.com/heapoftrash/filetree.git
     cd filetree
     ```
-    Build the frontend and backend:
+    Build the UI and Go binary:
     ```bash
     make build
     ```
     Run from the project root:
     ```bash
-    ROOT_PATH=./data ./backend/filetree
+    ROOT_PATH=./data ./app/filetree
     ```
     Then open **http://localhost:8080**.
 

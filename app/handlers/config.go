@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/heapoftrash/filetree/backend/config"
+	"github.com/heapoftrash/filetree/app/config"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"

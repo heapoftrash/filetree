@@ -1,24 +1,19 @@
-.PHONY: build build-backend build-frontend build-backend-embed embed-frontend test commitlint clean run-backend run-frontend
+.PHONY: build build-app build-frontend build-app-embed test commitlint clean run run-frontend
 
-# Build Go binary (output: backend/filetree or backend/filetree.exe)
-build-backend:
-	cd backend && go build -o filetree .
+# Build Go binary (output: app/filetree or app/filetree.exe)
+build-app:
+	cd app && go build -o filetree .
 
-# Build frontend (output: frontend/dist/)
+# Build frontend (output: app/web/dist/)
 build-frontend:
-	cd frontend && npm run build
+	cd app/web && npm run build
 
-# Copy Vite output into backend/web/dist (required before build-backend-embed)
-embed-frontend:
-	rm -rf backend/web/dist
-	cp -R frontend/dist backend/web/dist
+# Single binary with embedded UI (Vite writes to app/web/dist; no copy step)
+build-app-embed: build-frontend
+	cd app && go build -tags embed -o filetree .
 
-# Single binary with embedded UI (needs frontend/dist; use after build-frontend)
-build-backend-embed: embed-frontend
-	cd backend && go build -tags embed -o filetree .
-
-# Build both backend binary and frontend assets
-all: build-backend build-frontend
+# Build both Go binary and frontend assets
+all: build-app build-frontend
 
 # Alias
 build: all
@@ -29,18 +24,18 @@ commitlint:
 
 # Run tests
 test:
-	cd backend && go vet ./... && go test ./...
-	cd frontend && npm run build
+	cd app && go vet ./... && go test ./...
+	cd app/web && npm run build
 
-# Run Go backend (dev)
+# Run Go server (dev)
 run:
-	./backend/filetree
+	./app/filetree
 
 # Run frontend dev server (proxies /api to backend)
 run-frontend:
-	cd frontend && npm run dev
+	cd app/web && npm run dev
 
 # Remove build artifacts
 clean:
-	rm -f backend/filetree backend/filetree.exe
-	rm -rf frontend/dist backend/web/dist
+	rm -f app/filetree app/filetree.exe
+	rm -rf app/web/dist frontend/dist

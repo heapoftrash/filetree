@@ -2,8 +2,10 @@
 .github
 docs
 node_modules
-backend/filetree
-backend/filetree.exe
+app/web/node_modules
+app/web/dist
+app/filetree
+app/filetree.exe
 *.md
 .env
 .env.*

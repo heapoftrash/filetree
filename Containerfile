@@ -1,15 +1,17 @@
 FROM node:20-alpine AS frontend
-WORKDIR /app/frontend
-COPY frontend/ ./
+WORKDIR /app/web
+COPY app/web/package.json app/web/package-lock.json ./
 ENV NODE_OPTIONS="--max-old-space-size=4096"
-RUN if [ ! -f dist/index.html ]; then npm ci && npm run build; fi
+RUN npm ci
+COPY app/web/ ./
+RUN npm run build
 
 FROM golang:1.25-alpine AS backend
 WORKDIR /app
-COPY backend/go.mod backend/go.sum ./
+COPY app/go.mod app/go.sum ./
 RUN go mod download
-COPY backend/ ./
-COPY --from=frontend /app/frontend/dist ./web/dist
+COPY app/ ./
+COPY --from=frontend /app/web/dist ./web/dist
 RUN CGO_ENABLED=0 go build -tags embed -o filetree .
 
 FROM alpine:3.20

@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/heapoftrash/filetree/backend/web"
+	"github.com/heapoftrash/filetree/app/web"
 )
 
 func mountFrontend(r *gin.Engine) {
@@ -45,7 +45,7 @@ func mountEmbeddedFrontend(r *gin.Engine) bool {
 
 func mountDiskFrontend(r *gin.Engine) {
 	var frontendDir string
-	for _, p := range []string{"./frontend/dist", "../frontend/dist"} {
+	for _, p := range []string{"./web/dist", "./app/web/dist"} {
 		if _, err := os.Stat(p + "/index.html"); err == nil {
 			frontendDir = p
 			break

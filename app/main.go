@@ -4,9 +4,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/heapoftrash/filetree/backend/config"
-	"github.com/heapoftrash/filetree/backend/handlers"
-	"github.com/heapoftrash/filetree/backend/middleware"
+	"github.com/heapoftrash/filetree/app/config"
+	"github.com/heapoftrash/filetree/app/handlers"
+	"github.com/heapoftrash/filetree/app/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -83,7 +83,7 @@ func main() {
 		}
 	}
 
-	// Embedded UI (-tags embed + web/dist) or ./frontend/dist, ../frontend/dist on disk
+	// Embedded UI (-tags embed + app/web/dist) or ./web/dist, ./app/web/dist on disk
 	mountFrontend(r)
 
 	log.Printf("filetree API listening on :8080 (ROOT_PATH=%s)", cfg.Server.RootPath)
