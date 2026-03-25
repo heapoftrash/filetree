@@ -35,7 +35,12 @@ func mountEmbeddedFrontend(r *gin.Engine) bool {
 			c.FileFromFS(n, httpDist)
 		})
 	}
-	r.StaticFileFS("/", "index.html", httpDist)
+	// Do not use StaticFileFS("/", ...): Gin returns 301 with Location: "./", which breaks clients.
+	serveIndex := func(c *gin.Context) {
+		c.FileFromFS("index.html", httpDist)
+	}
+	r.GET("/", serveIndex)
+	r.HEAD("/", serveIndex)
 	r.NoRoute(func(c *gin.Context) {
 		c.FileFromFS("index.html", httpDist)
 	})
@@ -61,9 +66,14 @@ func mountDiskFrontend(r *gin.Engine) {
 	if _, err := os.Stat(frontendDir + "/icon-light.svg"); err == nil {
 		r.StaticFile("/icon-light.svg", frontendDir+"/icon-light.svg")
 	}
-	r.StaticFile("/", frontendDir+"/index.html")
+	indexPath := frontendDir + "/index.html"
+	serveIndex := func(c *gin.Context) {
+		c.File(indexPath)
+	}
+	r.GET("/", serveIndex)
+	r.HEAD("/", serveIndex)
 	r.NoRoute(func(c *gin.Context) {
-		c.File(frontendDir + "/index.html")
+		c.File(indexPath)
 	})
 	log.Printf("Serving frontend from disk (%s)\n", frontendDir)
 }
