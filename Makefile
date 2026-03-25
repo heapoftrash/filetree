@@ -1,7 +1,7 @@
 .PHONY: build all build-app build-frontend embed-ui build-app-embed test commitlint clean run run-frontend
 
 # One binary with embedded UI: Vite → app/web/dist → app/uiembed/dist → go build -tags embed
-build: build-frontend embed-ui
+build: embed-ui
 	cd app && go build -tags embed -o filetree .
 
 all: build
@@ -17,8 +17,8 @@ build-app:
 build-frontend:
 	cd app/web && npm run build
 
-# Stage static files for go:embed (used by build)
-embed-ui:
+# Stage static files for go:embed (used by build). Prereqs build-frontend so `make -j` cannot copy before Vite finishes.
+embed-ui: build-frontend
 	rm -rf app/uiembed/dist
 	mkdir -p app/uiembed/dist
 	cp -R app/web/dist/. app/uiembed/dist/
