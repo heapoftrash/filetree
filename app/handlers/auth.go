@@ -174,6 +174,7 @@ func (h *AuthHandler) LocalLogin(c *gin.Context) {
 	for i := range localUsers {
 		if strings.EqualFold(localUsers[i].Username, username) {
 			if err := bcrypt.CompareHashAndPassword([]byte(localUsers[i].Password), []byte(password)); err != nil {
+				log.Printf("[auth] local user login failed: username=%q reason=invalid_credentials", localUsers[i].Username)
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid username or password"})
 				return
 			}
@@ -185,12 +186,14 @@ func (h *AuthHandler) LocalLogin(c *gin.Context) {
 	if authUsername == "" && da != nil && da.Password != "" &&
 		strings.EqualFold(da.Username, username) {
 		if err := bcrypt.CompareHashAndPassword([]byte(da.Password), []byte(password)); err != nil {
+			log.Printf("[auth] local user login failed: username=%q reason=invalid_credentials", da.Username)
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid username or password"})
 			return
 		}
 		authUsername = da.Username
 	}
 	if authUsername == "" {
+		log.Printf("[auth] local user login failed: username=%q reason=unknown_user", username)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid username or password"})
 		return
 	}
@@ -292,17 +295,18 @@ func (h *AuthHandler) oauthCallback(provider string, c *gin.Context) {
 	appCfg := h.appCfg
 	emailKey := strings.ToLower(strings.TrimSpace(email))
 	if emailKey == "" {
+		log.Printf("[auth] %s user login failed: email=%q name=%q reason=oauth_email_missing", provider, email, name)
 		c.Redirect(http.StatusFound, h.redirectTo("/login?error=userinfo"))
 		return
 	}
 	allow := oauthEmailAllowSet(appCfg.Users.AdminEmails, appCfg.Users.AllowedOAuthEmails)
 	if len(allow) == 0 {
-		log.Printf("[auth] oauth login denied: no admin_emails or allowed_oauth_emails configured (provider=%s)", provider)
+		log.Printf("[auth] %s user login failed: email=%q name=%q reason=oauth_no_allowlist_configured", provider, email, name)
 		c.Redirect(http.StatusFound, h.redirectTo("/login?error=oauth_no_allowlist"))
 		return
 	}
 	if _, ok := allow[emailKey]; !ok {
-		log.Printf("[auth] oauth login denied: email not in allowlist (provider=%s)", provider)
+		log.Printf("[auth] %s user login failed: email=%q name=%q reason=oauth_email_not_allowed", provider, email, name)
 		c.Redirect(http.StatusFound, h.redirectTo("/login?error=oauth_not_allowed"))
 		return
 	}
