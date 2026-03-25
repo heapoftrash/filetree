@@ -35,14 +35,14 @@ Over time, it grew, I added auth, previews, signed URLs, and an admin UI. What b
     ROOT_PATH=./data ./filetree
     ```
 
-    Or build from source with the **embedded UI** (one file to run):
+    Or build from source (**one embedded binary**):
 
     ```bash
-    make build-frontend && make build-app-embed
+    make build
     ROOT_PATH=./data ./app/filetree
     ```
 
-    Or `make build` and run `./app/filetree` from the repo root so it serves `app/web/dist` from disk (or `app/uiembed/dist` if you staged an embed tree there).
+    For a **disk-only** UI (no embed), use `make build-app` and `make build-frontend`, then run `./app/filetree` from the repo root so it serves `app/web/dist` (or `app/uiembed/dist` if you ran `make embed-ui`).
 
     For production:
 

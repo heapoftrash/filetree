@@ -17,9 +17,9 @@ Then open **http://localhost:8080**.
 
 ### Option A: Binary
 
-**Embedded UI (recommended for a single file to deploy):** from a source tree, run `make build-frontend` then `make build-app-embed`. Deploy only `app/filetree` (plus your config). The UI is baked into the binary via `go:embed` and `-tags embed`. The build copies Vite output from `app/web/dist` into `app/uiembed/dist` so the embed package stays Go-only.
+**Embedded UI (recommended for a single file to deploy):** from a source tree, run **`make build`**. Deploy only `app/filetree` (plus your config). The UI is in the binary via `go:embed` and `-tags embed`; Make copies Vite output from `app/web/dist` into `app/uiembed/dist` before compiling.
 
-**UI on disk:** if you build with `make build` (or `go build` without `embed`), ensure `app/web/dist` exists — e.g. run from the repository root after `make build`, or use `./web/dist` / `./uiembed/dist` when running with working directory `app/`.
+**UI on disk:** use `make build-app` and `make build-frontend` (no `-tags embed`), or plain `go build` after `npm run build`, and ensure `app/web/dist` exists when you run from the repo root; from the `app/` directory, `./web/dist` / `./uiembed/dist` can be used instead.
 
 Then:
 

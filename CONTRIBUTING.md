@@ -23,7 +23,7 @@ Validate locally: `make commitlint` or `npx commitlint --last --verbose`
 1. Create a branch from `main`.
 2. Ensure `go build ./... && go vet ./... && go test ./...` passes in `app`.
 3. Ensure `npm run build` passes in `app/web`.
-4. Optional: `make build-app-embed` runs `embed-ui` (copies `app/web/dist` → `app/uiembed/dist`) then verifies `go build -tags embed`.
+4. Optional: `make build` verifies the full embedded binary (frontend + `go build -tags embed`).
 5. Open a PR with a clear description of the change.
 
 ## Code style

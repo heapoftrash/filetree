@@ -18,7 +18,7 @@ Filetree runs as a single binary that serves both the API and the web UI. Prereq
     ROOT_PATH=./data ./app/filetree
     ```
 
-    Then open **http://localhost:8080**. By default the binary serves the UI from `app/web/dist` (repo root) when present, or `app/uiembed/dist`, `./web/dist`, or `./uiembed/dist` depending on the working directory. For a **single binary** with the UI embedded, run `make build-frontend` then `make build-app-embed` (which copies the Vite build into `app/uiembed/dist` and compiles with `-tags embed`), then run `./app/filetree`.
+    Then open **http://localhost:8080**. `make build` produces one binary with the UI embedded (Vite output is staged under `app/uiembed/dist` at compile time). With `make build-app` plus `make build-frontend`, the binary serves the UI from `app/web/dist` (repo root) or other disk paths — see [Production](production.md).
 
     For production, set `CONFIG_FILE` and `ROOT_PATH`:
 
@@ -53,14 +53,13 @@ Filetree runs as a single binary that serves both the API and the web UI. Prereq
 
 === "from source"
 
-    Build the UI and Go binary manually:
+    From the repository root (install UI dependencies once: `cd app/web && npm ci`):
 
     ```bash
-    cd app/web && npm install && npm run build
-    cd ../.. && make embed-ui && cd app && go mod tidy && go build -tags embed -o filetree .
+    make build
     ```
 
-    Omit `-tags embed` if you prefer to run with `app/web/dist` on disk only (e.g. `go build -o filetree .` and run `./app/filetree` from the repo root after `npm run build` in `app/web`). For an embedded build without Make, copy `app/web/dist` to `app/uiembed/dist` before `go build -tags embed`.
+    Without Make: after `npm run build` in `app/web`, run `make embed-ui` from the repo root, then `cd app && go build -tags embed -o filetree .`. For disk-only serving, use `go build` (no `-tags embed`) with `app/web/dist` present.
 
     Run from the project root:
 
