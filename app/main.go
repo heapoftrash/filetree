@@ -20,6 +20,10 @@ func main() {
 		log.Fatalf("config bootstrap: %v", err)
 	}
 
+	if config.OAuthProviderActive(cfg) && !config.OAuthLoginAllowlistConfigured(cfg) {
+		log.Println("[config] OAuth provider(s) are enabled but users.admin_emails and users.allowed_oauth_emails are empty — OAuth sign-in will be denied until at least one email is listed.")
+	}
+
 	if err := os.MkdirAll(cfg.Server.RootPath, 0750); err != nil {
 		log.Fatalf("mkdir root: %v", err)
 	}

@@ -82,6 +82,9 @@ Copy `config.example.yaml` to `config.yaml` and set `CONFIG_FILE=./config.yaml`.
 !!! note "OAuth admins only"
     `admin_emails` applies **only to OAuth users** (Google/GitHub). For local users, use `is_admin: true` in `local_users`.
 
+!!! note "OAuth who may sign in"
+    `allowed_oauth_emails` lists OAuth users who may sign in **without** admin. Together with `admin_emails`, they form the OAuth allowlist. If OAuth is enabled and both lists are empty, no OAuth sign-in is allowed.
+
 === "Config file"
 
     OAuth admins (by email):
@@ -91,6 +94,8 @@ Copy `config.example.yaml` to `config.yaml` and set `CONFIG_FILE=./config.yaml`.
       admin_emails:
         - admin@example.com
         - other-admin@example.com
+      allowed_oauth_emails:
+        - user@example.com
     ```
 
     Local admins (per-user):
@@ -108,9 +113,11 @@ Copy `config.example.yaml` to `config.yaml` and set `CONFIG_FILE=./config.yaml`.
     | Variable | Overrides | Purpose |
     |----------|-----------|---------|
     | `ADMIN_EMAILS` | `users.admin_emails` | Comma-separated OAuth admin emails |
+    | `ALLOWED_OAUTH_EMAILS` | `users.allowed_oauth_emails` | Comma-separated OAuth non-admin allowed emails |
 
     ```bash
     export ADMIN_EMAILS="admin@example.com,other@example.com"
+    export ALLOWED_OAUTH_EMAILS="user@example.com"
     ```
 
     Local admins must use `is_admin: true` in config; no env override.

@@ -16,6 +16,7 @@ import {
   theme,
   Row,
   Col,
+  Alert,
 } from 'antd'
 import {
   CloudServerOutlined,
@@ -95,7 +96,7 @@ function buildFormValues(res: ConfigAPIResponse): Record<string, unknown> {
       const field = res.schema.fields?.find((f) => f.section === section && f.key === key)
       if (field?.kind === 'bytes' && typeof val === 'number') {
         sectionOut[key] = bytesToHuman(val)
-      } else if (field?.kind === 'string[]' && key === 'admin_emails') {
+      } else if (field?.kind === 'string[]' && (key === 'admin_emails' || key === 'allowed_oauth_emails')) {
         const arr = Array.isArray(val) ? (val as string[]) : []
         sectionOut[key] = arr.length ? arr : ['']
       } else if (key === 'default_admin_password') {
@@ -139,7 +140,12 @@ function categoryForField(name: (string | number)[]): {
   if (first === 'auth' || first === 'auth_providers') return { section: 'auth_providers', authProviderSub: 'google' }
   if (first === 'users') {
     const key = name[1]
-    if (key === 'admin_emails' || key === 'default_admin_username' || key === 'default_admin_password') {
+    if (
+      key === 'admin_emails' ||
+      key === 'allowed_oauth_emails' ||
+      key === 'default_admin_username' ||
+      key === 'default_admin_password'
+    ) {
       return { section: 'users', usersSub: 'admin_user' }
     }
     return { section: 'users', usersSub: 'local_user' }
@@ -165,11 +171,19 @@ export default function Settings() {
 
   const authProviders = Form.useWatch(['auth_providers'], form) ?? (config?.values as Record<string, Record<string, unknown>>)?.auth_providers
   const localUsersFormValues = (Form.useWatch(['users', 'local_users'], form) ?? []) as Array<Record<string, unknown>>
+  const adminEmailsWatch = Form.useWatch(['users', 'admin_emails'], form)
+  const allowedOAuthWatch = Form.useWatch(['users', 'allowed_oauth_emails'], form)
   const oauthEnabled =
     (authProviders && typeof authProviders === 'object' &&
       ((authProviders as Record<string, Record<string, unknown>>).google?.enabled === true ||
         (authProviders as Record<string, Record<string, unknown>>).github?.enabled === true)) ??
     false
+
+  const oauthAllowlistNonEmpty = useMemo(() => {
+    const countNonEmpty = (arr: unknown) =>
+      Array.isArray(arr) ? (arr as unknown[]).filter((e) => typeof e === 'string' && e.trim()).length : 0
+    return countNonEmpty(adminEmailsWatch) + countNonEmpty(allowedOAuthWatch) > 0
+  }, [adminEmailsWatch, allowedOAuthWatch])
 
   useEffect(() => {
     getConfig()
@@ -186,25 +200,6 @@ export default function Settings() {
     if (!config) return
     setSaving(true)
     try {
-      // Validate admin_emails only when OAuth is enabled
-      const authProvidersVal = values.auth_providers as Record<string, Record<string, unknown>> | undefined
-      const hasOAuth =
-        authProvidersVal &&
-        (authProvidersVal.google?.enabled === true || authProvidersVal.github?.enabled === true)
-      const users = values.users as Record<string, unknown> | undefined
-      if (hasOAuth && users?.admin_emails !== undefined) {
-        const emails = (Array.isArray(users.admin_emails) ? users.admin_emails : []).filter(
-          (e: unknown) => typeof e === 'string' && e.trim(),
-        )
-        if (emails.length === 0) {
-          message.error('At least one admin email is required when OAuth is enabled')
-          setActiveSection('users')
-          setUsersSub('admin_user')
-          setSaving(false)
-          return
-        }
-      }
-
       const payload: Record<string, unknown> = {}
       const schema = config.schema
 
@@ -309,9 +304,11 @@ export default function Settings() {
   const adminUserFields = useMemo(() => {
     const users = fieldsBySection.users ?? []
     return users
-      .filter((f) => ['admin_emails', 'default_admin_username', 'default_admin_password'].includes(f.key))
+      .filter((f) =>
+        ['admin_emails', 'allowed_oauth_emails', 'default_admin_username', 'default_admin_password'].includes(f.key),
+      )
       .sort((a, b) => {
-        const order = ['admin_emails', 'default_admin_username', 'default_admin_password']
+        const order = ['admin_emails', 'allowed_oauth_emails', 'default_admin_username', 'default_admin_password']
         return order.indexOf(a.key) - order.indexOf(b.key)
       })
   }, [fieldsBySection.users])
@@ -422,6 +419,15 @@ export default function Settings() {
                 <Col flex="1" style={{ minWidth: 0 }}>
                   {usersSub === 'admin_user' && (
                     <>
+                      {oauthEnabled && !oauthAllowlistNonEmpty && (
+                        <Alert
+                          type="warning"
+                          showIcon
+                          style={{ marginBottom: 16 }}
+                          message="OAuth sign-in disabled for everyone"
+                          description="Add at least one email under Admin emails or Allowed OAuth emails, or OAuth logins will be rejected until you do."
+                        />
+                      )}
                       {adminUserFields.map((field) => (
                         <ConfigField
                           key={`users.${field.key}`}
@@ -626,15 +632,20 @@ const ConfigField = React.memo(function ConfigField({
   if (field.kind === 'string[]') {
     const arr = Array.isArray(rawValue) ? rawValue : []
     const list = arr.filter((x): x is string => typeof x === 'string')
-    const isAdminEmails = field.key === 'admin_emails'
-    const adminEmailsDisabled = isAdminEmails && !oauthEnabled
-    const initialList = isAdminEmails && list.length === 0 ? [''] : list
+    const isOAuthEmailList = field.key === 'admin_emails' || field.key === 'allowed_oauth_emails'
+    const oauthListDisabled = isOAuthEmailList && !oauthEnabled
+    const initialList = isOAuthEmailList && list.length === 0 ? [''] : list
     const labelInRow = addButtonPosition === 'right'
     return (
       <Form.Item
         label={labelInRow ? null : field.label}
-        required={isAdminEmails && oauthEnabled}
-        extra={adminEmailsDisabled ? <ExtraWithIcon>Enable an OAuth provider (Google or GitHub) to add admin emails.</ExtraWithIcon> : undefined}
+        extra={
+          oauthListDisabled ? (
+            <ExtraWithIcon>Enable an OAuth provider (Google or GitHub) to configure OAuth email lists.</ExtraWithIcon>
+          ) : field.extra ? (
+            <ExtraWithIcon>{field.extra}</ExtraWithIcon>
+          ) : undefined
+        }
         style={{ marginBottom: 12 }}
       >
         <Form.List name={namePath} initialValue={initialList}>
@@ -642,11 +653,8 @@ const ConfigField = React.memo(function ConfigField({
             <>
               {labelInRow && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <span style={{ fontSize: 14, color: token.colorText }}>
-                    {field.label}
-                    {isAdminEmails && oauthEnabled && <span style={{ color: token.colorError, marginLeft: 4 }}>*</span>}
-                  </span>
-                  <Button size="small" type="default" icon={<PlusOutlined />} onClick={() => add('')} disabled={adminEmailsDisabled}>
+                  <span style={{ fontSize: 14, color: token.colorText }}>{field.label}</span>
+                  <Button size="small" type="default" icon={<PlusOutlined />} onClick={() => add('')} disabled={oauthListDisabled}>
                     Add
                   </Button>
                 </div>
@@ -657,17 +665,16 @@ const ConfigField = React.memo(function ConfigField({
                   <Form.Item
                     {...restField}
                     name={[name]}
-                    rules={isAdminEmails && oauthEnabled ? [{ required: true, message: 'Email required' }] : undefined}
                     style={{ marginBottom: 0, minWidth: 240, flex: 1 }}
                   >
                     <Input
-                      placeholder={isAdminEmails ? 'admin@example.com' : field.placeholder}
-                      type={isAdminEmails ? 'email' : 'text'}
+                      placeholder={isOAuthEmailList ? 'user@example.com' : field.placeholder}
+                      type={isOAuthEmailList ? 'email' : 'text'}
                       size="small"
-                      disabled={adminEmailsDisabled}
+                      disabled={oauthListDisabled}
                     />
                   </Form.Item>
-                  <Button type="text" danger size="small" icon={<DeleteOutlined />} onClick={() => remove(name)} disabled={adminEmailsDisabled}>
+                  <Button type="text" danger size="small" icon={<DeleteOutlined />} onClick={() => remove(name)} disabled={oauthListDisabled}>
                     Remove
                   </Button>
                 </Space>
@@ -675,7 +682,7 @@ const ConfigField = React.memo(function ConfigField({
               {!labelInRow && (
                 <Form.Item style={{ marginBottom: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                    <Button size="small" type="default" icon={<PlusOutlined />} onClick={() => add('')}>
+                    <Button size="small" type="default" icon={<PlusOutlined />} onClick={() => add('')} disabled={oauthListDisabled}>
                       Add
                     </Button>
                   </div>

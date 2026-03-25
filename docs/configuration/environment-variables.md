@@ -38,7 +38,8 @@ Environment variables override config file values. Useful for secrets and deploy
 
 | Variable | Overrides | Description |
 |----------|-----------|-------------|
-| `ADMIN_EMAILS` | `users.admin_emails` | Comma-separated admin emails (OAuth users) |
+| `ADMIN_EMAILS` | `users.admin_emails` | Comma-separated OAuth admin emails (admin + may sign in) |
+| `ALLOWED_OAUTH_EMAILS` | `users.allowed_oauth_emails` | Comma-separated OAuth emails allowed to sign in without admin |
 
 ## Startup logging
 

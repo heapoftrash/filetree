@@ -26,7 +26,8 @@ frontend:
   url: http://localhost:5173
 
 users:
-  admin_emails: []   # OAuth user emails that get admin role
+  admin_emails: []   # OAuth emails: admin + allowed to sign in
+  allowed_oauth_emails: []   # OAuth emails: non-admin users allowed to sign in (union with admin_emails). If OAuth is enabled and both lists empty, OAuth sign-in is denied.
   local_users: []   # Local username/password users
   # default_admin: bootstrap on startup (password hashed, stored in default_admin; not added to local_users)
   # default_admin:

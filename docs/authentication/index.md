@@ -217,6 +217,9 @@ An example config of all authentication methods
 !!! note "OAuth admins"
     `admin_emails` applies **only to OAuth users** (Google/GitHub). For local users, set `is_admin: true` per user in `local_users`.
 
+!!! note "OAuth allowlist"
+    `allowed_oauth_emails` lists non-admin OAuth users who may sign in. The allowlist is `admin_emails` ∪ `allowed_oauth_emails`. If OAuth is enabled and both are empty, OAuth sign-in is blocked.
+
 
 !!! note "OAuth redirect URL"
     - `oauth_redirect_url` must contain `https://your-domain.com/api/auth/` Filetree replace the path with `https://your-domain.com/api/auth/{provider}/callback`.

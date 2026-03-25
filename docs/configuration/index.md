@@ -111,4 +111,4 @@ Configuration is loaded in this order: **environment variables** override **conf
 - **Server** — `root_path`, `max_upload_bytes`, `debug`
 - **Auth** — `jwt_secret`, `oauth_redirect_url`, `local_auth_enabled`, `providers` (google, github)
 - **Frontend** — `url`, `cors_origins`
-- **Users** — `admin_emails`, `local_users`, `default_admin`
+- **Users** — `admin_emails`, `allowed_oauth_emails`, `local_users`, `default_admin`

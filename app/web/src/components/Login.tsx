@@ -15,6 +15,9 @@ const errorMessages: Record<string, string> = {
   exchange: 'Failed to complete sign in.',
   userinfo: 'Failed to get user info.',
   token: 'Failed to create session.',
+  oauth_no_allowlist:
+    'OAuth sign-in is not configured: add at least one admin or allowed OAuth email in Settings (or contact an administrator).',
+  oauth_not_allowed: 'This account is not allowed to sign in. Contact an administrator if you need access.',
 }
 
 export default function Login() {

@@ -171,6 +171,7 @@ func (h *ConfigHandler) GetConfig(c *gin.Context) {
 		"auth_providers": authProviders,
 		"users": {
 			"admin_emails":           cfg.Users.AdminEmails,
+			"allowed_oauth_emails":   cfg.Users.AllowedOAuthEmails,
 			"local_users":            localUsersUI,
 			"default_admin_username": defaultAdminUsername,
 			"default_admin_password": defaultAdminPasswordSet, // true = Set, false = Not set
@@ -281,6 +282,18 @@ func (h *ConfigHandler) UpdateConfig(c *gin.Context) {
 					}
 				}
 				cfg.Users.AdminEmails = emails
+			}
+		}
+		if v, ok := s["allowed_oauth_emails"]; ok {
+			if arr, ok := toStringSlice(v); ok {
+				emails := make([]string, 0, len(arr))
+				for _, e := range arr {
+					es := strings.TrimSpace(e)
+					if es != "" {
+						emails = append(emails, es)
+					}
+				}
+				cfg.Users.AllowedOAuthEmails = emails
 			}
 		}
 		if v, ok := s["local_users"]; ok {
