@@ -4,9 +4,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/heapoftrash/filetree/backend/config"
-	"github.com/heapoftrash/filetree/backend/handlers"
-	"github.com/heapoftrash/filetree/backend/middleware"
+	"github.com/heapoftrash/filetree/app/config"
+	"github.com/heapoftrash/filetree/app/handlers"
+	"github.com/heapoftrash/filetree/app/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -83,27 +83,8 @@ func main() {
 		}
 	}
 
-	// Serve frontend in production when built (try cwd and parent for frontend/dist)
-	var frontendDir string
-	for _, p := range []string{"./frontend/dist", "../frontend/dist"} {
-		if _, err := os.Stat(p + "/index.html"); err == nil {
-			frontendDir = p
-			break
-		}
-	}
-	if frontendDir != "" {
-		r.Static("/assets", frontendDir+"/assets")
-		if _, err := os.Stat(frontendDir + "/favicon.svg"); err == nil {
-			r.StaticFile("/favicon.svg", frontendDir+"/favicon.svg")
-		}
-		if _, err := os.Stat(frontendDir + "/icon-light.svg"); err == nil {
-			r.StaticFile("/icon-light.svg", frontendDir+"/icon-light.svg")
-		}
-		r.StaticFile("/", frontendDir+"/index.html")
-		r.NoRoute(func(c *gin.Context) {
-			c.File(frontendDir + "/index.html")
-		})
-	}
+	// Embedded UI (-tags embed + app/uiembed/dist at compile time) or disk under ./app/web/dist, ./app/uiembed/dist, etc.
+	mountFrontend(r)
 
 	log.Printf("filetree API listening on :8080 (ROOT_PATH=%s)", cfg.Server.RootPath)
 	if err := r.Run(":8080"); err != nil {

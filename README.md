@@ -12,8 +12,8 @@
 
 
 <p align="center">
-  <a href="https://goreportcard.com/report/github.com/heapoftrash/filetree/backend">
-    <img src="https://goreportcard.com/badge/github.com/heapoftrash/filetree/backend" alt="Go Report Card"/>
+  <a href="https://goreportcard.com/report/github.com/heapoftrash/filetree/app">
+    <img src="https://goreportcard.com/badge/github.com/heapoftrash/filetree/app" alt="Go Report Card"/>
   </a>
   <a href="https://github.com/heapoftrash/filetree/actions/workflows/ci.yml">
     <img src="https://github.com/heapoftrash/filetree/actions/workflows/ci.yml/badge.svg" alt="Build status"/>
@@ -70,21 +70,25 @@ If the package is private, run `docker login ghcr.io` before `docker pull`.
 
 ### Production binary
 
+**Production binary** — `make build` runs the Vite production build, copies output into `app/uiembed/dist` for `go:embed`, and compiles **one** `app/filetree` binary with the UI embedded (install UI deps once: `cd app/web && npm ci`):
+
 ```bash
 git clone https://github.com/heapoftrash/filetree.git
 make build
-ROOT_PATH=/path/to/files CONFIG_FILE=./config.yaml ./backend/filetree
+ROOT_PATH=/path/to/files CONFIG_FILE=./config.yaml ./app/filetree
 ```
 
-Ship `backend/filetree` and `frontend/dist`. The binary serves the built UI when `frontend/dist` is present.
+The **prebuilt container image** already uses an embedded UI (no separate static bundle directory in the image).
+
+**UI on disk (optional)** — `make build-app` (Go only) plus `make build-frontend` if you want `app/web/dist` on disk; run `./app/filetree` from the repo root and the server will pick up `app/web/dist`, `app/uiembed/dist`, or cwd-relative paths (see [documentation](https://heapoftrash.github.io/filetree/)).
 
 See [docs/API.md](docs/API.md) for the API. Build docs locally: `pip install mkdocs-material && mkdocs serve`.
 
 ### Development
 
-**API** — `cd backend && go mod tidy && go run .` → **http://localhost:8080**
+**API** — `cd app && go mod tidy && go run .` → **http://localhost:8080**
 
-**UI** — `cd frontend && npm install && npm run dev` → **http://localhost:5173** (proxies `/api` to the backend)
+**UI** — `cd app/web && npm install && npm run dev` → **http://localhost:5173** (proxies `/api` to the API)
 
 Set `frontend.url` in config to `http://localhost:5173` for CORS and OAuth.
 

@@ -4,8 +4,8 @@ Thank you for your interest in contributing.
 
 ## Development setup
 
-1. **Backend:** `cd backend && go mod tidy && go run .`
-2. **Frontend:** `cd frontend && npm install && npm run dev`
+1. **Go (API):** `cd app && go mod tidy && go run .`
+2. **UI:** `cd app/web && npm install && npm run dev`
 3. Set `CONFIG_FILE=./config.yaml` and configure auth (see `config.example.yaml`).
 
 ## Commit messages
@@ -21,9 +21,10 @@ Validate locally: `make commitlint` or `npx commitlint --last --verbose`
 ## Pull requests
 
 1. Create a branch from `main`.
-2. Ensure `go build ./... && go vet ./... && go test ./...` passes in `backend`.
-3. Ensure `npm run build` passes in `frontend`.
-4. Open a PR with a clear description of the change.
+2. Ensure `go build ./... && go vet ./... && go test ./...` passes in `app`.
+3. Ensure `npm run build` passes in `app/web`.
+4. Optional: `make build` verifies the full embedded binary (frontend + `go build -tags embed`).
+5. Open a PR with a clear description of the change.
 
 ## Code style
 
@@ -32,7 +33,7 @@ Validate locally: `make commitlint` or `npx commitlint --last --verbose`
 
 ## Go score & quality
 
-CI runs these checks on the backend:
+CI runs these checks on the Go module under `app/`:
 
 | Tool | Purpose |
 |------|---------|
@@ -45,10 +46,10 @@ CI runs these checks on the backend:
 Run locally:
 
 ```bash
-cd backend
+cd app
 go build ./... && go vet ./... && go test ./...
 go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest && golangci-lint run
 go install github.com/securego/gosec/v2/cmd/gosec@latest && gosec ./...
 ```
 
-If you fork the repo, update the Go Report Card badge in the README to point to your fork (e.g. `github.com/YOUR_ORG/filetree`) to see the score at [goreportcard.com](https://goreportcard.com).
+If you fork the repo, update the Go Report Card badge in the README to point to your fork module path (e.g. `github.com/YOUR_ORG/filetree/app`) to see the score at [goreportcard.com](https://goreportcard.com).

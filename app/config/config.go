@@ -41,19 +41,19 @@ type Config struct {
 	Auth       AuthConfig     `yaml:"auth" json:"auth"`
 	Frontend   FrontendConfig `yaml:"frontend" json:"frontend"`
 	Users      UsersConfig    `yaml:"users" json:"users"`
-	ConfigPath string        `yaml:"-" json:"-"` // path we loaded from, for write-back
+	ConfigPath string         `yaml:"-" json:"-"` // path we loaded from, for write-back
 }
 
 type ServerConfig struct {
 	RootPath       string `yaml:"root_path" json:"root_path"`
-	Debug          bool   `yaml:"debug" json:"debug"`                         // when false, Gin runs in release mode (no debug logs)
-	MaxUploadBytes int64  `yaml:"max_upload_bytes" json:"max_upload_bytes"`     // max multipart upload size; 0 = default 100MB
+	Debug          bool   `yaml:"debug" json:"debug"`                       // when false, Gin runs in release mode (no debug logs)
+	MaxUploadBytes int64  `yaml:"max_upload_bytes" json:"max_upload_bytes"` // max multipart upload size; 0 = default 100MB
 }
 
 type AuthConfig struct {
-	JWTSecret        string                   `yaml:"jwt_secret" json:"jwt_secret"`
-	OAuthRedirectURL string                   `yaml:"oauth_redirect_url" json:"oauth_redirect_url"`
-	LocalAuthEnabled bool                     `yaml:"local_auth_enabled" json:"local_auth_enabled"` // username/password auth
+	JWTSecret        string                    `yaml:"jwt_secret" json:"jwt_secret"`
+	OAuthRedirectURL string                    `yaml:"oauth_redirect_url" json:"oauth_redirect_url"`
+	LocalAuthEnabled bool                      `yaml:"local_auth_enabled" json:"local_auth_enabled"` // username/password auth
 	Providers        map[string]ProviderConfig `yaml:"providers" json:"providers"`
 }
 
@@ -70,8 +70,8 @@ type FrontendConfig struct {
 }
 
 type UsersConfig struct {
-	AdminEmails  []string         `yaml:"admin_emails" json:"admin_emails"`
-	LocalUsers   []LocalUser      `yaml:"local_users" json:"local_users"`
+	AdminEmails  []string          `yaml:"admin_emails" json:"admin_emails"`
+	LocalUsers   []LocalUser       `yaml:"local_users" json:"local_users"`
 	DefaultAdmin *DefaultAdminUser `yaml:"default_admin" json:"default_admin"`
 }
 

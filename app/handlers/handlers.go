@@ -5,8 +5,8 @@ import (
 )
 
 type Handler struct {
-	root            string
-	maxUploadBytes  int64
+	root           string
+	maxUploadBytes int64
 }
 
 func New(root string, maxUploadBytes int64) (*Handler, error) {

@@ -5,7 +5,7 @@ icon: material/package-variant
 
 # Installation
 
-Filetree runs as a single binary that serves both the API and the frontend. Prerequisites: **Go 1.21+** and **Node.js 18+** (Node is needed to build the frontend assets).
+Filetree runs as a single binary that serves both the API and the web UI. Prerequisites: **Go 1.21+** and **Node.js 18+** (Node is needed to build the UI in `app/web/`).
 
 ## Installation
 
@@ -15,15 +15,15 @@ Filetree runs as a single binary that serves both the API and the frontend. Prer
 
     ```bash
     make build
-    ROOT_PATH=./data ./backend/filetree
+    ROOT_PATH=./data ./app/filetree
     ```
 
-    Then open **http://localhost:8080**. The binary serves the frontend from `frontend/dist` when present.
+    Then open **http://localhost:8080**. `make build` produces one binary with the UI embedded (Vite output is staged under `app/uiembed/dist` at compile time). With `make build-app` plus `make build-frontend`, the binary serves the UI from `app/web/dist` (repo root) or other disk paths — see [Production](production.md).
 
     For production, set `CONFIG_FILE` and `ROOT_PATH`:
 
     ```bash
-    ROOT_PATH=/path/to/files CONFIG_FILE=./config.yaml ./backend/filetree
+    ROOT_PATH=/path/to/files CONFIG_FILE=./config.yaml ./app/filetree
     ```
 
 === "with Docker"
@@ -53,36 +53,37 @@ Filetree runs as a single binary that serves both the API and the frontend. Prer
 
 === "from source"
 
-    Build the frontend and backend manually:
+    From the repository root (install UI dependencies once: `cd app/web && npm ci`):
 
     ```bash
-    cd frontend && npm install && npm run build
-    cd ../backend && go mod tidy && go build -o filetree .
+    make build
     ```
+
+    Without Make: after `npm run build` in `app/web`, run `make embed-ui` from the repo root, then `cd app && go build -tags embed -o filetree .`. For disk-only serving, use `go build` (no `-tags embed`) with `app/web/dist` present.
 
     Run from the project root:
 
     ```bash
-    ROOT_PATH=./data ./backend/filetree
+    ROOT_PATH=./data ./app/filetree
     ```
 
     Then open **http://localhost:8080**.
 
 === "development"
 
-    For local development with hot reload, run the backend and frontend in two terminals:
+    For local development with hot reload, run the Go server and the Vite dev server in two terminals:
 
-    **Terminal 1 — Backend:**
+    **Terminal 1 — API (Go):**
     ```bash
-    cd backend && go run .
+    cd app && go run .
     ```
     API runs at **http://localhost:8080**.
 
-    **Terminal 2 — Frontend:**
+    **Terminal 2 — UI:**
     ```bash
-    cd frontend && npm install && npm run dev
+    cd app/web && npm install && npm run dev
     ```
-    App runs at **http://localhost:5173** and proxies `/api` to the backend.
+    App runs at **http://localhost:5173** and proxies `/api` to the Go server.
 
     Open **http://localhost:5173** in your browser. Ensure `frontend.url` in config matches `http://localhost:5173` for CORS and OAuth.
 

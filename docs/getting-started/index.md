@@ -27,22 +27,22 @@ Over time, it grew, I added auth, previews, signed URLs, and an admin UI. What b
 
 ## Quick start
 
-## Quick start
-
 === "Single binary"
 
-    **Download** pre-built binaries from [GitHub Releases](https://github.com/heapoftrash/filetree/releases/latest). Extract the archive, copy `frontend/dist` next to the binary, then:
+    **Download** pre-built binaries from [GitHub Releases](https://github.com/heapoftrash/filetree/releases/latest) if available. If the release ships a UI bundle, place it where the binary expects it (see [Installation](installation.md)), then:
 
     ```bash
     ROOT_PATH=./data ./filetree
     ```
 
-    Or build from source:
+    Or build from source (**one embedded binary**):
 
     ```bash
     make build
-    ROOT_PATH=./data ./backend/filetree
+    ROOT_PATH=./data ./app/filetree
     ```
+
+    For a **disk-only** UI (no embed), use `make build-app` and `make build-frontend`, then run `./app/filetree` from the repo root so it serves `app/web/dist` (or `app/uiembed/dist` if you ran `make embed-ui`).
 
     For production:
 
@@ -78,13 +78,13 @@ Over time, it grew, I added auth, previews, signed URLs, and an admin UI. What b
     git clone https://github.com/heapoftrash/filetree.git
     cd filetree
     ```
-    Build the frontend and backend:
+    Build the UI and Go binary:
     ```bash
     make build
     ```
     Run from the project root:
     ```bash
-    ROOT_PATH=./data ./backend/filetree
+    ROOT_PATH=./data ./app/filetree
     ```
     Then open **http://localhost:8080**.
 

@@ -1,37 +1,41 @@
-.PHONY: build build-backend build-frontend test commitlint clean run-backend run-frontend
+.PHONY: build all build-app build-frontend embed-ui build-app-embed test commitlint clean run run-frontend
 
-# Build Go binary (output: backend/filetree or backend/filetree.exe)
-build-backend:
-	cd backend && go build -o filetree .
+# One binary with embedded UI: Vite → app/web/dist → app/uiembed/dist → go build -tags embed
+build: embed-ui
+	cd app && go build -tags embed -o filetree .
 
-# Build frontend (output: frontend/dist/)
+all: build
+
+# Same as build (kept for scripts and docs that name it explicitly)
+build-app-embed: build
+
+# Go only, no embed (dev: skip npm when UI unchanged; serve from app/web/dist on disk if present)
+build-app:
+	cd app && go build -o filetree .
+
+# Frontend (output: app/web/dist/)
 build-frontend:
-	cd frontend && npm run build
+	cd app/web && npm run build
 
-# Build both backend binary and frontend assets
-all: build-backend build-frontend
+# Stage static files for go:embed (used by build). Prereqs build-frontend so `make -j` cannot copy before Vite finishes.
+embed-ui: build-frontend
+	rm -rf app/uiembed/dist
+	mkdir -p app/uiembed/dist
+	cp -R app/web/dist/. app/uiembed/dist/
 
-# Alias
-build: all
-
-# Validate last commit message (Conventional Commits)
 commitlint:
 	npx commitlint --last --verbose
 
-# Run tests
 test:
-	cd backend && go vet ./... && go test ./...
-	cd frontend && npm run build
+	cd app && go vet ./... && go test ./...
+	cd app/web && npm run build
 
-# Run Go backend (dev)
 run:
-	./backend/filetree
+	./app/filetree
 
-# Run frontend dev server (proxies /api to backend)
 run-frontend:
-	cd frontend && npm run dev
+	cd app/web && npm run dev
 
-# Remove build artifacts
 clean:
-	rm -f backend/filetree backend/filetree.exe
-	rm -rf frontend/dist
+	rm -f app/filetree app/filetree.exe
+	rm -rf app/web/dist app/uiembed/dist frontend/dist

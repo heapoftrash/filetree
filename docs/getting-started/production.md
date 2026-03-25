@@ -8,7 +8,7 @@ icon: material/application-export
 Build with `make build` (or see [Installation](installation.md)), then run:
 
 ```bash
-ROOT_PATH=/path/to/files CONFIG_FILE=./config.yaml ./backend/filetree
+ROOT_PATH=/path/to/files CONFIG_FILE=./config.yaml ./app/filetree
 ```
 
 Then open **http://localhost:8080**.
@@ -17,11 +17,16 @@ Then open **http://localhost:8080**.
 
 ### Option A: Binary
 
-1. **Copy** the `filetree` binary and the `frontend/dist` folder to your server
-2. **Set** `ROOT_PATH` to the directory where files should be stored
-3. **Set** `CONFIG_FILE` to your config file (e.g. `./config.yaml`)
-4. **Use** a reverse proxy (nginx, Caddy) for the production URL if needed
-5. **Set** `JWT_SECRET` and `oauth_redirect_url` for production (e.g. `https://your-domain.com/api/auth/google/callback`)
+**Embedded UI (recommended for a single file to deploy):** from a source tree, run **`make build`**. Deploy only `app/filetree` (plus your config). The UI is in the binary via `go:embed` and `-tags embed`; Make copies Vite output from `app/web/dist` into `app/uiembed/dist` before compiling.
+
+**UI on disk:** use `make build-app` and `make build-frontend` (no `-tags embed`), or plain `go build` after `npm run build`, and ensure `app/web/dist` exists when you run from the repo root; from the `app/` directory, `./web/dist` / `./uiembed/dist` can be used instead.
+
+Then:
+
+1. **Set** `ROOT_PATH` to the directory where files should be stored
+2. **Set** `CONFIG_FILE` to your config file (e.g. `./config.yaml`)
+3. **Use** a reverse proxy (nginx, Caddy) for the production URL if needed
+4. **Set** `JWT_SECRET` and `oauth_redirect_url` for production (e.g. `https://your-domain.com/api/auth/google/callback`)
 
 ### Option B: Docker
 
@@ -30,6 +35,9 @@ Then open **http://localhost:8080**.
 3. **Mount** your config file and set `CONFIG_FILE` if needed
 4. **Use** a reverse proxy in front for HTTPS and custom domains
 
-## Single binary
+## Serving the UI
 
-When `frontend/dist` exists next to the binary, the backend serves it directly. No separate web server is required for the frontend. For HTTPS and custom domains, put a reverse proxy in front.
+- **Embedded build** (`-tags embed`, with `app/uiembed/dist` populated at compile time): the server serves the UI from the binary; no separate static directory at runtime.
+- **Disk layout:** if there is no usable embedded bundle (e.g. plain `go build` without `-tags embed`, or an empty embed), the server looks for `./app/web/dist`, `./app/uiembed/dist`, `./web/dist`, or `./uiembed/dist` (relative to the working directory) and serves those files.
+
+No separate web server is required for the UI. For HTTPS and custom domains, put a reverse proxy in front.

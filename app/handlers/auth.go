@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/heapoftrash/filetree/backend/config"
+	"github.com/heapoftrash/filetree/app/config"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -26,14 +26,14 @@ var (
 )
 
 type AuthHandler struct {
-	oauth2Configs      map[string]*oauth2.Config // provider id -> config
-	jwtSecret          []byte
-	frontendURL        string
-	adminEmails        []string
-	localUsers         []config.LocalUser
-	defaultAdmin       *config.DefaultAdminUser
-	localAuthEnabled   bool
-	oauthProviders     []LoginProviderInfo
+	oauth2Configs    map[string]*oauth2.Config // provider id -> config
+	jwtSecret        []byte
+	frontendURL      string
+	adminEmails      []string
+	localUsers       []config.LocalUser
+	defaultAdmin     *config.DefaultAdminUser
+	localAuthEnabled bool
+	oauthProviders   []LoginProviderInfo
 }
 
 // oauthCallbackURL derives the callback URL for a provider from the base oauth_redirect_url.
@@ -120,7 +120,7 @@ func buildOAuthProviders(cfg *config.Config) []LoginProviderInfo {
 
 // LoginOptionsResponse is the public auth config for the login page.
 type LoginOptionsResponse struct {
-	LocalAuthEnabled bool               `json:"local_auth_enabled"`
+	LocalAuthEnabled bool                `json:"local_auth_enabled"`
 	Providers        []LoginProviderInfo `json:"providers"`
 }
 
@@ -187,11 +187,11 @@ func (h *AuthHandler) LocalLogin(c *gin.Context) {
 	}
 	log.Printf("[auth] local user logged in: username=%q", authUsername)
 	claims := jwt.MapClaims{
-		"sub":     authUsername,
-		"email":   authUsername,
-		"name":    authUsername,
-		"exp":     time.Now().Add(tokenExpiry).Unix(),
-		"iat":     time.Now().Unix(),
+		"sub":   authUsername,
+		"email": authUsername,
+		"name":  authUsername,
+		"exp":   time.Now().Add(tokenExpiry).Unix(),
+		"iat":   time.Now().Unix(),
 	}
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := jwtToken.SignedString(h.jwtSecret)
@@ -338,10 +338,10 @@ func (h *AuthHandler) fetchGitHubUserInfo(ctx context.Context, cfg *oauth2.Confi
 	defer func() { _ = resp.Body.Close() }()
 
 	var user struct {
-		Login   string `json:"login"`
-		Name    string `json:"name"`
-		Email   string `json:"email"`
-		Avatar  string `json:"avatar_url"`
+		Login  string `json:"login"`
+		Name   string `json:"name"`
+		Email  string `json:"email"`
+		Avatar string `json:"avatar_url"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
 		return "", "", "", err
