@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/heapoftrash/filetree/app/uiembed"
@@ -35,14 +36,15 @@ func mountEmbeddedFrontend(r *gin.Engine) bool {
 			c.FileFromFS(n, httpDist)
 		})
 	}
-	// Do not use StaticFileFS("/", ...): Gin returns 301 with Location: "./", which breaks clients.
+	// Do not use FileFromFS/StaticFile*/FileServer for index.html: Gin sets r.URL.Path to end with
+	// "/index.html", and net/http.FileServer then returns 301 Location: "./" (see net/http fs.go).
 	serveIndex := func(c *gin.Context) {
-		c.FileFromFS("index.html", httpDist)
+		serveIndexHTML(c, distFS)
 	}
 	r.GET("/", serveIndex)
 	r.HEAD("/", serveIndex)
 	r.NoRoute(func(c *gin.Context) {
-		c.FileFromFS("index.html", httpDist)
+		serveIndexHTML(c, distFS)
 	})
 	log.Println("Serving embedded frontend (built with -tags embed)")
 	return true
@@ -76,4 +78,19 @@ func mountDiskFrontend(r *gin.Engine) {
 		c.File(indexPath)
 	})
 	log.Printf("Serving frontend from disk (%s)\n", frontendDir)
+}
+
+func serveIndexHTML(c *gin.Context, distFS fs.FS) {
+	b, err := fs.ReadFile(distFS, "index.html")
+	if err != nil {
+		c.Status(http.StatusNotFound)
+		return
+	}
+	c.Header("Content-Type", "text/html; charset=utf-8")
+	if c.Request.Method == http.MethodHead {
+		c.Header("Content-Length", strconv.Itoa(len(b)))
+		c.Status(http.StatusOK)
+		return
+	}
+	c.Data(http.StatusOK, "text/html; charset=utf-8", b)
 }
