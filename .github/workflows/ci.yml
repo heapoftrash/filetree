@@ -126,11 +126,13 @@ jobs:
           go-version: '1.25'
           cache-dependency-path: app/go.sum
 
+      # Upload stores paths relative to app/web/dist (index.html, assets/...), not app/web/dist/...
+      # Extract directly into app/web/dist so cp below finds the built UI.
       - name: Download frontend dist
         uses: actions/download-artifact@v4
         with:
           name: frontend-dist
-          path: .
+          path: app/web/dist
 
       - name: Stage UI for embed
         run: |
