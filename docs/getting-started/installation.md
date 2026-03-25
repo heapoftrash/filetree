@@ -18,7 +18,7 @@ Filetree runs as a single binary that serves both the API and the frontend. Prer
     ROOT_PATH=./data ./backend/filetree
     ```
 
-    Then open **http://localhost:8080**. The binary serves the frontend from `frontend/dist` when present.
+    Then open **http://localhost:8080**. By default the binary serves the UI from `frontend/dist` when that folder exists relative to the working directory. For a **single binary** with the UI inside it, run `make build-frontend` and `make build-backend-embed` instead of `build-backend`, then run `./backend/filetree` (built with `-tags embed`).
 
     For production, set `CONFIG_FILE` and `ROOT_PATH`:
 
@@ -57,8 +57,12 @@ Filetree runs as a single binary that serves both the API and the frontend. Prer
 
     ```bash
     cd frontend && npm install && npm run build
-    cd ../backend && go mod tidy && go build -o filetree .
+    cd ..
+    rm -rf backend/web/dist && cp -R frontend/dist backend/web/dist
+    cd backend && go mod tidy && go build -tags embed -o filetree .
     ```
+
+    Omit `-tags embed` and the `web/dist` copy if you prefer to run with `frontend/dist` on disk (e.g. run `./backend/filetree` from the repo root after only `go build -o filetree .`).
 
     Run from the project root:
 

@@ -17,11 +17,16 @@ Then open **http://localhost:8080**.
 
 ### Option A: Binary
 
-1. **Copy** the `filetree` binary and the `frontend/dist` folder to your server
-2. **Set** `ROOT_PATH` to the directory where files should be stored
-3. **Set** `CONFIG_FILE` to your config file (e.g. `./config.yaml`)
-4. **Use** a reverse proxy (nginx, Caddy) for the production URL if needed
-5. **Set** `JWT_SECRET` and `oauth_redirect_url` for production (e.g. `https://your-domain.com/api/auth/google/callback`)
+**Embedded UI (recommended for a single file to deploy):** from a source tree, run `make build-frontend` then `make build-backend-embed`. Deploy only `backend/filetree` (plus your config). The UI is baked into the binary via `go:embed` and `-tags embed`.
+
+**UI beside the binary:** if you build with `make build` (or `go build` without `embed`), copy **`frontend/dist`** next to the runtime layout the binary expects (`./frontend/dist` or `../frontend/dist` relative to the process working directory), or run from the repository root after `make build`.
+
+Then:
+
+1. **Set** `ROOT_PATH` to the directory where files should be stored
+2. **Set** `CONFIG_FILE` to your config file (e.g. `./config.yaml`)
+3. **Use** a reverse proxy (nginx, Caddy) for the production URL if needed
+4. **Set** `JWT_SECRET` and `oauth_redirect_url` for production (e.g. `https://your-domain.com/api/auth/google/callback`)
 
 ### Option B: Docker
 
@@ -30,6 +35,9 @@ Then open **http://localhost:8080**.
 3. **Mount** your config file and set `CONFIG_FILE` if needed
 4. **Use** a reverse proxy in front for HTTPS and custom domains
 
-## Single binary
+## Serving the UI
 
-When `frontend/dist` exists next to the binary, the backend serves it directly. No separate web server is required for the frontend. For HTTPS and custom domains, put a reverse proxy in front.
+- **Embedded build** (`-tags embed`, with `backend/web/dist` populated at compile time): the backend serves the UI from memory; no `frontend/dist` folder at runtime.
+- **Disk layout:** when `./frontend/dist` or `../frontend/dist` exists (from the process working directory), the backend serves those files instead.
+
+No separate web server is required for the frontend. For HTTPS and custom domains, put a reverse proxy in front.

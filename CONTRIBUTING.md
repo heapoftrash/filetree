@@ -23,7 +23,8 @@ Validate locally: `make commitlint` or `npx commitlint --last --verbose`
 1. Create a branch from `main`.
 2. Ensure `go build ./... && go vet ./... && go test ./...` passes in `backend`.
 3. Ensure `npm run build` passes in `frontend`.
-4. Open a PR with a clear description of the change.
+4. Optional: `make build-backend-embed` (after `make build-frontend`) verifies `go build -tags embed` with the Vite output in `backend/web/dist`.
+5. Open a PR with a clear description of the change.
 
 ## Code style
 

@@ -70,13 +70,20 @@ If the package is private, run `docker login ghcr.io` before `docker pull`.
 
 ### Production binary
 
+**Embedded UI (single artifact)** — build the frontend, copy its output into `backend/web/dist`, then compile with the `embed` tag:
+
 ```bash
 git clone https://github.com/heapoftrash/filetree.git
-make build
+make build-frontend
+make build-backend-embed
 ROOT_PATH=/path/to/files CONFIG_FILE=./config.yaml ./backend/filetree
 ```
 
-Ship `backend/filetree` and `frontend/dist`. The binary serves the built UI when `frontend/dist` is present.
+Or run `make embed-frontend` after `make build-frontend`; both populate `backend/web/dist` before `go build -tags embed`.
+
+The **prebuilt container image** already uses an embedded UI (no separate `frontend/dist` in the image).
+
+**UI on disk (optional)** — `make build` and run `./backend/filetree` from the repo root; the binary still serves `frontend/dist` when that folder exists next to the working directory.
 
 See [docs/API.md](docs/API.md) for the API. Build docs locally: `pip install mkdocs-material && mkdocs serve`.
 

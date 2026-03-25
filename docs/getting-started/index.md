@@ -27,22 +27,22 @@ Over time, it grew, I added auth, previews, signed URLs, and an admin UI. What b
 
 ## Quick start
 
-## Quick start
-
 === "Single binary"
 
-    **Download** pre-built binaries from [GitHub Releases](https://github.com/heapoftrash/filetree/releases/latest). Extract the archive, copy `frontend/dist` next to the binary, then:
+    **Download** pre-built binaries from [GitHub Releases](https://github.com/heapoftrash/filetree/releases/latest) if available. If the release ships a UI bundle, place `frontend/dist` where the binary expects it (see [Installation](installation.md)), then:
 
     ```bash
     ROOT_PATH=./data ./filetree
     ```
 
-    Or build from source:
+    Or build from source with the **embedded UI** (one file to run):
 
     ```bash
-    make build
+    make build-frontend && make build-backend-embed
     ROOT_PATH=./data ./backend/filetree
     ```
+
+    Or `make build` and run `./backend/filetree` from the repo root so it serves `frontend/dist` from disk.
 
     For production:
 

@@ -113,10 +113,35 @@ jobs:
           name: frontend-dist
           path: frontend/dist
 
+  backend-embed:
+    name: Backend (embedded UI)
+    runs-on: ubuntu-latest
+    needs: [frontend]
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+          cache-dependency-path: backend/go.sum
+
+      - name: Download frontend dist
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
+      - name: Build with embedded frontend
+        run: |
+          rm -rf backend/web/dist
+          cp -R frontend/dist backend/web/dist
+          cd backend && go build -tags embed -o filetree .
+
   docker-build:
     name: Build
     runs-on: ubuntu-latest
-    needs: [commitlint, backend, gosec, frontend]
+    needs: [commitlint, backend, gosec, frontend, backend-embed]
     steps:
       - uses: actions/checkout@v6
 
@@ -197,7 +222,7 @@ jobs:
   ci-success:
     name: CI success
     runs-on: ubuntu-latest
-    needs: [commitlint, backend, gosec, frontend, docker-build]
+    needs: [commitlint, backend, gosec, frontend, backend-embed, docker-build]
     steps:
       - name: All checks passed
         run: echo "All checks passed"

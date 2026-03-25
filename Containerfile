@@ -9,14 +9,14 @@ WORKDIR /app
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 COPY backend/ ./
-RUN CGO_ENABLED=0 go build -o filetree .
+COPY --from=frontend /app/frontend/dist ./web/dist
+RUN CGO_ENABLED=0 go build -tags embed -o filetree .
 
 FROM alpine:3.20
 RUN apk add --no-cache ca-certificates
 WORKDIR /app
 
 COPY --from=backend /app/filetree .
-COPY --from=frontend /app/frontend/dist ./frontend/dist
 
 EXPOSE 8080
 
