@@ -72,6 +72,7 @@ type FrontendConfig struct {
 type UsersConfig struct {
 	AdminEmails         []string          `yaml:"admin_emails" json:"admin_emails"`
 	AllowedOAuthEmails  []string          `yaml:"allowed_oauth_emails" json:"allowed_oauth_emails"` // non-admin OAuth users allowed to sign in (union with admin_emails)
+	AllowAllOAuthUsers  bool              `yaml:"allow_all_oauth_users" json:"allow_all_oauth_users"` // if true, skip email allowlist for OAuth sign-in (admin_emails still gates admin)
 	LocalUsers          []LocalUser       `yaml:"local_users" json:"local_users"`
 	DefaultAdmin        *DefaultAdminUser `yaml:"default_admin" json:"default_admin"`
 }
@@ -85,6 +86,11 @@ type LocalUser struct {
 type DefaultAdminUser struct {
 	Username string `yaml:"username" json:"username"`
 	Password string `yaml:"password,omitempty" json:"password,omitempty"` // plaintext or bcrypt; hashed on first run if plaintext
+}
+
+func parseBoolEnv(s string) bool {
+	s = strings.TrimSpace(strings.ToLower(s))
+	return s == "1" || s == "true" || s == "yes" || s == "on"
 }
 
 // isBcryptHash returns true if s looks like a bcrypt hash ($2a$, $2b$, $2y$).
@@ -152,6 +158,9 @@ func Load(configPath string) (*Config, error) {
 		}
 		if len(c.Users.AllowedOAuthEmails) > 0 {
 			src.set("users.allowed_oauth_emails", SourceConfig)
+		}
+		if c.Users.AllowAllOAuthUsers {
+			src.set("users.allow_all_oauth_users", SourceConfig)
 		}
 		if c.Auth.Providers != nil {
 			if p, ok := c.Auth.Providers["google"]; ok && p.ClientID != "" {
@@ -248,6 +257,10 @@ func Load(configPath string) (*Config, error) {
 		c.Users.AllowedOAuthEmails = parts
 		src.set("users.allowed_oauth_emails", SourceEnv)
 	}
+	if v := os.Getenv("OAUTH_ALLOW_ALL_USERS"); v != "" {
+		c.Users.AllowAllOAuthUsers = parseBoolEnv(v)
+		src.set("users.allow_all_oauth_users", SourceEnv)
+	}
 
 	// 3. Defaults
 	if c.Server.RootPath == "" {
@@ -277,6 +290,9 @@ func Load(configPath string) (*Config, error) {
 	}
 	if src["users.allowed_oauth_emails"] == 0 {
 		src.set("users.allowed_oauth_emails", SourceDefault)
+	}
+	if src["users.allow_all_oauth_users"] == 0 {
+		src.set("users.allow_all_oauth_users", SourceDefault)
 	}
 	if src["server.debug"] == 0 {
 		c.Server.Debug = false
@@ -422,6 +438,7 @@ func logConfigSources(logger *log.Logger, c *Config, src sources, configPath str
 		{"frontend.cors_origins", fmt.Sprintf("%v", c.Frontend.CORSOrigins), src["frontend.cors_origins"]},
 		{"users.admin_emails", fmt.Sprintf("%v", c.Users.AdminEmails), src["users.admin_emails"]},
 		{"users.allowed_oauth_emails", fmt.Sprintf("%v", c.Users.AllowedOAuthEmails), src["users.allowed_oauth_emails"]},
+		{"users.allow_all_oauth_users", fmt.Sprintf("%v", c.Users.AllowAllOAuthUsers), src["users.allow_all_oauth_users"]},
 	}
 
 	for _, item := range items {
@@ -443,10 +460,14 @@ func OAuthProviderActive(c *Config) bool {
 	return false
 }
 
-// OAuthLoginAllowlistConfigured returns true if admin_emails or allowed_oauth_emails contains a non-empty email.
+// OAuthLoginAllowlistConfigured returns true if OAuth sign-in is allowed without empty-list denial:
+// allow_all_oauth_users, or at least one non-empty email in admin_emails or allowed_oauth_emails.
 func OAuthLoginAllowlistConfigured(c *Config) bool {
 	if c == nil {
 		return false
+	}
+	if c.Users.AllowAllOAuthUsers {
+		return true
 	}
 	for _, e := range c.Users.AdminEmails {
 		if strings.TrimSpace(e) != "" {

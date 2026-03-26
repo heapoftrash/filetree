@@ -21,7 +21,10 @@ func main() {
 	}
 
 	if config.OAuthProviderActive(cfg) && !config.OAuthLoginAllowlistConfigured(cfg) {
-		log.Println("[config] OAuth provider(s) are enabled but users.admin_emails and users.allowed_oauth_emails are empty — OAuth sign-in will be denied until at least one email is listed.")
+		log.Println("[config] OAuth provider(s) are enabled but users.admin_emails and users.allowed_oauth_emails are empty — OAuth sign-in will be denied until at least one email is listed (or set users.allow_all_oauth_users).")
+	}
+	if config.OAuthProviderActive(cfg) && cfg.Users.AllowAllOAuthUsers {
+		log.Println("[config] users.allow_all_oauth_users is enabled — any OAuth user with a verified email may sign in; admin_emails still controls admin access only.")
 	}
 
 	if err := os.MkdirAll(cfg.Server.RootPath, 0750); err != nil {

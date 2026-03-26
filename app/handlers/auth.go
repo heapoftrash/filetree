@@ -299,16 +299,18 @@ func (h *AuthHandler) oauthCallback(provider string, c *gin.Context) {
 		c.Redirect(http.StatusFound, h.redirectTo("/login?error=userinfo"))
 		return
 	}
-	allow := oauthEmailAllowSet(appCfg.Users.AdminEmails, appCfg.Users.AllowedOAuthEmails)
-	if len(allow) == 0 {
-		log.Printf("[auth] %s user login failed: email=%q name=%q reason=oauth_no_allowlist_configured", provider, email, name)
-		c.Redirect(http.StatusFound, h.redirectTo("/login?error=oauth_no_allowlist"))
-		return
-	}
-	if _, ok := allow[emailKey]; !ok {
-		log.Printf("[auth] %s user login failed: email=%q name=%q reason=oauth_email_not_allowed", provider, email, name)
-		c.Redirect(http.StatusFound, h.redirectTo("/login?error=oauth_not_allowed"))
-		return
+	if !appCfg.Users.AllowAllOAuthUsers {
+		allow := oauthEmailAllowSet(appCfg.Users.AdminEmails, appCfg.Users.AllowedOAuthEmails)
+		if len(allow) == 0 {
+			log.Printf("[auth] %s user login failed: email=%q name=%q reason=oauth_no_allowlist_configured", provider, email, name)
+			c.Redirect(http.StatusFound, h.redirectTo("/login?error=oauth_no_allowlist"))
+			return
+		}
+		if _, ok := allow[emailKey]; !ok {
+			log.Printf("[auth] %s user login failed: email=%q name=%q reason=oauth_email_not_allowed", provider, email, name)
+			c.Redirect(http.StatusFound, h.redirectTo("/login?error=oauth_not_allowed"))
+			return
+		}
 	}
 
 	log.Printf("[auth] %s user logged in: email=%q name=%q", provider, email, name)

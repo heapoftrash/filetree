@@ -114,10 +114,12 @@ Copy `config.example.yaml` to `config.yaml` and set `CONFIG_FILE=./config.yaml`.
     |----------|-----------|---------|
     | `ADMIN_EMAILS` | `users.admin_emails` | Comma-separated OAuth admin emails |
     | `ALLOWED_OAUTH_EMAILS` | `users.allowed_oauth_emails` | Comma-separated OAuth non-admin allowed emails |
+    | `OAUTH_ALLOW_ALL_USERS` | `users.allow_all_oauth_users` | `true`/`1`/`yes`/`on` to allow any OAuth user to sign in |
 
     ```bash
     export ADMIN_EMAILS="admin@example.com,other@example.com"
     export ALLOWED_OAUTH_EMAILS="user@example.com"
+    # export OAUTH_ALLOW_ALL_USERS=true   # optional: open OAuth sign-in (trusted env only)
     ```
 
     Local admins must use `is_admin: true` in config; no env override.

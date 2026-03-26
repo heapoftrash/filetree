@@ -143,6 +143,7 @@ function categoryForField(name: (string | number)[]): {
     if (
       key === 'admin_emails' ||
       key === 'allowed_oauth_emails' ||
+      key === 'allow_all_oauth_users' ||
       key === 'default_admin_username' ||
       key === 'default_admin_password'
     ) {
@@ -173,17 +174,19 @@ export default function Settings() {
   const localUsersFormValues = (Form.useWatch(['users', 'local_users'], form) ?? []) as Array<Record<string, unknown>>
   const adminEmailsWatch = Form.useWatch(['users', 'admin_emails'], form)
   const allowedOAuthWatch = Form.useWatch(['users', 'allowed_oauth_emails'], form)
+  const allowAllOAuthWatch = Form.useWatch(['users', 'allow_all_oauth_users'], form)
   const oauthEnabled =
     (authProviders && typeof authProviders === 'object' &&
       ((authProviders as Record<string, Record<string, unknown>>).google?.enabled === true ||
         (authProviders as Record<string, Record<string, unknown>>).github?.enabled === true)) ??
     false
 
-  const oauthAllowlistNonEmpty = useMemo(() => {
+  const oauthSignInOk = useMemo(() => {
+    if (allowAllOAuthWatch === true) return true
     const countNonEmpty = (arr: unknown) =>
       Array.isArray(arr) ? (arr as unknown[]).filter((e) => typeof e === 'string' && e.trim()).length : 0
     return countNonEmpty(adminEmailsWatch) + countNonEmpty(allowedOAuthWatch) > 0
-  }, [adminEmailsWatch, allowedOAuthWatch])
+  }, [allowAllOAuthWatch, adminEmailsWatch, allowedOAuthWatch])
 
   useEffect(() => {
     getConfig()
@@ -305,10 +308,22 @@ export default function Settings() {
     const users = fieldsBySection.users ?? []
     return users
       .filter((f) =>
-        ['admin_emails', 'allowed_oauth_emails', 'default_admin_username', 'default_admin_password'].includes(f.key),
+        [
+          'admin_emails',
+          'allowed_oauth_emails',
+          'allow_all_oauth_users',
+          'default_admin_username',
+          'default_admin_password',
+        ].includes(f.key),
       )
       .sort((a, b) => {
-        const order = ['admin_emails', 'allowed_oauth_emails', 'default_admin_username', 'default_admin_password']
+        const order = [
+          'admin_emails',
+          'allowed_oauth_emails',
+          'allow_all_oauth_users',
+          'default_admin_username',
+          'default_admin_password',
+        ]
         return order.indexOf(a.key) - order.indexOf(b.key)
       })
   }, [fieldsBySection.users])
@@ -419,13 +434,13 @@ export default function Settings() {
                 <Col flex="1" style={{ minWidth: 0 }}>
                   {usersSub === 'admin_user' && (
                     <>
-                      {oauthEnabled && !oauthAllowlistNonEmpty && (
+                      {oauthEnabled && !oauthSignInOk && (
                         <Alert
                           type="warning"
                           showIcon
                           style={{ marginBottom: 16 }}
                           message="OAuth sign-in disabled for everyone"
-                          description="Add at least one email under Admin emails or Allowed OAuth emails, or OAuth logins will be rejected until you do."
+                          description="Add at least one email under Admin or Allowed OAuth emails, or enable Allow all OAuth users. Otherwise OAuth logins are rejected."
                         />
                       )}
                       {adminUserFields.map((field) => (

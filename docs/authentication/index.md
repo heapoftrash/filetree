@@ -218,7 +218,7 @@ An example config of all authentication methods
     `admin_emails` applies **only to OAuth users** (Google/GitHub). For local users, set `is_admin: true` per user in `local_users`.
 
 !!! note "OAuth allowlist"
-    `allowed_oauth_emails` lists non-admin OAuth users who may sign in. The allowlist is `admin_emails` ∪ `allowed_oauth_emails`. If OAuth is enabled and both are empty, OAuth sign-in is blocked.
+    `allowed_oauth_emails` lists non-admin OAuth users who may sign in. The allowlist is `admin_emails` ∪ `allowed_oauth_emails`. If OAuth is enabled and both are empty, OAuth sign-in is blocked unless `allow_all_oauth_users` is true (open sign-in; trusted environments only).
 
 
 !!! note "OAuth redirect URL"

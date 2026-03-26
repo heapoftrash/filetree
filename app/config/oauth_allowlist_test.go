@@ -32,4 +32,9 @@ func TestOAuthLoginAllowlistConfigured(t *testing.T) {
 	if !OAuthLoginAllowlistConfigured(c) {
 		t.Fatal("allowed_oauth_emails should count")
 	}
+	c.Users.AllowedOAuthEmails = nil
+	c.Users.AllowAllOAuthUsers = true
+	if !OAuthLoginAllowlistConfigured(c) {
+		t.Fatal("allow_all_oauth_users should satisfy allowlist check")
+	}
 }

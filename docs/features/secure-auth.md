@@ -25,7 +25,7 @@ You can enable multiple providers; users choose which one to use at login.
 
 ## OAuth allowlist
 
-Only addresses in **`admin_emails`** ∪ **`allowed_oauth_emails`** can complete OAuth sign-in. `admin_emails` grants **admin** access; `allowed_oauth_emails` grants **regular** access (Settings UI remains admin-only). If Google or GitHub is enabled but both lists are empty, OAuth sign-in is denied (use local auth or add at least one email). The server logs a warning at startup in that case.
+Only addresses in **`admin_emails`** ∪ **`allowed_oauth_emails`** can complete OAuth sign-in, unless **`allow_all_oauth_users`** is enabled (any OAuth user with an email may sign in; use only in trusted environments). `admin_emails` grants **admin** access; `allowed_oauth_emails` grants **regular** access (Settings UI remains admin-only). If Google or GitHub is enabled but both lists are empty and allow-all is off, OAuth sign-in is denied (use local auth or add at least one email). The server logs a warning at startup in that case.
 
 ## Admin access
 

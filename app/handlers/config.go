@@ -172,6 +172,7 @@ func (h *ConfigHandler) GetConfig(c *gin.Context) {
 		"users": {
 			"admin_emails":           cfg.Users.AdminEmails,
 			"allowed_oauth_emails":   cfg.Users.AllowedOAuthEmails,
+			"allow_all_oauth_users":  cfg.Users.AllowAllOAuthUsers,
 			"local_users":            localUsersUI,
 			"default_admin_username": defaultAdminUsername,
 			"default_admin_password": defaultAdminPasswordSet, // true = Set, false = Not set
@@ -295,6 +296,9 @@ func (h *ConfigHandler) UpdateConfig(c *gin.Context) {
 				}
 				cfg.Users.AllowedOAuthEmails = emails
 			}
+		}
+		if v, ok := s["allow_all_oauth_users"].(bool); ok {
+			cfg.Users.AllowAllOAuthUsers = v
 		}
 		if v, ok := s["local_users"]; ok {
 			if arr, ok := toLocalUsers(v, cfg.Users.LocalUsers); ok {

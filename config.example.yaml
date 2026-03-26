@@ -27,7 +27,8 @@ frontend:
 
 users:
   admin_emails: []   # OAuth emails: admin + allowed to sign in
-  allowed_oauth_emails: []   # OAuth emails: non-admin users allowed to sign in (union with admin_emails). If OAuth is enabled and both lists empty, OAuth sign-in is denied.
+  allowed_oauth_emails: []   # OAuth emails: non-admin users allowed to sign in (union with admin_emails). If OAuth is enabled and both lists empty, OAuth sign-in is denied unless allow_all_oauth_users is true.
+  allow_all_oauth_users: false   # If true, any OAuth user with an email may sign in (lists ignored for sign-in). Trusted environments only.
   local_users: []   # Local username/password users
   # default_admin: bootstrap on startup (password hashed, stored in default_admin; not added to local_users)
   # default_admin:
