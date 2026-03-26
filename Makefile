@@ -1,4 +1,4 @@
-.PHONY: build all build-app build-frontend embed-ui build-app-embed test commitlint changelog clean run run-frontend
+.PHONY: build all build-app build-frontend embed-ui build-app-embed test commitlint clean run run-frontend
 
 # One binary with embedded UI: Vite → app/web/dist → app/uiembed/dist → go build -tags embed
 build: embed-ui
@@ -25,9 +25,6 @@ embed-ui: build-frontend
 
 commitlint:
 	npx commitlint --last --verbose
-
-changelog:
-	@command -v git-cliff >/dev/null 2>&1 && git-cliff -o CHANGELOG.md || (echo "Install git-cliff: https://github.com/orhun/git-cliff/releases"; exit 1)
 
 test:
 	cd app && go vet ./... && go test ./...
