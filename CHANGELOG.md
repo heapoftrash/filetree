@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented in this file.
 
-This file is **generated** by [git-cliff](https://github.com/orhun/git-cliff) from git history (see `.github/workflows/changelog.yml` on pull requests). Edit commit messages, not this file.
+This file is **generated** by [git-cliff](https://github.com/orhun/git-cliff) from the git history on each push to `main` (see `.github/workflows/changelog.yml`). Edit commit messages, not this file.
 
 ## [unreleased]
 

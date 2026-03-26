@@ -23,7 +23,7 @@ Validate locally: `make commitlint` or `npx commitlint --last --verbose`
 `CHANGELOG.md` is **generated** by [git-cliff](https://github.com/orhun/git-cliff) from commit history (see `cliff.toml`). Do not edit it by hand — use clear conventional commit subjects so the release history stays readable.
 
 - Local preview: install [git-cliff](https://github.com/orhun/git-cliff/releases) and run `git-cliff -o CHANGELOG.md` (or `make changelog`).
-- Opening or updating a **same-repo** pull request (with changes other than `CHANGELOG.md` alone) runs `.github/workflows/changelog.yml`, which regenerates `CHANGELOG.md` and **pushes a commit to the PR branch**. Fork PRs are skipped (Actions cannot push to forks). Use **Actions → Changelog → Run workflow** to regenerate on a chosen branch (e.g. `main`) when needed.
+- Pushes to `main` that change files other than `CHANGELOG.md` trigger `.github/workflows/changelog.yml`, which regenerates the file and commits if needed. If `main` is branch-protected, allow the workflow to push (e.g. bypass for GitHub Actions) or run **Actions → Changelog → Run workflow** manually after merging.
 
 ## Pull requests
 
