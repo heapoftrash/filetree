@@ -70,11 +70,11 @@ type FrontendConfig struct {
 }
 
 type UsersConfig struct {
-	AdminEmails         []string          `yaml:"admin_emails" json:"admin_emails"`
-	AllowedOAuthEmails  []string          `yaml:"allowed_oauth_emails" json:"allowed_oauth_emails"` // non-admin OAuth users allowed to sign in (union with admin_emails)
-	AllowAllOAuthUsers  bool              `yaml:"allow_all_oauth_users" json:"allow_all_oauth_users"` // if true, skip email allowlist for OAuth sign-in (admin_emails still gates admin)
-	LocalUsers          []LocalUser       `yaml:"local_users" json:"local_users"`
-	DefaultAdmin        *DefaultAdminUser `yaml:"default_admin" json:"default_admin"`
+	OauthAdminEmails   []string          `yaml:"oauth_admin_emails" json:"oauth_admin_emails"`       // OAuth admins; union with oauth_allowed_emails for sign-in allowlist
+	OauthAllowedEmails []string          `yaml:"oauth_allowed_emails" json:"oauth_allowed_emails"`   // non-admin OAuth users allowed to sign in
+	OauthAllowAllUsers bool              `yaml:"oauth_allow_all_users" json:"oauth_allow_all_users"` // if true, skip email allowlist for OAuth sign-in (oauth_admin_emails still gates admin)
+	LocalUsers         []LocalUser       `yaml:"local_users" json:"local_users"`
+	DefaultAdmin       *DefaultAdminUser `yaml:"default_admin" json:"default_admin"`
 }
 
 type LocalUser struct {
@@ -153,14 +153,14 @@ func Load(configPath string) (*Config, error) {
 		if len(c.Frontend.CORSOrigins) > 0 {
 			src.set("frontend.cors_origins", SourceConfig)
 		}
-		if len(c.Users.AdminEmails) > 0 {
-			src.set("users.admin_emails", SourceConfig)
+		if len(c.Users.OauthAdminEmails) > 0 {
+			src.set("users.oauth_admin_emails", SourceConfig)
 		}
-		if len(c.Users.AllowedOAuthEmails) > 0 {
-			src.set("users.allowed_oauth_emails", SourceConfig)
+		if len(c.Users.OauthAllowedEmails) > 0 {
+			src.set("users.oauth_allowed_emails", SourceConfig)
 		}
-		if c.Users.AllowAllOAuthUsers {
-			src.set("users.allow_all_oauth_users", SourceConfig)
+		if c.Users.OauthAllowAllUsers {
+			src.set("users.oauth_allow_all_users", SourceConfig)
 		}
 		if c.Auth.Providers != nil {
 			if p, ok := c.Auth.Providers["google"]; ok && p.ClientID != "" {
@@ -241,25 +241,25 @@ func Load(configPath string) (*Config, error) {
 		}
 		src.set("frontend.cors_origins", SourceEnv)
 	}
-	if v := os.Getenv("ADMIN_EMAILS"); v != "" {
+	if v := os.Getenv("OAUTH_ADMIN_EMAILS"); v != "" {
 		parts := strings.Split(v, ",")
 		for i, p := range parts {
 			parts[i] = strings.TrimSpace(p)
 		}
-		c.Users.AdminEmails = parts
-		src.set("users.admin_emails", SourceEnv)
+		c.Users.OauthAdminEmails = parts
+		src.set("users.oauth_admin_emails", SourceEnv)
 	}
-	if v := os.Getenv("ALLOWED_OAUTH_EMAILS"); v != "" {
+	if v := os.Getenv("OAUTH_ALLOWED_EMAILS"); v != "" {
 		parts := strings.Split(v, ",")
 		for i, p := range parts {
 			parts[i] = strings.TrimSpace(p)
 		}
-		c.Users.AllowedOAuthEmails = parts
-		src.set("users.allowed_oauth_emails", SourceEnv)
+		c.Users.OauthAllowedEmails = parts
+		src.set("users.oauth_allowed_emails", SourceEnv)
 	}
 	if v := os.Getenv("OAUTH_ALLOW_ALL_USERS"); v != "" {
-		c.Users.AllowAllOAuthUsers = parseBoolEnv(v)
-		src.set("users.allow_all_oauth_users", SourceEnv)
+		c.Users.OauthAllowAllUsers = parseBoolEnv(v)
+		src.set("users.oauth_allow_all_users", SourceEnv)
 	}
 
 	// 3. Defaults
@@ -285,14 +285,14 @@ func Load(configPath string) (*Config, error) {
 	if src["frontend.url"] == 0 {
 		src.set("frontend.url", SourceDefault)
 	}
-	if src["users.admin_emails"] == 0 {
-		src.set("users.admin_emails", SourceDefault)
+	if src["users.oauth_admin_emails"] == 0 {
+		src.set("users.oauth_admin_emails", SourceDefault)
 	}
-	if src["users.allowed_oauth_emails"] == 0 {
-		src.set("users.allowed_oauth_emails", SourceDefault)
+	if src["users.oauth_allowed_emails"] == 0 {
+		src.set("users.oauth_allowed_emails", SourceDefault)
 	}
-	if src["users.allow_all_oauth_users"] == 0 {
-		src.set("users.allow_all_oauth_users", SourceDefault)
+	if src["users.oauth_allow_all_users"] == 0 {
+		src.set("users.oauth_allow_all_users", SourceDefault)
 	}
 	if src["server.debug"] == 0 {
 		c.Server.Debug = false
@@ -436,9 +436,9 @@ func logConfigSources(logger *log.Logger, c *Config, src sources, configPath str
 		{"auth.oauth_redirect_url", c.Auth.OAuthRedirectURL, src["auth.oauth_redirect_url"]},
 		{"frontend.url", c.Frontend.URL, src["frontend.url"]},
 		{"frontend.cors_origins", fmt.Sprintf("%v", c.Frontend.CORSOrigins), src["frontend.cors_origins"]},
-		{"users.admin_emails", fmt.Sprintf("%v", c.Users.AdminEmails), src["users.admin_emails"]},
-		{"users.allowed_oauth_emails", fmt.Sprintf("%v", c.Users.AllowedOAuthEmails), src["users.allowed_oauth_emails"]},
-		{"users.allow_all_oauth_users", fmt.Sprintf("%v", c.Users.AllowAllOAuthUsers), src["users.allow_all_oauth_users"]},
+		{"users.oauth_admin_emails", fmt.Sprintf("%v", c.Users.OauthAdminEmails), src["users.oauth_admin_emails"]},
+		{"users.oauth_allowed_emails", fmt.Sprintf("%v", c.Users.OauthAllowedEmails), src["users.oauth_allowed_emails"]},
+		{"users.oauth_allow_all_users", fmt.Sprintf("%v", c.Users.OauthAllowAllUsers), src["users.oauth_allow_all_users"]},
 	}
 
 	for _, item := range items {
@@ -461,20 +461,20 @@ func OAuthProviderActive(c *Config) bool {
 }
 
 // OAuthLoginAllowlistConfigured returns true if OAuth sign-in is allowed without empty-list denial:
-// allow_all_oauth_users, or at least one non-empty email in admin_emails or allowed_oauth_emails.
+// oauth_allow_all_users, or at least one non-empty email in oauth_admin_emails or oauth_allowed_emails.
 func OAuthLoginAllowlistConfigured(c *Config) bool {
 	if c == nil {
 		return false
 	}
-	if c.Users.AllowAllOAuthUsers {
+	if c.Users.OauthAllowAllUsers {
 		return true
 	}
-	for _, e := range c.Users.AdminEmails {
+	for _, e := range c.Users.OauthAdminEmails {
 		if strings.TrimSpace(e) != "" {
 			return true
 		}
 	}
-	for _, e := range c.Users.AllowedOAuthEmails {
+	for _, e := range c.Users.OauthAllowedEmails {
 		if strings.TrimSpace(e) != "" {
 			return true
 		}

@@ -299,8 +299,8 @@ func (h *AuthHandler) oauthCallback(provider string, c *gin.Context) {
 		c.Redirect(http.StatusFound, h.redirectTo("/login?error=userinfo"))
 		return
 	}
-	if !appCfg.Users.AllowAllOAuthUsers {
-		allow := oauthEmailAllowSet(appCfg.Users.AdminEmails, appCfg.Users.AllowedOAuthEmails)
+	if !appCfg.Users.OauthAllowAllUsers {
+		allow := oauthEmailAllowSet(appCfg.Users.OauthAdminEmails, appCfg.Users.OauthAllowedEmails)
 		if len(allow) == 0 {
 			log.Printf("[auth] %s user login failed: email=%q name=%q reason=oauth_no_allowlist_configured", provider, email, name)
 			c.Redirect(http.StatusFound, h.redirectTo("/login?error=oauth_no_allowlist"))
@@ -450,7 +450,7 @@ func (h *AuthHandler) Me(c *gin.Context) {
 	picture, _ := c.Get("user_picture")
 	emailStr, _ := email.(string)
 	isAdmin := false
-	for _, e := range cfg.Users.AdminEmails {
+	for _, e := range cfg.Users.OauthAdminEmails {
 		if strings.EqualFold(strings.TrimSpace(e), emailStr) {
 			isAdmin = true
 			break

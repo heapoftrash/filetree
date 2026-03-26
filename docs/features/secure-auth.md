@@ -25,8 +25,8 @@ You can enable multiple providers; users choose which one to use at login.
 
 ## OAuth allowlist
 
-Only addresses in **`admin_emails`** ∪ **`allowed_oauth_emails`** can complete OAuth sign-in, unless **`allow_all_oauth_users`** is enabled (any OAuth user with an email may sign in; use only in trusted environments). `admin_emails` grants **admin** access; `allowed_oauth_emails` grants **regular** access (Settings UI remains admin-only). If Google or GitHub is enabled but both lists are empty and allow-all is off, OAuth sign-in is denied (use local auth or add at least one email). The server logs a warning at startup in that case.
+Only addresses in **`oauth_admin_emails`** ∪ **`oauth_allowed_emails`** can complete OAuth sign-in, unless **`oauth_allow_all_users`** is enabled (any OAuth user with an email may sign in; use only in trusted environments). `oauth_admin_emails` grants **admin** access; `oauth_allowed_emails` grants **regular** access (Settings UI remains admin-only). If Google or GitHub is enabled but both lists are empty and allow-all is off, OAuth sign-in is denied (use local auth or add at least one email). The server logs a warning at startup in that case.
 
 ## Admin access
 
-Users listed in `admin_emails` (for OAuth) or with `is_admin: true` (for local users) can access the admin UI to manage auth providers and local users. A `default_admin` user can be bootstrapped on first run when no users exist.
+Users listed in `oauth_admin_emails` (for OAuth) or with `is_admin: true` (for local users) can access the admin UI to manage auth providers and local users. A `default_admin` user can be bootstrapped on first run when no users exist.

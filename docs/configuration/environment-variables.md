@@ -38,9 +38,9 @@ Environment variables override config file values. Useful for secrets and deploy
 
 | Variable | Overrides | Description |
 |----------|-----------|-------------|
-| `ADMIN_EMAILS` | `users.admin_emails` | Comma-separated OAuth admin emails (admin + may sign in) |
-| `ALLOWED_OAUTH_EMAILS` | `users.allowed_oauth_emails` | Comma-separated OAuth emails allowed to sign in without admin |
-| `OAUTH_ALLOW_ALL_USERS` | `users.allow_all_oauth_users` | `true`/`1`/`yes`/`on` to allow any OAuth user to sign in (ignores email lists for sign-in) |
+| `OAUTH_ADMIN_EMAILS` | `users.oauth_admin_emails` | Comma-separated OAuth admin emails (admin + may sign in) |
+| `OAUTH_ALLOWED_EMAILS` | `users.oauth_allowed_emails` | Comma-separated OAuth emails allowed to sign in without admin |
+| `OAUTH_ALLOW_ALL_USERS` | `users.oauth_allow_all_users` | `true`/`1`/`yes`/`on` to allow any OAuth user to sign in (ignores email lists for sign-in) |
 
 ## Startup logging
 

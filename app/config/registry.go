@@ -68,9 +68,9 @@ var ConfigFields = []FieldMeta{
 	{Section: "auth", Key: "jwt_secret_set", Kind: FieldBool, Label: "JWT secret", Editable: false, Secret: true},
 	{Section: "auth", Key: "local_auth_enabled", Kind: FieldBool, Label: "Local users enabled", Editable: true},
 	// Users
-	{Section: "users", Key: "admin_emails", Kind: FieldStringSlice, Label: "Admin emails (OAuth)", Editable: true, Extra: "OAuth accounts with admin access. Also used as allowed sign-in emails (admins can always sign in)."},
-	{Section: "users", Key: "allowed_oauth_emails", Kind: FieldStringSlice, Label: "Allowed OAuth emails (non-admin)", Editable: true, Extra: "OAuth accounts that may sign in without admin. Union with admin emails; if OAuth is enabled and both lists are empty, no OAuth sign-in is allowed (unless Allow all OAuth users is on)."},
-	{Section: "users", Key: "allow_all_oauth_users", Kind: FieldBool, Label: "Allow all OAuth users", Editable: true, Extra: "If enabled, any OAuth user with an email may sign in; email lists are ignored for sign-in. Use only in trusted environments. admin_emails still grants admin access only."},
+	{Section: "users", Key: "oauth_admin_emails", Kind: FieldStringSlice, Label: "OAuth admin emails", Editable: true, Extra: "OAuth accounts with admin access. Also used as allowed sign-in emails (admins can always sign in)."},
+	{Section: "users", Key: "oauth_allowed_emails", Kind: FieldStringSlice, Label: "OAuth allowed emails (non-admin)", Editable: true, Extra: "OAuth accounts that may sign in without admin. Union with oauth_admin_emails; if OAuth is enabled and both lists are empty, no OAuth sign-in is allowed (unless Allow all OAuth users is on)."},
+	{Section: "users", Key: "oauth_allow_all_users", Kind: FieldBool, Label: "Allow all OAuth users", Editable: true, Extra: "If enabled, any OAuth user with an email may sign in; email lists are ignored for sign-in. Use only in trusted environments. oauth_admin_emails still grants admin access only."},
 	{Section: "users", Key: "local_users", Kind: FieldObjectSlice, Label: "Local users", Editable: true},
 	{Section: "users", Key: "default_admin_username", Kind: FieldString, Label: "Default admin username", Editable: true, Placeholder: "admin"},
 	{Section: "users", Key: "default_admin_password", Kind: FieldString, Label: "Default admin password", Editable: true, Secret: true, Placeholder: "Only used when no users exist"},

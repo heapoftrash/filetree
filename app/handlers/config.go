@@ -170,9 +170,9 @@ func (h *ConfigHandler) GetConfig(c *gin.Context) {
 		},
 		"auth_providers": authProviders,
 		"users": {
-			"admin_emails":           cfg.Users.AdminEmails,
-			"allowed_oauth_emails":   cfg.Users.AllowedOAuthEmails,
-			"allow_all_oauth_users":  cfg.Users.AllowAllOAuthUsers,
+			"oauth_admin_emails":     cfg.Users.OauthAdminEmails,
+			"oauth_allowed_emails":   cfg.Users.OauthAllowedEmails,
+			"oauth_allow_all_users":  cfg.Users.OauthAllowAllUsers,
 			"local_users":            localUsersUI,
 			"default_admin_username": defaultAdminUsername,
 			"default_admin_password": defaultAdminPasswordSet, // true = Set, false = Not set
@@ -273,7 +273,7 @@ func (h *ConfigHandler) UpdateConfig(c *gin.Context) {
 		}
 	}
 	if s, ok := req["users"].(map[string]interface{}); ok {
-		if v, ok := s["admin_emails"]; ok {
+		if v, ok := s["oauth_admin_emails"]; ok {
 			if arr, ok := toStringSlice(v); ok {
 				emails := make([]string, 0, len(arr))
 				for _, e := range arr {
@@ -282,10 +282,10 @@ func (h *ConfigHandler) UpdateConfig(c *gin.Context) {
 						emails = append(emails, es)
 					}
 				}
-				cfg.Users.AdminEmails = emails
+				cfg.Users.OauthAdminEmails = emails
 			}
 		}
-		if v, ok := s["allowed_oauth_emails"]; ok {
+		if v, ok := s["oauth_allowed_emails"]; ok {
 			if arr, ok := toStringSlice(v); ok {
 				emails := make([]string, 0, len(arr))
 				for _, e := range arr {
@@ -294,11 +294,11 @@ func (h *ConfigHandler) UpdateConfig(c *gin.Context) {
 						emails = append(emails, es)
 					}
 				}
-				cfg.Users.AllowedOAuthEmails = emails
+				cfg.Users.OauthAllowedEmails = emails
 			}
 		}
-		if v, ok := s["allow_all_oauth_users"].(bool); ok {
-			cfg.Users.AllowAllOAuthUsers = v
+		if v, ok := s["oauth_allow_all_users"].(bool); ok {
+			cfg.Users.OauthAllowAllUsers = v
 		}
 		if v, ok := s["local_users"]; ok {
 			if arr, ok := toLocalUsers(v, cfg.Users.LocalUsers); ok {

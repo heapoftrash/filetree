@@ -96,7 +96,7 @@ function buildFormValues(res: ConfigAPIResponse): Record<string, unknown> {
       const field = res.schema.fields?.find((f) => f.section === section && f.key === key)
       if (field?.kind === 'bytes' && typeof val === 'number') {
         sectionOut[key] = bytesToHuman(val)
-      } else if (field?.kind === 'string[]' && (key === 'admin_emails' || key === 'allowed_oauth_emails')) {
+      } else if (field?.kind === 'string[]' && (key === 'oauth_admin_emails' || key === 'oauth_allowed_emails')) {
         const arr = Array.isArray(val) ? (val as string[]) : []
         sectionOut[key] = arr.length ? arr : ['']
       } else if (key === 'default_admin_password') {
@@ -141,9 +141,9 @@ function categoryForField(name: (string | number)[]): {
   if (first === 'users') {
     const key = name[1]
     if (
-      key === 'admin_emails' ||
-      key === 'allowed_oauth_emails' ||
-      key === 'allow_all_oauth_users' ||
+      key === 'oauth_admin_emails' ||
+      key === 'oauth_allowed_emails' ||
+      key === 'oauth_allow_all_users' ||
       key === 'default_admin_username' ||
       key === 'default_admin_password'
     ) {
@@ -172,9 +172,9 @@ export default function Settings() {
 
   const authProviders = Form.useWatch(['auth_providers'], form) ?? (config?.values as Record<string, Record<string, unknown>>)?.auth_providers
   const localUsersFormValues = (Form.useWatch(['users', 'local_users'], form) ?? []) as Array<Record<string, unknown>>
-  const adminEmailsWatch = Form.useWatch(['users', 'admin_emails'], form)
-  const allowedOAuthWatch = Form.useWatch(['users', 'allowed_oauth_emails'], form)
-  const allowAllOAuthWatch = Form.useWatch(['users', 'allow_all_oauth_users'], form)
+  const oauthAdminEmailsWatch = Form.useWatch(['users', 'oauth_admin_emails'], form)
+  const oauthAllowedEmailsWatch = Form.useWatch(['users', 'oauth_allowed_emails'], form)
+  const oauthAllowAllUsersWatch = Form.useWatch(['users', 'oauth_allow_all_users'], form)
   const oauthEnabled =
     (authProviders && typeof authProviders === 'object' &&
       ((authProviders as Record<string, Record<string, unknown>>).google?.enabled === true ||
@@ -182,11 +182,11 @@ export default function Settings() {
     false
 
   const oauthSignInOk = useMemo(() => {
-    if (allowAllOAuthWatch === true) return true
+    if (oauthAllowAllUsersWatch === true) return true
     const countNonEmpty = (arr: unknown) =>
       Array.isArray(arr) ? (arr as unknown[]).filter((e) => typeof e === 'string' && e.trim()).length : 0
-    return countNonEmpty(adminEmailsWatch) + countNonEmpty(allowedOAuthWatch) > 0
-  }, [allowAllOAuthWatch, adminEmailsWatch, allowedOAuthWatch])
+    return countNonEmpty(oauthAdminEmailsWatch) + countNonEmpty(oauthAllowedEmailsWatch) > 0
+  }, [oauthAllowAllUsersWatch, oauthAdminEmailsWatch, oauthAllowedEmailsWatch])
 
   useEffect(() => {
     getConfig()
@@ -309,18 +309,18 @@ export default function Settings() {
     return users
       .filter((f) =>
         [
-          'admin_emails',
-          'allowed_oauth_emails',
-          'allow_all_oauth_users',
+          'oauth_admin_emails',
+          'oauth_allowed_emails',
+          'oauth_allow_all_users',
           'default_admin_username',
           'default_admin_password',
         ].includes(f.key),
       )
       .sort((a, b) => {
         const order = [
-          'admin_emails',
-          'allowed_oauth_emails',
-          'allow_all_oauth_users',
+          'oauth_admin_emails',
+          'oauth_allowed_emails',
+          'oauth_allow_all_users',
           'default_admin_username',
           'default_admin_password',
         ]
@@ -647,7 +647,7 @@ const ConfigField = React.memo(function ConfigField({
   if (field.kind === 'string[]') {
     const arr = Array.isArray(rawValue) ? rawValue : []
     const list = arr.filter((x): x is string => typeof x === 'string')
-    const isOAuthEmailList = field.key === 'admin_emails' || field.key === 'allowed_oauth_emails'
+    const isOAuthEmailList = field.key === 'oauth_admin_emails' || field.key === 'oauth_allowed_emails'
     const oauthListDisabled = isOAuthEmailList && !oauthEnabled
     const initialList = isOAuthEmailList && list.length === 0 ? [''] : list
     const labelInRow = addButtonPosition === 'right'

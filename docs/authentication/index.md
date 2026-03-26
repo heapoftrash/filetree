@@ -78,7 +78,7 @@ Setup Google as OAuth provider
           client_secret: xxx
 
     users:
-      admin_emails: [admin@example.com]
+      oauth_admin_emails: [admin@example.com]
     ```
 
 === "JSON"
@@ -96,7 +96,7 @@ Setup Google as OAuth provider
         }
       },
       "users": {
-        "admin_emails": [
+        "oauth_admin_emails": [
           "admin@example.com"
         ]
       }
@@ -119,7 +119,7 @@ Setup Google as OAuth provider
           client_secret: xxx
 
     users:
-      admin_emails: [admin@example.com]
+      oauth_admin_emails: [admin@example.com]
     ```
 === "JSON"
     ```json title="config.json"
@@ -136,7 +136,7 @@ Setup Google as OAuth provider
         }
       },
       "users": {
-        "admin_emails": [
+        "oauth_admin_emails": [
           "admin@example.com"
         ]
       }
@@ -163,7 +163,7 @@ An example config of all authentication methods
           client_secret: xxx
 
     users:
-      admin_emails: [admin@example.com]
+      oauth_admin_emails: [admin@example.com]
       local_users:
         - username: bob
           password: changeme          # plaintext hashed on first run, or use bcrypt hash
@@ -193,7 +193,7 @@ An example config of all authentication methods
         }
       },
       "users": {
-        "admin_emails": [
+        "oauth_admin_emails": [
           "admin@example.com"
         ],
         "local_users": [
@@ -215,10 +215,10 @@ An example config of all authentication methods
     `default_admin` and `local_users` use a single `password` field. Plaintext is hashed on first startup and replaced in-place. You can also provide a bcrypt hash directly.
 
 !!! note "OAuth admins"
-    `admin_emails` applies **only to OAuth users** (Google/GitHub). For local users, set `is_admin: true` per user in `local_users`.
+    `oauth_admin_emails` applies **only to OAuth users** (Google/GitHub). For local users, set `is_admin: true` per user in `local_users`.
 
 !!! note "OAuth allowlist"
-    `allowed_oauth_emails` lists non-admin OAuth users who may sign in. The allowlist is `admin_emails` ∪ `allowed_oauth_emails`. If OAuth is enabled and both are empty, OAuth sign-in is blocked unless `allow_all_oauth_users` is true (open sign-in; trusted environments only).
+    `oauth_allowed_emails` lists non-admin OAuth users who may sign in. The allowlist is `oauth_admin_emails` ∪ `oauth_allowed_emails`. If OAuth is enabled and both are empty, OAuth sign-in is blocked unless `oauth_allow_all_users` is true (open sign-in; trusted environments only).
 
 
 !!! note "OAuth redirect URL"
