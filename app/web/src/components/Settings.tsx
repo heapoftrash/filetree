@@ -17,6 +17,8 @@ import {
   Row,
   Col,
   Alert,
+  Divider,
+  Modal,
 } from 'antd'
 import {
   CloudServerOutlined,
@@ -304,28 +306,20 @@ export default function Settings() {
     }
   }, [fieldsBySection.auth])
 
-  const adminUserFields = useMemo(() => {
+  const oauthAdminUserFields = useMemo(() => {
     const users = fieldsBySection.users ?? []
+    const order = ['oauth_admin_emails', 'oauth_allowed_emails', 'oauth_allow_all_users']
     return users
-      .filter((f) =>
-        [
-          'oauth_admin_emails',
-          'oauth_allowed_emails',
-          'oauth_allow_all_users',
-          'default_admin_username',
-          'default_admin_password',
-        ].includes(f.key),
-      )
-      .sort((a, b) => {
-        const order = [
-          'oauth_admin_emails',
-          'oauth_allowed_emails',
-          'oauth_allow_all_users',
-          'default_admin_username',
-          'default_admin_password',
-        ]
-        return order.indexOf(a.key) - order.indexOf(b.key)
-      })
+      .filter((f) => order.includes(f.key))
+      .sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key))
+  }, [fieldsBySection.users])
+
+  const defaultAdminBootstrapFields = useMemo(() => {
+    const users = fieldsBySection.users ?? []
+    const order = ['default_admin_username', 'default_admin_password']
+    return users
+      .filter((f) => order.includes(f.key))
+      .sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key))
   }, [fieldsBySection.users])
 
   const localUsersFields = useMemo(
@@ -439,11 +433,44 @@ export default function Settings() {
                           type="warning"
                           showIcon
                           style={{ marginBottom: 16 }}
-                          message="OAuth sign-in disabled for everyone"
-                          description="Add at least one email under Admin or Allowed OAuth emails, or enable Allow all OAuth users. Otherwise OAuth logins are rejected."
+                          message="OAuth sign-in is turned off for everyone"
+                          description="Add at least one email under Admins or Additional sign-ins, or enable Allow all OAuth users. Otherwise OAuth logins are rejected."
                         />
                       )}
-                      {adminUserFields.map((field) => (
+                      <Title level={5} style={{ marginTop: 0, marginBottom: 12 }}>
+                        OAuth sign-in
+                      </Title>
+                      <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
+                        Who may use Google or GitHub to sign in. If both lists are empty and allow-all is off, OAuth login is blocked.
+                      </Text>
+                      {oauthAdminUserFields.map((field) => (
+                        <ConfigField
+                          key={`users.${field.key}`}
+                          sectionId="users"
+                          field={field}
+                          values={values}
+                          localAuthEnabled={localAuthEnabled}
+                          oauthEnabled={oauthEnabled}
+                          addButtonPosition="right"
+                        />
+                      ))}
+                      {oauthAllowAllUsersWatch === true && (
+                        <Alert
+                          type="warning"
+                          showIcon
+                          style={{ marginBottom: 16 }}
+                          message="Open OAuth sign-in enabled"
+                          description="Any OAuth user with an email can sign in. Email lists are ignored for sign-in; only the admin list controls who gets admin access."
+                        />
+                      )}
+                      <Divider style={{ margin: '20px 0' }} />
+                      <Title level={5} style={{ marginTop: 0, marginBottom: 12 }}>
+                        Default admin (bootstrap)
+                      </Title>
+                      <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
+                        Used when no local users exist yet. Password is stored hashed in config after first startup.
+                      </Text>
+                      {defaultAdminBootstrapFields.map((field) => (
                         <ConfigField
                           key={`users.${field.key}`}
                           sectionId="users"
@@ -495,6 +522,33 @@ export default function Settings() {
         </Card>
       </Content>
     </Layout>
+  )
+}
+
+/** Switch for oauth_allow_all_users: confirm before enabling open sign-in. */
+function OAuthAllowAllSwitch({ value, onChange }: { value?: boolean; onChange?: (checked: boolean) => void }) {
+  return (
+    <Switch
+      checked={!!value}
+      checkedChildren="On"
+      unCheckedChildren="Off"
+      size="small"
+      onChange={(checked) => {
+        if (checked) {
+          Modal.confirm({
+            title: 'Allow any OAuth user to sign in?',
+            content:
+              'Email lists will not restrict who can sign in with OAuth. Admin access still follows the admin list only. Use only in trusted environments.',
+            okText: 'Enable',
+            okType: 'danger',
+            cancelText: 'Cancel',
+            onOk: () => onChange?.(true),
+          })
+        } else {
+          onChange?.(false)
+        }
+      }}
+    />
   )
 }
 
@@ -637,6 +691,19 @@ const ConfigField = React.memo(function ConfigField({
   const namePath = [sectionId, field.key]
 
   if (field.kind === 'bool') {
+    if (field.key === 'oauth_allow_all_users') {
+      return (
+        <Form.Item
+          name={namePath}
+          label={field.label}
+          valuePropName="checked"
+          extra={field.extra ? <ExtraWithIcon>{field.extra}</ExtraWithIcon> : undefined}
+          style={{ marginBottom: 12 }}
+        >
+          <OAuthAllowAllSwitch />
+        </Form.Item>
+      )
+    }
     return (
       <Form.Item name={namePath} label={field.label} valuePropName="checked" style={{ marginBottom: 12 }}>
         <Switch checkedChildren="On" unCheckedChildren="Off" size="small" />
@@ -650,6 +717,7 @@ const ConfigField = React.memo(function ConfigField({
     const isOAuthEmailList = field.key === 'oauth_admin_emails' || field.key === 'oauth_allowed_emails'
     const oauthListDisabled = isOAuthEmailList && !oauthEnabled
     const initialList = isOAuthEmailList && list.length === 0 ? [''] : list
+    const oauthPlaceholder = field.key === 'oauth_admin_emails' ? 'admin@example.com' : 'user@example.com'
     const labelInRow = addButtonPosition === 'right'
     return (
       <Form.Item
@@ -683,7 +751,7 @@ const ConfigField = React.memo(function ConfigField({
                     style={{ marginBottom: 0, minWidth: 240, flex: 1 }}
                   >
                     <Input
-                      placeholder={isOAuthEmailList ? 'user@example.com' : field.placeholder}
+                      placeholder={isOAuthEmailList ? oauthPlaceholder : field.placeholder}
                       type={isOAuthEmailList ? 'email' : 'text'}
                       size="small"
                       disabled={oauthListDisabled}
