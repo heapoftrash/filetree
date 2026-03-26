@@ -18,6 +18,13 @@ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`
 
 Validate locally: `make commitlint` or `npx commitlint --last --verbose`
 
+## Changelog
+
+`CHANGELOG.md` is **generated** by [git-cliff](https://github.com/orhun/git-cliff) from commit history (see `cliff.toml`). Do not edit it by hand — use clear conventional commit subjects so the release history stays readable.
+
+- Local preview: install [git-cliff](https://github.com/orhun/git-cliff/releases) and run `git-cliff -o CHANGELOG.md` (or `make changelog`).
+- Pushes to `main` that change files other than `CHANGELOG.md` trigger `.github/workflows/changelog.yml`, which regenerates the file and commits if needed.
+
 ## Pull requests
 
 1. Create a branch from `main`.

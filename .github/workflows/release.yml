@@ -220,13 +220,10 @@ jobs:
           fi
           sha256sum "${files[@]}" | sort -k2 > "$GITHUB_WORKSPACE/sha256sums.txt"
 
-      - name: Write release notes from CHANGELOG
-        run: bash .github/scripts/changelog-extract.sh CHANGELOG.md "${{ github.ref_name }}" > release-notes.md
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          body_path: release-notes.md
+          generate_release_notes: true
           # Align with GHCR latest: false when tag contains '-' (e.g. v0.0.4-beta)
           prerelease: ${{ contains(github.ref_name, '-') }}
           files: |
