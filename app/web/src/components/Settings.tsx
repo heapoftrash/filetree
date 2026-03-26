@@ -84,6 +84,12 @@ const SECTION_OPTIONS = TOP_LEVEL_SECTIONS.map((s) => ({
   icon: SECTION_ICONS[s.id],
 }))
 
+/** Settings form: label left, control right; stacks on narrow viewports. */
+const SETTINGS_FORM_LAYOUT = {
+  labelCol: { xs: 24, sm: 9, md: 8, lg: 7 },
+  wrapperCol: { xs: 24, sm: 15, md: 16, lg: 17 },
+}
+
 type AuthProviderSubSection = 'google' | 'github'
 type UsersSubSection = 'admin_user' | 'local_user'
 
@@ -360,7 +366,10 @@ export default function Settings() {
           </Text>
           <Form
             form={form}
-            layout="vertical"
+            layout="horizontal"
+            {...SETTINGS_FORM_LAYOUT}
+            labelAlign="left"
+            colon={false}
             size="small"
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
@@ -658,7 +667,6 @@ const ConfigField = React.memo(function ConfigField({
   addButtonPosition?: 'right'
   localUsersFormValues?: Array<Record<string, unknown>>
 }) {
-  const { token } = theme.useToken()
   const sectionValues = values[sectionId] ?? {}
   const rawValue = sectionValues[field.key]
 
@@ -718,7 +726,7 @@ const ConfigField = React.memo(function ConfigField({
     const labelInRow = addButtonPosition === 'right'
     return (
       <Form.Item
-        label={labelInRow ? null : field.label}
+        label={field.label}
         extra={
           oauthListDisabled ? (
             <ExtraWithIcon>Enable an OAuth provider (Google or GitHub) to configure OAuth email lists.</ExtraWithIcon>
@@ -732,8 +740,7 @@ const ConfigField = React.memo(function ConfigField({
           {(fields, { add, remove }, { errors }) => (
             <>
               {labelInRow && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <span style={{ fontSize: 14, color: token.colorText }}>{field.label}</span>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
                   <Button size="small" type="default" icon={<PlusOutlined />} onClick={() => add('')} disabled={oauthListDisabled}>
                     Add
                   </Button>
@@ -786,15 +793,15 @@ const ConfigField = React.memo(function ConfigField({
     const addInLabelRow = addButtonPosition === 'right'
     return (
       <Form.Item
-        label={addInLabelRow ? null : field.label}
+        label={field.label}
         extra={!localAuthEnabled ? <ExtraWithIcon>Enable "Local users enabled" above to add local users.</ExtraWithIcon> : undefined}
+        style={{ marginBottom: 12 }}
       >
         <Form.List name={namePath} initialValue={list.length ? list : [{ username: '', password: '', is_admin: false }]}>
           {(fields, { add, remove }) => (
             <>
               {addInLabelRow && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <span style={{ fontSize: 14, color: token.colorText }}>{field.label}</span>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
                   <Button
                     size="small"
                     type="default"
@@ -814,13 +821,21 @@ const ConfigField = React.memo(function ConfigField({
                   <Space direction="vertical" size={8} style={{ width: '100%' }}>
                     <Row gutter={12} wrap>
                       <Col xs={24} sm={12} md={8}>
-                        <Form.Item {...restField} name={[name, 'username']} label="Username" rules={[{ required: true }]} style={{ marginBottom: 0 }}>
+                        <Form.Item
+                          {...restField}
+                          layout="vertical"
+                          name={[name, 'username']}
+                          label="Username"
+                          rules={[{ required: true }]}
+                          style={{ marginBottom: 0 }}
+                        >
                           <Input placeholder="username" size="small" disabled={!localAuthEnabled || passwordSet} />
                         </Form.Item>
                       </Col>
                       <Col xs={24} sm={12} md={8}>
                         <Form.Item
                           {...restField}
+                          layout="vertical"
                           name={[name, 'password']}
                           label="Password"
                           rules={!passwordSet ? [{ required: true, message: 'Password is required for new users' }] : undefined}
@@ -836,7 +851,14 @@ const ConfigField = React.memo(function ConfigField({
                         </Form.Item>
                       </Col>
                       <Col xs={24} sm={12} md={4}>
-                        <Form.Item {...restField} name={[name, 'is_admin']} valuePropName="checked" label="Admin" style={{ marginBottom: 0 }}>
+                        <Form.Item
+                          {...restField}
+                          layout="vertical"
+                          name={[name, 'is_admin']}
+                          valuePropName="checked"
+                          label="Admin"
+                          style={{ marginBottom: 0 }}
+                        >
                           <Switch checkedChildren="Admin" unCheckedChildren="User" size="small" disabled={!localAuthEnabled} />
                         </Form.Item>
                       </Col>
