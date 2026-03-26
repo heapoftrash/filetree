@@ -449,30 +449,7 @@ func (h *AuthHandler) Me(c *gin.Context) {
 	name, _ := c.Get("user_name")
 	picture, _ := c.Get("user_picture")
 	emailStr, _ := email.(string)
-	isAdmin := false
-	for _, e := range cfg.Users.OauthAdminEmails {
-		if strings.EqualFold(strings.TrimSpace(e), emailStr) {
-			isAdmin = true
-			break
-		}
-	}
-	if !isAdmin {
-		localUsers := cfg.Users.LocalUsers
-		if localUsers == nil {
-			localUsers = []config.LocalUser{}
-		}
-		for _, u := range localUsers {
-			if strings.EqualFold(u.Username, emailStr) && u.IsAdmin {
-				isAdmin = true
-				break
-			}
-		}
-	}
-	da := cfg.Users.DefaultAdmin
-	if !isAdmin && da != nil && da.Password != "" &&
-		strings.EqualFold(da.Username, emailStr) {
-		isAdmin = true
-	}
+	isAdmin := config.UserIsAdmin(cfg, emailStr)
 	c.JSON(http.StatusOK, gin.H{
 		"email":    email,
 		"name":     name,

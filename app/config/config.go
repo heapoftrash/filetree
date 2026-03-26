@@ -481,3 +481,35 @@ func OAuthLoginAllowlistConfigured(c *Config) bool {
 	}
 	return false
 }
+
+// UserIsAdmin reports whether identity (OAuth email or local username from JWT) has admin
+// privileges for the given live config: oauth_admin_emails, local_users with is_admin, or
+// default_admin when its password is set.
+func UserIsAdmin(c *Config, identity string) bool {
+	if c == nil {
+		return false
+	}
+	identity = strings.TrimSpace(identity)
+	if identity == "" {
+		return false
+	}
+	for _, e := range c.Users.OauthAdminEmails {
+		if strings.EqualFold(strings.TrimSpace(e), identity) {
+			return true
+		}
+	}
+	localUsers := c.Users.LocalUsers
+	if localUsers == nil {
+		localUsers = []LocalUser{}
+	}
+	for _, u := range localUsers {
+		if strings.EqualFold(u.Username, identity) && u.IsAdmin {
+			return true
+		}
+	}
+	da := c.Users.DefaultAdmin
+	if da != nil && da.Password != "" && strings.EqualFold(da.Username, identity) {
+		return true
+	}
+	return false
+}

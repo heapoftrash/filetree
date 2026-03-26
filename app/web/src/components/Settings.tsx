@@ -19,6 +19,7 @@ import {
   Alert,
   Divider,
   Modal,
+  Tooltip,
 } from 'antd'
 import {
   CloudServerOutlined,
@@ -60,6 +61,13 @@ const ExtraWithIcon = ({ children }: { children: React.ReactNode }) => {
       <span>{children}</span>
     </Space>
   )
+}
+
+/** Ant Design Form.Item: show long hints next to the label (hover) instead of an extra line. */
+function formItemTooltip(text?: string | null): { title: string; icon: React.ReactElement } | undefined {
+  const t = text?.trim()
+  if (!t) return undefined
+  return { title: t, icon: <InfoCircleOutlined /> }
 }
 
 const TOP_LEVEL_SECTIONS = [
@@ -348,11 +356,11 @@ export default function Settings() {
   return (
     <Layout style={{ minHeight: '100vh', background: token.colorBgLayout }}>
       <AppHeader />
-      <Content style={{ padding: 24, maxWidth: 960, margin: '0 auto', width: '100%' }}>
+      <Content style={{ padding: 24, maxWidth: 1280, margin: '0 auto', width: '100%' }}>
         <Title level={3} style={{ marginBottom: 12 }}>
           Settings
         </Title>
-        <Card size="small">
+        <Card>
           <Segmented
             value={activeSection}
             onChange={(v) => setActiveSection(v as string)}
@@ -532,10 +540,10 @@ export default function Settings() {
 }
 
 /** Switch for oauth_allow_all_users: confirm before enabling open sign-in. */
-function OAuthAllowAllSwitch({ value, onChange }: { value?: boolean; onChange?: (checked: boolean) => void }) {
+function OAuthAllowAllSwitch({ checked, onChange }: { checked?: boolean; onChange?: (checked: boolean) => void }) {
   return (
     <Switch
-      checked={!!value}
+      checked={!!checked}
       checkedChildren="On"
       unCheckedChildren="Off"
       size="small"
@@ -608,7 +616,7 @@ const ProviderField = React.memo(function ProviderField({
       <Form.Item
         name={namePath}
         label={field.label}
-        extra={<ExtraWithIcon>{clientSecretSet ? 'Value is set. Cannot be changed after save.' : 'Enter client secret to save.'}</ExtraWithIcon>}
+        tooltip={formItemTooltip(clientSecretSet ? 'Value is set. Cannot be changed after save.' : 'Enter client secret to save.')}
         style={{ marginBottom: 12 }}
       >
         <Input.Password
@@ -624,7 +632,7 @@ const ProviderField = React.memo(function ProviderField({
   if (field.secret && !field.editable) {
     const isSet = !!value
     return (
-      <Form.Item label={field.label} extra={<ExtraWithIcon>{isSet ? 'Value is set.' : 'Not set.'}</ExtraWithIcon>} style={{ marginBottom: 12 }}>
+      <Form.Item label={field.label} tooltip={formItemTooltip(isSet ? 'Value is set.' : 'Not set.')} style={{ marginBottom: 12 }}>
         <Input.Password placeholder={isSet ? '••••••••' : undefined} disabled size="small" />
       </Form.Item>
     )
@@ -639,13 +647,152 @@ const ProviderField = React.memo(function ProviderField({
   }
 
   return (
-    <Form.Item
-      name={namePath}
-      label={field.label}
-      extra={field.extra ? <ExtraWithIcon>{field.extra}</ExtraWithIcon> : undefined}
-      style={{ marginBottom: 12 }}
-    >
+    <Form.Item name={namePath} label={field.label} tooltip={formItemTooltip(field.extra)} style={{ marginBottom: 12 }}>
       <Input placeholder={field.placeholder} disabled={!field.editable} size="small" />
+    </Form.Item>
+  )
+})
+
+/** Single card: title + Add user in header; each row is username, password, admin (horizontal). */
+const LocalUsersListField = React.memo(function LocalUsersListField({
+  namePath,
+  initialList,
+  listForPasswordFlag,
+  localUsersFormValues,
+  localAuthEnabled,
+  label,
+  tooltip,
+}: {
+  namePath: (string | number)[]
+  initialList: Array<{ username: string; password: string; is_admin: boolean; password_set?: boolean }>
+  listForPasswordFlag: Array<Record<string, unknown>>
+  localUsersFormValues: Array<Record<string, unknown>>
+  localAuthEnabled: boolean
+  label: string
+  tooltip: ReturnType<typeof formItemTooltip>
+}) {
+  /** Reserve enough label width so horizontal labels don’t collide with middle-sized inputs. */
+  const cellLayout = {
+    labelCol: { flex: '0 0 112px', style: { overflow: 'visible' as const } },
+    wrapperCol: { flex: '1 1 0', minWidth: 0, style: { minWidth: 0 } },
+  }
+  const adminLayout = {
+    labelCol: { flex: '0 0 52px', style: { overflow: 'visible' as const } },
+    wrapperCol: { flex: '0 0 auto' },
+  }
+
+  const cardTitle = (
+    <Space size={6}>
+      <span>{label}</span>
+      {tooltip ? (
+        <Tooltip title={tooltip.title}>
+          <span style={{ cursor: 'help', display: 'inline-flex', alignItems: 'center' }}>{tooltip.icon}</span>
+        </Tooltip>
+      ) : null}
+    </Space>
+  )
+
+  return (
+    <Form.Item noStyle>
+      <div style={{ width: '100%', minWidth: 0, marginBottom: 12 }}>
+        <Form.List name={namePath} initialValue={initialList}>
+          {(fields, { add, remove }) => (
+            <Card
+              title={cardTitle}
+              extra={
+                <Button
+                  type="default"
+                  icon={<PlusOutlined />}
+                  onClick={() => add({ username: '', password: '', is_admin: false })}
+                  disabled={!localAuthEnabled}
+                >
+                  Add user
+                </Button>
+              }
+              styles={{ body: { paddingBlock: 16 } }}
+            >
+              {fields.map(({ key, name, ...restField }, index) => {
+                const item = listForPasswordFlag[name] ?? localUsersFormValues?.[name] ?? {}
+                const passwordSet = !!item?.password_set
+                return (
+                  <Row
+                    key={key}
+                    gutter={[12, 12]}
+                    wrap
+                    align="middle"
+                    style={{ marginBottom: index < fields.length - 1 ? 12 : 0 }}
+                  >
+                    <Col xs={24} md={12} lg={11} flex="1 1 200px" style={{ minWidth: 0 }}>
+                      <Form.Item
+                        {...restField}
+                        {...cellLayout}
+                        layout="horizontal"
+                        name={[name, 'username']}
+                        label="Username"
+                        rules={[{ required: true }]}
+                        style={{ marginBottom: 0 }}
+                      >
+                        <Input
+                          placeholder="Username"
+                          size="middle"
+                          disabled={!localAuthEnabled || passwordSet}
+                          style={{ width: '100%' }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={12} lg={11} flex="1 1 200px" style={{ minWidth: 0 }}>
+                      <Form.Item
+                        {...restField}
+                        {...cellLayout}
+                        layout="horizontal"
+                        name={[name, 'password']}
+                        label="Password"
+                        rules={!passwordSet ? [{ required: true, message: 'Password is required for new users' }] : undefined}
+                        tooltip={passwordSet ? formItemTooltip('Value is set. Enter a new value to change it.') : undefined}
+                        style={{ marginBottom: 0 }}
+                      >
+                        <Input.Password
+                          placeholder={passwordSet ? '••••••••' : undefined}
+                          autoComplete="new-password"
+                          size="middle"
+                          disabled={!localAuthEnabled}
+                          style={{ width: '100%' }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col flex="none" style={{ width: 120, minWidth: 120, maxWidth: 120 }}>
+                      <Form.Item
+                        {...restField}
+                        {...adminLayout}
+                        layout="horizontal"
+                        name={[name, 'is_admin']}
+                        valuePropName="checked"
+                        label="Admin"
+                        style={{ marginBottom: 0 }}
+                      >
+                        <Switch size="small" disabled={!localAuthEnabled} />
+                      </Form.Item>
+                    </Col>
+                    <Col flex="none" style={{ width: 32, minWidth: 32, textAlign: 'center' }}>
+                      <Tooltip title="Remove user">
+                        <Button
+                          type="text"
+                          danger
+                          size="small"
+                          icon={<DeleteOutlined />}
+                          onClick={() => remove(name)}
+                          disabled={!localAuthEnabled}
+                          aria-label="Remove user"
+                        />
+                      </Tooltip>
+                    </Col>
+                  </Row>
+                )
+              })}
+            </Card>
+          )}
+        </Form.List>
+      </div>
     </Form.Item>
   )
 })
@@ -673,7 +820,7 @@ const ConfigField = React.memo(function ConfigField({
   if (field.secret && !field.editable) {
     const isSet = !!rawValue
     return (
-      <Form.Item label={field.label} key={field.key} extra={<ExtraWithIcon>{isSet ? 'Value is set.' : 'Not set.'}</ExtraWithIcon>} style={{ marginBottom: 12 }}>
+      <Form.Item label={field.label} key={field.key} tooltip={formItemTooltip(isSet ? 'Value is set.' : 'Not set.')} style={{ marginBottom: 12 }}>
         <Input.Password placeholder={isSet ? '••••••••' : undefined} disabled size="small" />
       </Form.Item>
     )
@@ -685,7 +832,7 @@ const ConfigField = React.memo(function ConfigField({
       <Form.Item
         name={[sectionId, field.key]}
         label={field.label}
-        extra={<ExtraWithIcon>{isSet ? 'Value is set. Enter a new value to change it.' : 'Enter password for first-time setup.'}</ExtraWithIcon>}
+        tooltip={formItemTooltip(isSet ? 'Value is set. Enter a new value to change it.' : 'Enter password for first-time setup.')}
         style={{ marginBottom: 12 }}
       >
         <Input.Password placeholder={isSet ? '••••••••' : undefined} autoComplete="new-password" size="small" />
@@ -702,7 +849,7 @@ const ConfigField = React.memo(function ConfigField({
           name={namePath}
           label={field.label}
           valuePropName="checked"
-          extra={field.extra ? <ExtraWithIcon>{field.extra}</ExtraWithIcon> : undefined}
+          tooltip={formItemTooltip(field.extra)}
           style={{ marginBottom: 12 }}
         >
           <OAuthAllowAllSwitch />
@@ -724,18 +871,11 @@ const ConfigField = React.memo(function ConfigField({
     const initialList = isOAuthEmailList && list.length === 0 ? [''] : list
     const oauthPlaceholder = field.key === 'oauth_admin_emails' ? 'admin@example.com' : 'user@example.com'
     const labelInRow = addButtonPosition === 'right'
+    const oauthListTooltip = oauthListDisabled
+      ? 'Enable an OAuth provider (Google or GitHub) to configure OAuth email lists.'
+      : field.extra
     return (
-      <Form.Item
-        label={field.label}
-        extra={
-          oauthListDisabled ? (
-            <ExtraWithIcon>Enable an OAuth provider (Google or GitHub) to configure OAuth email lists.</ExtraWithIcon>
-          ) : field.extra ? (
-            <ExtraWithIcon>{field.extra}</ExtraWithIcon>
-          ) : undefined
-        }
-        style={{ marginBottom: 12 }}
-      >
+      <Form.Item label={field.label} tooltip={formItemTooltip(oauthListTooltip)} style={{ marginBottom: 12 }}>
         <Form.List name={namePath} initialValue={initialList}>
           {(fields, { add, remove }, { errors }) => (
             <>
@@ -785,113 +925,21 @@ const ConfigField = React.memo(function ConfigField({
   if (field.kind === 'object[]' && field.key === 'local_users') {
     const arr = Array.isArray(rawValue) ? rawValue : []
     const list = arr.map((u: Record<string, unknown>) => ({
-      username: u.username ?? '',
+      username: typeof u.username === 'string' ? u.username : '',
       password: '',
-      is_admin: u.is_admin ?? false,
+      is_admin: typeof u.is_admin === 'boolean' ? u.is_admin : false,
       password_set: !!u.password_set,
     }))
-    const addInLabelRow = addButtonPosition === 'right'
     return (
-      <Form.Item
+      <LocalUsersListField
+        namePath={namePath}
+        initialList={list.length ? list : [{ username: '', password: '', is_admin: false }]}
+        listForPasswordFlag={list}
+        localUsersFormValues={localUsersFormValues}
+        localAuthEnabled={localAuthEnabled}
         label={field.label}
-        extra={!localAuthEnabled ? <ExtraWithIcon>Enable "Local users enabled" above to add local users.</ExtraWithIcon> : undefined}
-        style={{ marginBottom: 12 }}
-      >
-        <Form.List name={namePath} initialValue={list.length ? list : [{ username: '', password: '', is_admin: false }]}>
-          {(fields, { add, remove }) => (
-            <>
-              {addInLabelRow && (
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
-                  <Button
-                    size="small"
-                    type="default"
-                    icon={<PlusOutlined />}
-                    onClick={() => add({ username: '', password: '', is_admin: false })}
-                    disabled={!localAuthEnabled}
-                  >
-                    Add user
-                  </Button>
-                </div>
-              )}
-              {fields.map(({ key, name, ...restField }) => {
-                const item = list[name] ?? localUsersFormValues?.[name] ?? {}
-                const passwordSet = !!item?.password_set
-                return (
-                <Card key={key} size="small" style={{ marginBottom: 6 }}>
-                  <Space direction="vertical" size={8} style={{ width: '100%' }}>
-                    <Row gutter={12} wrap>
-                      <Col xs={24} sm={12} md={8}>
-                        <Form.Item
-                          {...restField}
-                          layout="vertical"
-                          name={[name, 'username']}
-                          label="Username"
-                          rules={[{ required: true }]}
-                          style={{ marginBottom: 0 }}
-                        >
-                          <Input placeholder="username" size="small" disabled={!localAuthEnabled || passwordSet} />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} sm={12} md={8}>
-                        <Form.Item
-                          {...restField}
-                          layout="vertical"
-                          name={[name, 'password']}
-                          label="Password"
-                          rules={!passwordSet ? [{ required: true, message: 'Password is required for new users' }] : undefined}
-                          extra={passwordSet ? <ExtraWithIcon>Value is set. Enter a new value to change it.</ExtraWithIcon> : undefined}
-                          style={{ marginBottom: 0 }}
-                        >
-                          <Input.Password
-                            placeholder={passwordSet ? '••••••••' : undefined}
-                            autoComplete="new-password"
-                            size="small"
-                            disabled={!localAuthEnabled}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} sm={12} md={4}>
-                        <Form.Item
-                          {...restField}
-                          layout="vertical"
-                          name={[name, 'is_admin']}
-                          valuePropName="checked"
-                          label="Admin"
-                          style={{ marginBottom: 0 }}
-                        >
-                          <Switch checkedChildren="Admin" unCheckedChildren="User" size="small" disabled={!localAuthEnabled} />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} sm={12} md={4}>
-                        <Form.Item label=" " colon={false} style={{ marginBottom: 0 }}>
-                          <Button type="text" danger size="small" icon={<DeleteOutlined />} onClick={() => remove(name)} disabled={!localAuthEnabled}>
-                            Remove
-                          </Button>
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </Space>
-                </Card>
-              )})}
-              {!addInLabelRow && (
-                <Form.Item style={{ marginBottom: 0 }}>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button
-                      size="small"
-                      type="default"
-                      icon={<PlusOutlined />}
-                      onClick={() => add({ username: '', password: '', is_admin: false })}
-                      disabled={!localAuthEnabled}
-                    >
-                      Add user
-                    </Button>
-                  </div>
-                </Form.Item>
-              )}
-            </>
-          )}
-        </Form.List>
-      </Form.Item>
+        tooltip={formItemTooltip(!localAuthEnabled ? 'Enable "Local users enabled" above to add local users.' : undefined)}
+      />
     )
   }
 
@@ -900,7 +948,7 @@ const ConfigField = React.memo(function ConfigField({
     <Form.Item
       name={namePath}
       label={field.label}
-      extra={field.extra ? <ExtraWithIcon>{field.extra}</ExtraWithIcon> : undefined}
+      tooltip={formItemTooltip(field.extra)}
       style={{ marginBottom: 12 }}
       rules={
         isBytes

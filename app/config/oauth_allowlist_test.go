@@ -38,3 +38,33 @@ func TestOAuthLoginAllowlistConfigured(t *testing.T) {
 		t.Fatal("oauth_allow_all_users should satisfy allowlist check")
 	}
 }
+
+func TestUserIsAdmin(t *testing.T) {
+	if UserIsAdmin(nil, "a@b.c") {
+		t.Fatal("nil config")
+	}
+	c := &Config{Users: UsersConfig{OauthAdminEmails: []string{"Admin@x.com"}}}
+	if !UserIsAdmin(c, "admin@x.com") {
+		t.Fatal("oauth admin email")
+	}
+	if UserIsAdmin(c, "other@x.com") {
+		t.Fatal("non-admin oauth email")
+	}
+	c.Users.OauthAdminEmails = nil
+	c.Users.LocalUsers = []LocalUser{{Username: "alice", IsAdmin: true}}
+	if !UserIsAdmin(c, "alice") {
+		t.Fatal("local admin username")
+	}
+	if UserIsAdmin(c, "bob") {
+		t.Fatal("non-admin local user")
+	}
+	c.Users.LocalUsers = []LocalUser{{Username: "alice", IsAdmin: false}}
+	c.Users.DefaultAdmin = &DefaultAdminUser{Username: "bootstrap", Password: "hashed"}
+	if !UserIsAdmin(c, "bootstrap") {
+		t.Fatal("default admin when password set")
+	}
+	c.Users.DefaultAdmin.Password = ""
+	if UserIsAdmin(c, "bootstrap") {
+		t.Fatal("default admin without password should not grant admin")
+	}
+}

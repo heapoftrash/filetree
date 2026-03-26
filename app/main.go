@@ -58,17 +58,8 @@ func main() {
 		// Protected auth route
 		api.GET("/auth/me", middleware.Auth(), authH.Me)
 
-		// Admin-only config routes
-		localAdminUsernames := make([]string, 0)
-		for _, u := range cfg.Users.LocalUsers {
-			if u.IsAdmin {
-				localAdminUsernames = append(localAdminUsernames, u.Username)
-			}
-		}
-		if cfg.Users.DefaultAdmin != nil && cfg.Users.DefaultAdmin.Password != "" {
-			localAdminUsernames = append(localAdminUsernames, cfg.Users.DefaultAdmin.Username)
-		}
-		configGroup := api.Group("/config", middleware.Auth(), middleware.RequireAdmin(cfg.Users.OauthAdminEmails, localAdminUsernames))
+		// Admin-only config routes (RequireAdmin reads live cfg on each request)
+		configGroup := api.Group("/config", middleware.Auth(), middleware.RequireAdmin(cfg))
 		configGroup.GET("", configH.GetConfig)
 		configGroup.PATCH("", configH.UpdateConfig)
 
