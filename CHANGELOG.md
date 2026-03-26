@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### CI
+
+- Tag pushes run a dedicated **Release** workflow: embedded-UI binaries for Linux (amd64, arm64, armv7), macOS (amd64, arm64), and Windows (amd64); `sha256sums.txt`; GitHub Release body from the matching `CHANGELOG.md` section; multi-arch container image on GHCR. Pull requests and `main` use **CI** only (including single-platform image push for `main`).
+
 ## [0.0.3-beta] - 2026-03-24
 
 ### Breaking changes

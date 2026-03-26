@@ -1,0 +1,234 @@
+name: Release
+
+# Multi-arch binaries + GH Release notes + GHCR image (issue #53)
+on:
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  prep:
+    name: Test and stage UI for embed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+          cache-dependency-path: app/go.sum
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: app/web/package-lock.json
+
+      - name: Go test and vet
+        run: |
+          cd app && go vet ./... && go test ./...
+
+      - name: Frontend build
+        run: |
+          cd app/web && npm ci && npm run build
+
+      - name: Stage UI for embed
+        run: |
+          rm -rf app/uiembed/dist
+          mkdir -p app/uiembed/dist
+          cp -R app/web/dist/. app/uiembed/dist/
+
+      - name: Smoke build (embedded)
+        run: cd app && go build -tags embed -o filetree .
+
+      - name: Upload uiembed dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: uiembed-dist
+          path: app/uiembed/dist
+          retention-days: 2
+
+  build-binary:
+    name: Binary ${{ matrix.suffix }}
+    needs: [prep]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            goarm: ''
+            suffix: linux_amd64
+          - goos: linux
+            goarch: arm64
+            goarm: ''
+            suffix: linux_arm64
+          - goos: linux
+            goarch: arm
+            goarm: '7'
+            suffix: linux_armv7
+          - goos: darwin
+            goarch: amd64
+            goarm: ''
+            suffix: darwin_amd64
+          - goos: darwin
+            goarch: arm64
+            goarm: ''
+            suffix: darwin_arm64
+          - goos: windows
+            goarch: amd64
+            goarm: ''
+            suffix: windows_amd64
+    env:
+      CGO_ENABLED: '0'
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download embedded UI
+        uses: actions/download-artifact@v4
+        with:
+          name: uiembed-dist
+          path: app/uiembed/dist
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+          cache-dependency-path: app/go.sum
+
+      - name: Build and archive
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          export GOOS="${{ matrix.goos }}"
+          export GOARCH="${{ matrix.goarch }}"
+          if [ "${{ matrix.goarch }}" = "arm" ]; then
+            export GOARM="${{ matrix.goarm }}"
+          fi
+          cd app
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            OUT=filetree.exe
+          else
+            OUT=filetree
+          fi
+          go build -tags embed -trimpath -ldflags="-s -w" -o "$OUT" .
+          mkdir -p "$RUNNER_TEMP/pack"
+          cp "$OUT" "$RUNNER_TEMP/pack/"
+          cd "$RUNNER_TEMP/pack"
+          ASSET="${GITHUB_WORKSPACE}/filetree_${REF_NAME}_${{ matrix.suffix }}"
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            zip -q "${ASSET}.zip" filetree.exe
+          else
+            tar czf "${ASSET}.tar.gz" filetree
+          fi
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.suffix }}
+          path: filetree_${{ github.ref_name }}_${{ matrix.suffix }}.*
+          if-no-files-found: error
+          retention-days: 7
+
+  docker-push:
+    name: Push container image
+    needs: [prep]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate Docker tags and labels
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix=sha-
+          flavor: |
+            latest=${{ !contains(github.ref_name, '-') }}
+
+      - name: Build and push image (multi-arch)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Containerfile
+          push: true
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  github-release:
+    name: GitHub Release
+    needs: [build-binary]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download all binary artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: binary-*
+          merge-multiple: true
+
+      - name: Flatten dist (artifacts may be nested)
+        run: |
+          mkdir -p flat
+          find dist -type f \( -name '*.tar.gz' -o -name '*.zip' \) -exec cp -t flat/ {} +
+          rm -rf dist
+          mv flat dist
+
+      - name: Generate checksums
+        run: |
+          cd dist
+          shopt -s nullglob
+          files=( *.tar.gz *.zip )
+          if [[ ${#files[@]} -eq 0 ]]; then
+            echo "No archives found" >&2
+            ls -la
+            exit 1
+          fi
+          sha256sum "${files[@]}" | sort -k2 > "$GITHUB_WORKSPACE/sha256sums.txt"
+
+      - name: Write release notes from CHANGELOG
+        run: bash .github/scripts/changelog-extract.sh CHANGELOG.md "${{ github.ref_name }}" > release-notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release-notes.md
+          files: |
+            dist/*
+            sha256sums.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
