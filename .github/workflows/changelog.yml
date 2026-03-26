@@ -1,16 +1,17 @@
-# Regenerate CHANGELOG.md from git history (git-cliff). Skips runs when the only
-# changed files are CHANGELOG.md (avoids loops when the bot commits).
+# Regenerate CHANGELOG.md from git history (git-cliff). Runs on pull requests
+# (same-repo only): commits and pushes to the PR head branch. Fork PRs are skipped
+# (token cannot push to forks). paths-ignore avoids loops when only CHANGELOG.md changes.
 name: Changelog
 
 on:
-  push:
-    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
     paths-ignore:
       - 'CHANGELOG.md'
   workflow_dispatch:
 
 concurrency:
-  group: changelog
+  group: changelog-${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 permissions:
@@ -18,11 +19,13 @@ permissions:
 
 jobs:
   regenerate:
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
 
       - name: Install git-cliff
         env:
@@ -39,7 +42,10 @@ jobs:
         run: git-cliff -o CHANGELOG.md
 
       - name: Commit and push
+        env:
+          BRANCH: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add CHANGELOG.md
@@ -47,5 +53,5 @@ jobs:
             echo "No changelog changes."
           else
             git commit -m "chore: update changelog"
-            git push
+            git push origin "HEAD:refs/heads/${BRANCH}"
           fi
