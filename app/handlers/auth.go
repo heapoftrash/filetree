@@ -28,7 +28,7 @@ var (
 type AuthHandler struct {
 	oauth2Configs map[string]*oauth2.Config // provider id -> config
 	jwtSecret     []byte
-	appCfg        *config.Config // live pointer; same as ConfigHandler (admin PATCH updates allowlists)
+	live          *config.LiveConfig // atomic snapshots; same store as ConfigHandler
 }
 
 // oauthCallbackURL derives the callback URL for a provider from the base oauth_redirect_url.
@@ -45,7 +45,8 @@ func oauthCallbackURL(baseRedirectURL, provider string) string {
 	return baseRedirectURL[:idx] + "/api/auth/" + provider + "/callback"
 }
 
-func NewAuthHandler(cfg *config.Config) *AuthHandler {
+func NewAuthHandler(live *config.LiveConfig) *AuthHandler {
+	cfg := live.Snapshot()
 	baseRedirectURL := strings.TrimSpace(cfg.Auth.OAuthRedirectURL)
 	oauth2Configs := make(map[string]*oauth2.Config)
 	if cfg.Auth.Providers != nil {
@@ -85,7 +86,7 @@ func NewAuthHandler(cfg *config.Config) *AuthHandler {
 	return &AuthHandler{
 		oauth2Configs: oauth2Configs,
 		jwtSecret:     []byte(cfg.Auth.JWTSecret),
-		appCfg:        cfg,
+		live:          live,
 	}
 }
 
@@ -128,7 +129,7 @@ type LoginProviderInfo struct {
 
 // LoginOptions returns enabled auth methods (public, no JWT).
 func (h *AuthHandler) LoginOptions(c *gin.Context) {
-	cfg := h.appCfg
+	cfg := h.live.Snapshot()
 	localUsers := cfg.Users.LocalUsers
 	if localUsers == nil {
 		localUsers = []config.LocalUser{}
@@ -148,7 +149,7 @@ type LocalLoginRequest struct {
 
 // LocalLogin authenticates a local user or default admin and returns JWT.
 func (h *AuthHandler) LocalLogin(c *gin.Context) {
-	cfg := h.appCfg
+	cfg := h.live.Snapshot()
 	localUsers := cfg.Users.LocalUsers
 	if localUsers == nil {
 		localUsers = []config.LocalUser{}
@@ -292,7 +293,7 @@ func (h *AuthHandler) oauthCallback(provider string, c *gin.Context) {
 		return
 	}
 
-	appCfg := h.appCfg
+	appCfg := h.live.Snapshot()
 	emailKey := strings.ToLower(strings.TrimSpace(email))
 	if emailKey == "" {
 		log.Printf("[auth] %s user login failed: email=%q name=%q reason=oauth_email_missing", provider, email, name)
@@ -429,7 +430,7 @@ func (h *AuthHandler) fetchGitHubPrimaryEmail(_ context.Context, client *http.Cl
 }
 
 func (h *AuthHandler) redirectTo(path string) string {
-	base := h.appCfg.Frontend.URL
+	base := h.live.Snapshot().Frontend.URL
 	if base == "" || base == "/" {
 		return path
 	}
@@ -444,7 +445,7 @@ func (h *AuthHandler) redirectTo(path string) string {
 
 // Me returns the current user (requires auth middleware).
 func (h *AuthHandler) Me(c *gin.Context) {
-	cfg := h.appCfg
+	cfg := h.live.Snapshot()
 	email, _ := c.Get("user_email")
 	name, _ := c.Get("user_name")
 	picture, _ := c.Get("user_picture")

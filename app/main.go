@@ -37,8 +37,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("handlers: invalid root path: %v", err)
 	}
-	authH := handlers.NewAuthHandler(cfg)
-	configH := handlers.NewConfigHandler(cfg)
+	live := config.NewLiveConfig(cfg)
+	authH := handlers.NewAuthHandler(live)
+	configH := handlers.NewConfigHandler(live)
 	if !cfg.Server.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -59,7 +60,7 @@ func main() {
 		api.GET("/auth/me", middleware.Auth(), authH.Me)
 
 		// Admin-only config routes (RequireAdmin reads live cfg on each request)
-		configGroup := api.Group("/config", middleware.Auth(), middleware.RequireAdmin(cfg))
+		configGroup := api.Group("/config", middleware.Auth(), middleware.RequireAdmin(live))
 		configGroup.GET("", configH.GetConfig)
 		configGroup.PATCH("", configH.UpdateConfig)
 
