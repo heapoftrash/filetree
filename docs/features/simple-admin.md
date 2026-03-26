@@ -15,7 +15,7 @@ No database — configuration is stored in a single YAML or JSON file. The admin
 
 ## Admin UI
 
-Admins (users in `admin_emails` or with `is_admin`) can access the Settings page to:
+Admins (users in `oauth_admin_emails` or with `is_admin`) can access the Settings page to:
 
 - **Auth providers** — Enable/disable Google and GitHub OAuth, set client ID and secret
 - **Local users** — Add, edit, remove username/password users

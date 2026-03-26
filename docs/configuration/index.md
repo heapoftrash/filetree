@@ -36,7 +36,7 @@ Configuration is loaded in this order: **environment variables** override **conf
       url: http://example.com
 
     users:
-      admin_emails: []
+      oauth_admin_emails: []
       local_users: []
     ```
 
@@ -68,7 +68,7 @@ Configuration is loaded in this order: **environment variables** override **conf
         "url": "http://example.com"
       },
       "users": {
-        "admin_emails": [],
+        "oauth_admin_emails": [],
         "local_users": []
       }
     }
@@ -94,7 +94,7 @@ Configuration is loaded in this order: **environment variables** override **conf
     export FRONTEND_URL="http://example.com"
     export CORS_ORIGINS="http://localhost:5173"
 
-    export ADMIN_EMAILS="admin@example.com"
+    export OAUTH_ADMIN_EMAILS="admin@example.com"
     ```
 
     See [Environment variables](environment-variables.md) for the full reference.
@@ -111,4 +111,4 @@ Configuration is loaded in this order: **environment variables** override **conf
 - **Server** — `root_path`, `max_upload_bytes`, `debug`
 - **Auth** — `jwt_secret`, `oauth_redirect_url`, `local_auth_enabled`, `providers` (google, github)
 - **Frontend** — `url`, `cors_origins`
-- **Users** — `admin_emails`, `local_users`, `default_admin`
+- **Users** — `oauth_admin_emails`, `oauth_allowed_emails`, `oauth_allow_all_users`, `local_users`, `default_admin`

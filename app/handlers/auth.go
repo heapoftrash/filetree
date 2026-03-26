@@ -26,14 +26,9 @@ var (
 )
 
 type AuthHandler struct {
-	oauth2Configs    map[string]*oauth2.Config // provider id -> config
-	jwtSecret        []byte
-	frontendURL      string
-	adminEmails      []string
-	localUsers       []config.LocalUser
-	defaultAdmin     *config.DefaultAdminUser
-	localAuthEnabled bool
-	oauthProviders   []LoginProviderInfo
+	oauth2Configs map[string]*oauth2.Config // provider id -> config
+	jwtSecret     []byte
+	live          *config.LiveConfig // atomic snapshots; same store as ConfigHandler
 }
 
 // oauthCallbackURL derives the callback URL for a provider from the base oauth_redirect_url.
@@ -50,7 +45,8 @@ func oauthCallbackURL(baseRedirectURL, provider string) string {
 	return baseRedirectURL[:idx] + "/api/auth/" + provider + "/callback"
 }
 
-func NewAuthHandler(cfg *config.Config) *AuthHandler {
+func NewAuthHandler(live *config.LiveConfig) *AuthHandler {
+	cfg := live.Snapshot()
 	baseRedirectURL := strings.TrimSpace(cfg.Auth.OAuthRedirectURL)
 	oauth2Configs := make(map[string]*oauth2.Config)
 	if cfg.Auth.Providers != nil {
@@ -87,22 +83,24 @@ func NewAuthHandler(cfg *config.Config) *AuthHandler {
 			}
 		}
 	}
-	localUsers := cfg.Users.LocalUsers
-	if localUsers == nil {
-		localUsers = []config.LocalUser{}
-	}
-	oauthProviders := buildOAuthProviders(cfg)
-	hasLocalAuth := cfg.Auth.LocalAuthEnabled && (len(localUsers) > 0 || (cfg.Users.DefaultAdmin != nil && cfg.Users.DefaultAdmin.Password != ""))
 	return &AuthHandler{
-		oauth2Configs:    oauth2Configs,
-		jwtSecret:        []byte(cfg.Auth.JWTSecret),
-		frontendURL:      cfg.Frontend.URL,
-		adminEmails:      cfg.Users.AdminEmails,
-		localUsers:       localUsers,
-		defaultAdmin:     cfg.Users.DefaultAdmin,
-		localAuthEnabled: hasLocalAuth,
-		oauthProviders:   oauthProviders,
+		oauth2Configs: oauth2Configs,
+		jwtSecret:     []byte(cfg.Auth.JWTSecret),
+		live:          live,
 	}
+}
+
+func oauthEmailAllowSet(adminEmails, allowedOAuthEmails []string) map[string]struct{} {
+	out := make(map[string]struct{})
+	for _, list := range [][]string{adminEmails, allowedOAuthEmails} {
+		for _, e := range list {
+			e = strings.ToLower(strings.TrimSpace(e))
+			if e != "" {
+				out[e] = struct{}{}
+			}
+		}
+	}
+	return out
 }
 
 func buildOAuthProviders(cfg *config.Config) []LoginProviderInfo {
@@ -131,9 +129,15 @@ type LoginProviderInfo struct {
 
 // LoginOptions returns enabled auth methods (public, no JWT).
 func (h *AuthHandler) LoginOptions(c *gin.Context) {
+	cfg := h.live.Snapshot()
+	localUsers := cfg.Users.LocalUsers
+	if localUsers == nil {
+		localUsers = []config.LocalUser{}
+	}
+	hasLocalAuth := cfg.Auth.LocalAuthEnabled && (len(localUsers) > 0 || (cfg.Users.DefaultAdmin != nil && cfg.Users.DefaultAdmin.Password != ""))
 	c.JSON(http.StatusOK, LoginOptionsResponse{
-		LocalAuthEnabled: h.localAuthEnabled,
-		Providers:        h.oauthProviders,
+		LocalAuthEnabled: hasLocalAuth,
+		Providers:        buildOAuthProviders(cfg),
 	})
 }
 
@@ -145,7 +149,13 @@ type LocalLoginRequest struct {
 
 // LocalLogin authenticates a local user or default admin and returns JWT.
 func (h *AuthHandler) LocalLogin(c *gin.Context) {
-	if !h.localAuthEnabled {
+	cfg := h.live.Snapshot()
+	localUsers := cfg.Users.LocalUsers
+	if localUsers == nil {
+		localUsers = []config.LocalUser{}
+	}
+	hasLocalAuth := cfg.Auth.LocalAuthEnabled && (len(localUsers) > 0 || (cfg.Users.DefaultAdmin != nil && cfg.Users.DefaultAdmin.Password != ""))
+	if !hasLocalAuth {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "local auth not enabled"})
 		return
 	}
@@ -162,26 +172,29 @@ func (h *AuthHandler) LocalLogin(c *gin.Context) {
 	}
 	var authUsername string
 	// Check local_users first
-	for i := range h.localUsers {
-		if strings.EqualFold(h.localUsers[i].Username, username) {
-			if err := bcrypt.CompareHashAndPassword([]byte(h.localUsers[i].Password), []byte(password)); err != nil {
+	for i := range localUsers {
+		if strings.EqualFold(localUsers[i].Username, username) {
+			if err := bcrypt.CompareHashAndPassword([]byte(localUsers[i].Password), []byte(password)); err != nil {
+				log.Printf("[auth] local user login failed: username=%q reason=invalid_credentials", localUsers[i].Username)
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid username or password"})
 				return
 			}
-			authUsername = h.localUsers[i].Username
+			authUsername = localUsers[i].Username
 			break
 		}
 	}
-	// Check default_admin if not found in local_users
-	if authUsername == "" && h.defaultAdmin != nil && h.defaultAdmin.Password != "" &&
-		strings.EqualFold(h.defaultAdmin.Username, username) {
-		if err := bcrypt.CompareHashAndPassword([]byte(h.defaultAdmin.Password), []byte(password)); err != nil {
+	da := cfg.Users.DefaultAdmin
+	if authUsername == "" && da != nil && da.Password != "" &&
+		strings.EqualFold(da.Username, username) {
+		if err := bcrypt.CompareHashAndPassword([]byte(da.Password), []byte(password)); err != nil {
+			log.Printf("[auth] local user login failed: username=%q reason=invalid_credentials", da.Username)
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid username or password"})
 			return
 		}
-		authUsername = h.defaultAdmin.Username
+		authUsername = da.Username
 	}
 	if authUsername == "" {
+		log.Printf("[auth] local user login failed: username=%q reason=unknown_user", username)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid username or password"})
 		return
 	}
@@ -278,6 +291,27 @@ func (h *AuthHandler) oauthCallback(provider string, c *gin.Context) {
 	if err != nil {
 		c.Redirect(http.StatusFound, h.redirectTo("/login?error=userinfo"))
 		return
+	}
+
+	appCfg := h.live.Snapshot()
+	emailKey := strings.ToLower(strings.TrimSpace(email))
+	if emailKey == "" {
+		log.Printf("[auth] %s user login failed: email=%q name=%q reason=oauth_email_missing", provider, email, name)
+		c.Redirect(http.StatusFound, h.redirectTo("/login?error=userinfo"))
+		return
+	}
+	if !appCfg.Users.OauthAllowAllUsers {
+		allow := oauthEmailAllowSet(appCfg.Users.OauthAdminEmails, appCfg.Users.OauthAllowedEmails)
+		if len(allow) == 0 {
+			log.Printf("[auth] %s user login failed: email=%q name=%q reason=oauth_no_allowlist_configured", provider, email, name)
+			c.Redirect(http.StatusFound, h.redirectTo("/login?error=oauth_no_allowlist"))
+			return
+		}
+		if _, ok := allow[emailKey]; !ok {
+			log.Printf("[auth] %s user login failed: email=%q name=%q reason=oauth_email_not_allowed", provider, email, name)
+			c.Redirect(http.StatusFound, h.redirectTo("/login?error=oauth_not_allowed"))
+			return
+		}
 	}
 
 	log.Printf("[auth] %s user logged in: email=%q name=%q", provider, email, name)
@@ -396,7 +430,7 @@ func (h *AuthHandler) fetchGitHubPrimaryEmail(_ context.Context, client *http.Cl
 }
 
 func (h *AuthHandler) redirectTo(path string) string {
-	base := h.frontendURL
+	base := h.live.Snapshot().Frontend.URL
 	if base == "" || base == "/" {
 		return path
 	}
@@ -411,29 +445,12 @@ func (h *AuthHandler) redirectTo(path string) string {
 
 // Me returns the current user (requires auth middleware).
 func (h *AuthHandler) Me(c *gin.Context) {
+	cfg := h.live.Snapshot()
 	email, _ := c.Get("user_email")
 	name, _ := c.Get("user_name")
 	picture, _ := c.Get("user_picture")
 	emailStr, _ := email.(string)
-	isAdmin := false
-	for _, e := range h.adminEmails {
-		if strings.EqualFold(strings.TrimSpace(e), emailStr) {
-			isAdmin = true
-			break
-		}
-	}
-	if !isAdmin {
-		for _, u := range h.localUsers {
-			if strings.EqualFold(u.Username, emailStr) && u.IsAdmin {
-				isAdmin = true
-				break
-			}
-		}
-	}
-	if !isAdmin && h.defaultAdmin != nil && h.defaultAdmin.Password != "" &&
-		strings.EqualFold(h.defaultAdmin.Username, emailStr) {
-		isAdmin = true
-	}
+	isAdmin := config.UserIsAdmin(cfg, emailStr)
 	c.JSON(http.StatusOK, gin.H{
 		"email":    email,
 		"name":     name,

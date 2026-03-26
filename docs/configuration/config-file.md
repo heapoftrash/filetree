@@ -52,7 +52,9 @@ Copy `config.example.yaml` or `config.example.json` to `config.yaml` / `config.j
 
 | Key | Type | Description |
 |-----|------|-------------|
-| `admin_emails` | []string | OAuth user emails that get admin role |
+| `oauth_admin_emails` | []string | OAuth emails with admin access; also counted as allowed to sign in |
+| `oauth_allowed_emails` | []string | OAuth emails allowed to sign in as regular (non-admin) users; union with `oauth_admin_emails`. If OAuth is enabled and both lists are empty, OAuth sign-in is rejected unless `oauth_allow_all_users` is true |
+| `oauth_allow_all_users` | bool | Default `false`. If `true`, skip email allowlist for OAuth sign-in (any OAuth user with an email may sign in). `oauth_admin_emails` still controls admin access only |
 | `local_users` | []object | `{username, password, is_admin}` — `password` accepts plaintext (hashed on first run) or bcrypt hash |
 | `default_admin` | object | `{username, password}` — `password` accepts plaintext (hashed on first run) or bcrypt hash |
 
@@ -83,7 +85,9 @@ Copy `config.example.yaml` or `config.example.json` to `config.yaml` / `config.j
       url: http://localhost:5173
 
     users:
-      admin_emails: []
+      oauth_admin_emails: []
+      oauth_allowed_emails: []
+      oauth_allow_all_users: false
       local_users: []
       default_admin:
         username: admin
@@ -116,7 +120,9 @@ Copy `config.example.yaml` or `config.example.json` to `config.yaml` / `config.j
         "url": "http://localhost:5173"
       },
       "users": {
-        "admin_emails": [],
+        "oauth_admin_emails": [],
+        "oauth_allowed_emails": [],
+        "oauth_allow_all_users": false,
         "local_users": []
       }
     }

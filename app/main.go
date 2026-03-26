@@ -20,6 +20,13 @@ func main() {
 		log.Fatalf("config bootstrap: %v", err)
 	}
 
+	if config.OAuthProviderActive(cfg) && !config.OAuthLoginAllowlistConfigured(cfg) {
+		log.Println("[config] OAuth provider(s) are enabled but users.oauth_admin_emails and users.oauth_allowed_emails are empty — OAuth sign-in will be denied until at least one email is listed (or set users.oauth_allow_all_users).")
+	}
+	if config.OAuthProviderActive(cfg) && cfg.Users.OauthAllowAllUsers {
+		log.Println("[config] users.oauth_allow_all_users is enabled — any OAuth user with a verified email may sign in; oauth_admin_emails still controls admin access only.")
+	}
+
 	if err := os.MkdirAll(cfg.Server.RootPath, 0750); err != nil {
 		log.Fatalf("mkdir root: %v", err)
 	}
@@ -30,8 +37,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("handlers: invalid root path: %v", err)
 	}
-	authH := handlers.NewAuthHandler(cfg)
-	configH := handlers.NewConfigHandler(cfg)
+	live := config.NewLiveConfig(cfg)
+	authH := handlers.NewAuthHandler(live)
+	configH := handlers.NewConfigHandler(live)
 	if !cfg.Server.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -51,17 +59,8 @@ func main() {
 		// Protected auth route
 		api.GET("/auth/me", middleware.Auth(), authH.Me)
 
-		// Admin-only config routes
-		localAdminUsernames := make([]string, 0)
-		for _, u := range cfg.Users.LocalUsers {
-			if u.IsAdmin {
-				localAdminUsernames = append(localAdminUsernames, u.Username)
-			}
-		}
-		if cfg.Users.DefaultAdmin != nil && cfg.Users.DefaultAdmin.Password != "" {
-			localAdminUsernames = append(localAdminUsernames, cfg.Users.DefaultAdmin.Username)
-		}
-		configGroup := api.Group("/config", middleware.Auth(), middleware.RequireAdmin(cfg.Users.AdminEmails, localAdminUsernames))
+		// Admin-only config routes (RequireAdmin reads live cfg on each request)
+		configGroup := api.Group("/config", middleware.Auth(), middleware.RequireAdmin(live))
 		configGroup.GET("", configH.GetConfig)
 		configGroup.PATCH("", configH.UpdateConfig)
 

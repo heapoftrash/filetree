@@ -15,6 +15,8 @@ const errorMessages: Record<string, string> = {
   exchange: 'Failed to complete sign in.',
   userinfo: 'Failed to get user info.',
   token: 'Failed to create session.',
+  oauth_no_allowlist: 'User not allowed to sign in.',
+  oauth_not_allowed: 'User not allowed to sign in.',
 }
 
 export default function Login() {

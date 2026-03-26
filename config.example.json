@@ -21,7 +21,9 @@
     "url": "http://localhost:5173"
   },
   "users": {
-    "admin_emails": [],
+    "oauth_admin_emails": [],
+    "oauth_allowed_emails": [],
+    "oauth_allow_all_users": false,
     "local_users": [],
     "default_admin": null
   }

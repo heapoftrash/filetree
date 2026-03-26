@@ -16,6 +16,10 @@ import {
   theme,
   Row,
   Col,
+  Alert,
+  Divider,
+  Modal,
+  Tooltip,
 } from 'antd'
 import {
   CloudServerOutlined,
@@ -59,6 +63,13 @@ const ExtraWithIcon = ({ children }: { children: React.ReactNode }) => {
   )
 }
 
+/** Ant Design Form.Item: show long hints next to the label (hover) instead of an extra line. */
+function formItemTooltip(text?: string | null): { title: string; icon: React.ReactElement } | undefined {
+  const t = text?.trim()
+  if (!t) return undefined
+  return { title: t, icon: <InfoCircleOutlined /> }
+}
+
 const TOP_LEVEL_SECTIONS = [
   { id: 'server', label: 'Server' },
   { id: 'auth_providers', label: 'Auth Providers' },
@@ -71,8 +82,8 @@ const AUTH_PROVIDER_MENU_ITEMS = [
 ] as const
 
 const USERS_MENU_ITEMS = [
-  { key: 'admin_user', label: 'Admin user', icon: <UserOutlined /> },
-  { key: 'local_user', label: 'Local user', icon: <TeamOutlined /> },
+  { key: 'admin_user', label: 'OAuth', icon: <UserOutlined /> },
+  { key: 'local_user', label: 'Local', icon: <TeamOutlined /> },
 ] as const
 
 const SECTION_OPTIONS = TOP_LEVEL_SECTIONS.map((s) => ({
@@ -80,6 +91,12 @@ const SECTION_OPTIONS = TOP_LEVEL_SECTIONS.map((s) => ({
   value: s.id,
   icon: SECTION_ICONS[s.id],
 }))
+
+/** Settings form: label left, control right; stacks on narrow viewports. */
+const SETTINGS_FORM_LAYOUT = {
+  labelCol: { xs: 24, sm: 9, md: 8, lg: 7 },
+  wrapperCol: { xs: 24, sm: 15, md: 16, lg: 17 },
+}
 
 type AuthProviderSubSection = 'google' | 'github'
 type UsersSubSection = 'admin_user' | 'local_user'
@@ -95,7 +112,7 @@ function buildFormValues(res: ConfigAPIResponse): Record<string, unknown> {
       const field = res.schema.fields?.find((f) => f.section === section && f.key === key)
       if (field?.kind === 'bytes' && typeof val === 'number') {
         sectionOut[key] = bytesToHuman(val)
-      } else if (field?.kind === 'string[]' && key === 'admin_emails') {
+      } else if (field?.kind === 'string[]' && (key === 'oauth_admin_emails' || key === 'oauth_allowed_emails')) {
         const arr = Array.isArray(val) ? (val as string[]) : []
         sectionOut[key] = arr.length ? arr : ['']
       } else if (key === 'default_admin_password') {
@@ -139,8 +156,11 @@ function categoryForField(name: (string | number)[]): {
   if (first === 'auth' || first === 'auth_providers') return { section: 'auth_providers', authProviderSub: 'google' }
   if (first === 'users') {
     const key = name[1]
-    if (key === 'admin_emails' || key === 'default_admin_username' || key === 'default_admin_password') {
+    if (key === 'oauth_admin_emails' || key === 'oauth_allowed_emails' || key === 'oauth_allow_all_users') {
       return { section: 'users', usersSub: 'admin_user' }
+    }
+    if (key === 'default_admin_username' || key === 'default_admin_password') {
+      return { section: 'users', usersSub: 'local_user' }
     }
     return { section: 'users', usersSub: 'local_user' }
   }
@@ -165,11 +185,21 @@ export default function Settings() {
 
   const authProviders = Form.useWatch(['auth_providers'], form) ?? (config?.values as Record<string, Record<string, unknown>>)?.auth_providers
   const localUsersFormValues = (Form.useWatch(['users', 'local_users'], form) ?? []) as Array<Record<string, unknown>>
+  const oauthAdminEmailsWatch = Form.useWatch(['users', 'oauth_admin_emails'], form)
+  const oauthAllowedEmailsWatch = Form.useWatch(['users', 'oauth_allowed_emails'], form)
+  const oauthAllowAllUsersWatch = Form.useWatch(['users', 'oauth_allow_all_users'], form)
   const oauthEnabled =
     (authProviders && typeof authProviders === 'object' &&
       ((authProviders as Record<string, Record<string, unknown>>).google?.enabled === true ||
         (authProviders as Record<string, Record<string, unknown>>).github?.enabled === true)) ??
     false
+
+  const oauthSignInOk = useMemo(() => {
+    if (oauthAllowAllUsersWatch === true) return true
+    const countNonEmpty = (arr: unknown) =>
+      Array.isArray(arr) ? (arr as unknown[]).filter((e) => typeof e === 'string' && e.trim()).length : 0
+    return countNonEmpty(oauthAdminEmailsWatch) + countNonEmpty(oauthAllowedEmailsWatch) > 0
+  }, [oauthAllowAllUsersWatch, oauthAdminEmailsWatch, oauthAllowedEmailsWatch])
 
   useEffect(() => {
     getConfig()
@@ -186,25 +216,6 @@ export default function Settings() {
     if (!config) return
     setSaving(true)
     try {
-      // Validate admin_emails only when OAuth is enabled
-      const authProvidersVal = values.auth_providers as Record<string, Record<string, unknown>> | undefined
-      const hasOAuth =
-        authProvidersVal &&
-        (authProvidersVal.google?.enabled === true || authProvidersVal.github?.enabled === true)
-      const users = values.users as Record<string, unknown> | undefined
-      if (hasOAuth && users?.admin_emails !== undefined) {
-        const emails = (Array.isArray(users.admin_emails) ? users.admin_emails : []).filter(
-          (e: unknown) => typeof e === 'string' && e.trim(),
-        )
-        if (emails.length === 0) {
-          message.error('At least one admin email is required when OAuth is enabled')
-          setActiveSection('users')
-          setUsersSub('admin_user')
-          setSaving(false)
-          return
-        }
-      }
-
       const payload: Record<string, unknown> = {}
       const schema = config.schema
 
@@ -306,14 +317,20 @@ export default function Settings() {
     }
   }, [fieldsBySection.auth])
 
-  const adminUserFields = useMemo(() => {
+  const oauthAdminUserFields = useMemo(() => {
     const users = fieldsBySection.users ?? []
+    const order = ['oauth_admin_emails', 'oauth_allowed_emails', 'oauth_allow_all_users']
     return users
-      .filter((f) => ['admin_emails', 'default_admin_username', 'default_admin_password'].includes(f.key))
-      .sort((a, b) => {
-        const order = ['admin_emails', 'default_admin_username', 'default_admin_password']
-        return order.indexOf(a.key) - order.indexOf(b.key)
-      })
+      .filter((f) => order.includes(f.key))
+      .sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key))
+  }, [fieldsBySection.users])
+
+  const defaultAdminBootstrapFields = useMemo(() => {
+    const users = fieldsBySection.users ?? []
+    const order = ['default_admin_username', 'default_admin_password']
+    return users
+      .filter((f) => order.includes(f.key))
+      .sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key))
   }, [fieldsBySection.users])
 
   const localUsersFields = useMemo(
@@ -339,11 +356,11 @@ export default function Settings() {
   return (
     <Layout style={{ minHeight: '100vh', background: token.colorBgLayout }}>
       <AppHeader />
-      <Content style={{ padding: 24, maxWidth: 960, margin: '0 auto', width: '100%' }}>
+      <Content style={{ padding: 24, maxWidth: 1280, margin: '0 auto', width: '100%' }}>
         <Title level={3} style={{ marginBottom: 12 }}>
           Settings
         </Title>
-        <Card size="small">
+        <Card>
           <Segmented
             value={activeSection}
             onChange={(v) => setActiveSection(v as string)}
@@ -357,7 +374,10 @@ export default function Settings() {
           </Text>
           <Form
             form={form}
-            layout="vertical"
+            layout="horizontal"
+            {...SETTINGS_FORM_LAYOUT}
+            labelAlign="left"
+            colon={false}
             size="small"
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
@@ -422,7 +442,22 @@ export default function Settings() {
                 <Col flex="1" style={{ minWidth: 0 }}>
                   {usersSub === 'admin_user' && (
                     <>
-                      {adminUserFields.map((field) => (
+                      {oauthEnabled && !oauthSignInOk && (
+                        <Alert
+                          type="warning"
+                          showIcon
+                          style={{ marginBottom: 16 }}
+                          message="OAuth sign-in is turned off for everyone"
+                          description="Add at least one email under Admins or Additional sign-ins, or enable Allow all OAuth users. Otherwise OAuth logins are rejected."
+                        />
+                      )}
+                      <Title level={5} style={{ marginTop: 0, marginBottom: 12 }}>
+                        OAuth sign-in
+                      </Title>
+                      <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
+                        Who may use Google or GitHub to sign in. If both lists are empty and allow-all is off, OAuth login is blocked.
+                      </Text>
+                      {oauthAdminUserFields.map((field) => (
                         <ConfigField
                           key={`users.${field.key}`}
                           sectionId="users"
@@ -433,6 +468,15 @@ export default function Settings() {
                           addButtonPosition="right"
                         />
                       ))}
+                      {oauthAllowAllUsersWatch === true && (
+                        <Alert
+                          type="warning"
+                          showIcon
+                          style={{ marginBottom: 16 }}
+                          message="Open OAuth sign-in enabled"
+                          description="Any OAuth user with an email can sign in. Email lists are ignored for sign-in; only the admin list controls who gets admin access."
+                        />
+                      )}
                     </>
                   )}
                   {usersSub === 'local_user' && (
@@ -457,6 +501,24 @@ export default function Settings() {
                           localUsersFormValues={localUsersFormValues}
                         />
                       ))}
+                      <Divider style={{ margin: '20px 0' }} />
+                      <Title level={5} style={{ marginTop: 0, marginBottom: 12 }}>
+                        Default admin (bootstrap)
+                      </Title>
+                      <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
+                        Used when no local users exist yet. Password is stored hashed in config after first startup.
+                      </Text>
+                      {defaultAdminBootstrapFields.map((field) => (
+                        <ConfigField
+                          key={`users.${field.key}`}
+                          sectionId="users"
+                          field={field}
+                          values={values}
+                          localAuthEnabled={localAuthEnabled}
+                          oauthEnabled={oauthEnabled}
+                          addButtonPosition="right"
+                        />
+                      ))}
                     </>
                   )}
                 </Col>
@@ -474,6 +536,33 @@ export default function Settings() {
         </Card>
       </Content>
     </Layout>
+  )
+}
+
+/** Switch for oauth_allow_all_users: confirm before enabling open sign-in. */
+function OAuthAllowAllSwitch({ checked, onChange }: { checked?: boolean; onChange?: (checked: boolean) => void }) {
+  return (
+    <Switch
+      checked={!!checked}
+      checkedChildren="On"
+      unCheckedChildren="Off"
+      size="small"
+      onChange={(checked) => {
+        if (checked) {
+          Modal.confirm({
+            title: 'Allow any OAuth user to sign in?',
+            content:
+              'Email lists will not restrict who can sign in with OAuth. Admin access still follows the admin list only. Use only in trusted environments.',
+            okText: 'Enable',
+            okType: 'danger',
+            cancelText: 'Cancel',
+            onOk: () => onChange?.(true),
+          })
+        } else {
+          onChange?.(false)
+        }
+      }}
+    />
   )
 }
 
@@ -527,7 +616,7 @@ const ProviderField = React.memo(function ProviderField({
       <Form.Item
         name={namePath}
         label={field.label}
-        extra={<ExtraWithIcon>{clientSecretSet ? 'Value is set. Cannot be changed after save.' : 'Enter client secret to save.'}</ExtraWithIcon>}
+        tooltip={formItemTooltip(clientSecretSet ? 'Value is set. Cannot be changed after save.' : 'Enter client secret to save.')}
         style={{ marginBottom: 12 }}
       >
         <Input.Password
@@ -543,7 +632,7 @@ const ProviderField = React.memo(function ProviderField({
   if (field.secret && !field.editable) {
     const isSet = !!value
     return (
-      <Form.Item label={field.label} extra={<ExtraWithIcon>{isSet ? 'Value is set.' : 'Not set.'}</ExtraWithIcon>} style={{ marginBottom: 12 }}>
+      <Form.Item label={field.label} tooltip={formItemTooltip(isSet ? 'Value is set.' : 'Not set.')} style={{ marginBottom: 12 }}>
         <Input.Password placeholder={isSet ? '••••••••' : undefined} disabled size="small" />
       </Form.Item>
     )
@@ -558,13 +647,152 @@ const ProviderField = React.memo(function ProviderField({
   }
 
   return (
-    <Form.Item
-      name={namePath}
-      label={field.label}
-      extra={field.extra ? <ExtraWithIcon>{field.extra}</ExtraWithIcon> : undefined}
-      style={{ marginBottom: 12 }}
-    >
+    <Form.Item name={namePath} label={field.label} tooltip={formItemTooltip(field.extra)} style={{ marginBottom: 12 }}>
       <Input placeholder={field.placeholder} disabled={!field.editable} size="small" />
+    </Form.Item>
+  )
+})
+
+/** Single card: title + Add user in header; each row is username, password, admin (horizontal). */
+const LocalUsersListField = React.memo(function LocalUsersListField({
+  namePath,
+  initialList,
+  listForPasswordFlag,
+  localUsersFormValues,
+  localAuthEnabled,
+  label,
+  tooltip,
+}: {
+  namePath: (string | number)[]
+  initialList: Array<{ username: string; password: string; is_admin: boolean; password_set?: boolean }>
+  listForPasswordFlag: Array<Record<string, unknown>>
+  localUsersFormValues: Array<Record<string, unknown>>
+  localAuthEnabled: boolean
+  label: string
+  tooltip: ReturnType<typeof formItemTooltip>
+}) {
+  /** Reserve enough label width so horizontal labels don’t collide with middle-sized inputs. */
+  const cellLayout = {
+    labelCol: { flex: '0 0 112px', style: { overflow: 'visible' as const } },
+    wrapperCol: { flex: '1 1 0', minWidth: 0, style: { minWidth: 0 } },
+  }
+  const adminLayout = {
+    labelCol: { flex: '0 0 52px', style: { overflow: 'visible' as const } },
+    wrapperCol: { flex: '0 0 auto' },
+  }
+
+  const cardTitle = (
+    <Space size={6}>
+      <span>{label}</span>
+      {tooltip ? (
+        <Tooltip title={tooltip.title}>
+          <span style={{ cursor: 'help', display: 'inline-flex', alignItems: 'center' }}>{tooltip.icon}</span>
+        </Tooltip>
+      ) : null}
+    </Space>
+  )
+
+  return (
+    <Form.Item noStyle>
+      <div style={{ width: '100%', minWidth: 0, marginBottom: 12 }}>
+        <Form.List name={namePath} initialValue={initialList}>
+          {(fields, { add, remove }) => (
+            <Card
+              title={cardTitle}
+              extra={
+                <Button
+                  type="default"
+                  icon={<PlusOutlined />}
+                  onClick={() => add({ username: '', password: '', is_admin: false })}
+                  disabled={!localAuthEnabled}
+                >
+                  Add user
+                </Button>
+              }
+              styles={{ body: { paddingBlock: 16 } }}
+            >
+              {fields.map(({ key, name, ...restField }, index) => {
+                const item = listForPasswordFlag[name] ?? localUsersFormValues?.[name] ?? {}
+                const passwordSet = !!item?.password_set
+                return (
+                  <Row
+                    key={key}
+                    gutter={[12, 12]}
+                    wrap
+                    align="middle"
+                    style={{ marginBottom: index < fields.length - 1 ? 12 : 0 }}
+                  >
+                    <Col xs={24} md={12} lg={11} flex="1 1 200px" style={{ minWidth: 0 }}>
+                      <Form.Item
+                        {...restField}
+                        {...cellLayout}
+                        layout="horizontal"
+                        name={[name, 'username']}
+                        label="Username"
+                        rules={[{ required: true }]}
+                        style={{ marginBottom: 0 }}
+                      >
+                        <Input
+                          placeholder="Username"
+                          size="middle"
+                          disabled={!localAuthEnabled || passwordSet}
+                          style={{ width: '100%' }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={12} lg={11} flex="1 1 200px" style={{ minWidth: 0 }}>
+                      <Form.Item
+                        {...restField}
+                        {...cellLayout}
+                        layout="horizontal"
+                        name={[name, 'password']}
+                        label="Password"
+                        rules={!passwordSet ? [{ required: true, message: 'Password is required for new users' }] : undefined}
+                        tooltip={passwordSet ? formItemTooltip('Value is set. Enter a new value to change it.') : undefined}
+                        style={{ marginBottom: 0 }}
+                      >
+                        <Input.Password
+                          placeholder={passwordSet ? '••••••••' : undefined}
+                          autoComplete="new-password"
+                          size="middle"
+                          disabled={!localAuthEnabled}
+                          style={{ width: '100%' }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col flex="none" style={{ width: 120, minWidth: 120, maxWidth: 120 }}>
+                      <Form.Item
+                        {...restField}
+                        {...adminLayout}
+                        layout="horizontal"
+                        name={[name, 'is_admin']}
+                        valuePropName="checked"
+                        label="Admin"
+                        style={{ marginBottom: 0 }}
+                      >
+                        <Switch size="small" disabled={!localAuthEnabled} />
+                      </Form.Item>
+                    </Col>
+                    <Col flex="none" style={{ width: 32, minWidth: 32, textAlign: 'center' }}>
+                      <Tooltip title="Remove user">
+                        <Button
+                          type="text"
+                          danger
+                          size="small"
+                          icon={<DeleteOutlined />}
+                          onClick={() => remove(name)}
+                          disabled={!localAuthEnabled}
+                          aria-label="Remove user"
+                        />
+                      </Tooltip>
+                    </Col>
+                  </Row>
+                )
+              })}
+            </Card>
+          )}
+        </Form.List>
+      </div>
     </Form.Item>
   )
 })
@@ -586,14 +814,13 @@ const ConfigField = React.memo(function ConfigField({
   addButtonPosition?: 'right'
   localUsersFormValues?: Array<Record<string, unknown>>
 }) {
-  const { token } = theme.useToken()
   const sectionValues = values[sectionId] ?? {}
   const rawValue = sectionValues[field.key]
 
   if (field.secret && !field.editable) {
     const isSet = !!rawValue
     return (
-      <Form.Item label={field.label} key={field.key} extra={<ExtraWithIcon>{isSet ? 'Value is set.' : 'Not set.'}</ExtraWithIcon>} style={{ marginBottom: 12 }}>
+      <Form.Item label={field.label} key={field.key} tooltip={formItemTooltip(isSet ? 'Value is set.' : 'Not set.')} style={{ marginBottom: 12 }}>
         <Input.Password placeholder={isSet ? '••••••••' : undefined} disabled size="small" />
       </Form.Item>
     )
@@ -605,7 +832,7 @@ const ConfigField = React.memo(function ConfigField({
       <Form.Item
         name={[sectionId, field.key]}
         label={field.label}
-        extra={<ExtraWithIcon>{isSet ? 'Value is set. Enter a new value to change it.' : 'Enter password for first-time setup.'}</ExtraWithIcon>}
+        tooltip={formItemTooltip(isSet ? 'Value is set. Enter a new value to change it.' : 'Enter password for first-time setup.')}
         style={{ marginBottom: 12 }}
       >
         <Input.Password placeholder={isSet ? '••••••••' : undefined} autoComplete="new-password" size="small" />
@@ -616,6 +843,19 @@ const ConfigField = React.memo(function ConfigField({
   const namePath = [sectionId, field.key]
 
   if (field.kind === 'bool') {
+    if (field.key === 'oauth_allow_all_users') {
+      return (
+        <Form.Item
+          name={namePath}
+          label={field.label}
+          valuePropName="checked"
+          tooltip={formItemTooltip(field.extra)}
+          style={{ marginBottom: 12 }}
+        >
+          <OAuthAllowAllSwitch />
+        </Form.Item>
+      )
+    }
     return (
       <Form.Item name={namePath} label={field.label} valuePropName="checked" style={{ marginBottom: 12 }}>
         <Switch checkedChildren="On" unCheckedChildren="Off" size="small" />
@@ -626,27 +866,22 @@ const ConfigField = React.memo(function ConfigField({
   if (field.kind === 'string[]') {
     const arr = Array.isArray(rawValue) ? rawValue : []
     const list = arr.filter((x): x is string => typeof x === 'string')
-    const isAdminEmails = field.key === 'admin_emails'
-    const adminEmailsDisabled = isAdminEmails && !oauthEnabled
-    const initialList = isAdminEmails && list.length === 0 ? [''] : list
+    const isOAuthEmailList = field.key === 'oauth_admin_emails' || field.key === 'oauth_allowed_emails'
+    const oauthListDisabled = isOAuthEmailList && !oauthEnabled
+    const initialList = isOAuthEmailList && list.length === 0 ? [''] : list
+    const oauthPlaceholder = field.key === 'oauth_admin_emails' ? 'admin@example.com' : 'user@example.com'
     const labelInRow = addButtonPosition === 'right'
+    const oauthListTooltip = oauthListDisabled
+      ? 'Enable an OAuth provider (Google or GitHub) to configure OAuth email lists.'
+      : field.extra
     return (
-      <Form.Item
-        label={labelInRow ? null : field.label}
-        required={isAdminEmails && oauthEnabled}
-        extra={adminEmailsDisabled ? <ExtraWithIcon>Enable an OAuth provider (Google or GitHub) to add admin emails.</ExtraWithIcon> : undefined}
-        style={{ marginBottom: 12 }}
-      >
+      <Form.Item label={field.label} tooltip={formItemTooltip(oauthListTooltip)} style={{ marginBottom: 12 }}>
         <Form.List name={namePath} initialValue={initialList}>
           {(fields, { add, remove }, { errors }) => (
             <>
               {labelInRow && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <span style={{ fontSize: 14, color: token.colorText }}>
-                    {field.label}
-                    {isAdminEmails && oauthEnabled && <span style={{ color: token.colorError, marginLeft: 4 }}>*</span>}
-                  </span>
-                  <Button size="small" type="default" icon={<PlusOutlined />} onClick={() => add('')} disabled={adminEmailsDisabled}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+                  <Button size="small" type="default" icon={<PlusOutlined />} onClick={() => add('')} disabled={oauthListDisabled}>
                     Add
                   </Button>
                 </div>
@@ -657,17 +892,16 @@ const ConfigField = React.memo(function ConfigField({
                   <Form.Item
                     {...restField}
                     name={[name]}
-                    rules={isAdminEmails && oauthEnabled ? [{ required: true, message: 'Email required' }] : undefined}
                     style={{ marginBottom: 0, minWidth: 240, flex: 1 }}
                   >
                     <Input
-                      placeholder={isAdminEmails ? 'admin@example.com' : field.placeholder}
-                      type={isAdminEmails ? 'email' : 'text'}
+                      placeholder={isOAuthEmailList ? oauthPlaceholder : field.placeholder}
+                      type={isOAuthEmailList ? 'email' : 'text'}
                       size="small"
-                      disabled={adminEmailsDisabled}
+                      disabled={oauthListDisabled}
                     />
                   </Form.Item>
-                  <Button type="text" danger size="small" icon={<DeleteOutlined />} onClick={() => remove(name)} disabled={adminEmailsDisabled}>
+                  <Button type="text" danger size="small" icon={<DeleteOutlined />} onClick={() => remove(name)} disabled={oauthListDisabled}>
                     Remove
                   </Button>
                 </Space>
@@ -675,7 +909,7 @@ const ConfigField = React.memo(function ConfigField({
               {!labelInRow && (
                 <Form.Item style={{ marginBottom: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                    <Button size="small" type="default" icon={<PlusOutlined />} onClick={() => add('')}>
+                    <Button size="small" type="default" icon={<PlusOutlined />} onClick={() => add('')} disabled={oauthListDisabled}>
                       Add
                     </Button>
                   </div>
@@ -691,98 +925,21 @@ const ConfigField = React.memo(function ConfigField({
   if (field.kind === 'object[]' && field.key === 'local_users') {
     const arr = Array.isArray(rawValue) ? rawValue : []
     const list = arr.map((u: Record<string, unknown>) => ({
-      username: u.username ?? '',
+      username: typeof u.username === 'string' ? u.username : '',
       password: '',
-      is_admin: u.is_admin ?? false,
+      is_admin: typeof u.is_admin === 'boolean' ? u.is_admin : false,
       password_set: !!u.password_set,
     }))
-    const addInLabelRow = addButtonPosition === 'right'
     return (
-      <Form.Item
-        label={addInLabelRow ? null : field.label}
-        extra={!localAuthEnabled ? <ExtraWithIcon>Enable "Local users enabled" above to add local users.</ExtraWithIcon> : undefined}
-      >
-        <Form.List name={namePath} initialValue={list.length ? list : [{ username: '', password: '', is_admin: false }]}>
-          {(fields, { add, remove }) => (
-            <>
-              {addInLabelRow && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <span style={{ fontSize: 14, color: token.colorText }}>{field.label}</span>
-                  <Button
-                    size="small"
-                    type="default"
-                    icon={<PlusOutlined />}
-                    onClick={() => add({ username: '', password: '', is_admin: false })}
-                    disabled={!localAuthEnabled}
-                  >
-                    Add user
-                  </Button>
-                </div>
-              )}
-              {fields.map(({ key, name, ...restField }) => {
-                const item = list[name] ?? localUsersFormValues?.[name] ?? {}
-                const passwordSet = !!item?.password_set
-                return (
-                <Card key={key} size="small" style={{ marginBottom: 6 }}>
-                  <Space direction="vertical" size={8} style={{ width: '100%' }}>
-                    <Row gutter={12} wrap>
-                      <Col xs={24} sm={12} md={8}>
-                        <Form.Item {...restField} name={[name, 'username']} label="Username" rules={[{ required: true }]} style={{ marginBottom: 0 }}>
-                          <Input placeholder="username" size="small" disabled={!localAuthEnabled || passwordSet} />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} sm={12} md={8}>
-                        <Form.Item
-                          {...restField}
-                          name={[name, 'password']}
-                          label="Password"
-                          rules={!passwordSet ? [{ required: true, message: 'Password is required for new users' }] : undefined}
-                          extra={passwordSet ? <ExtraWithIcon>Value is set. Enter a new value to change it.</ExtraWithIcon> : undefined}
-                          style={{ marginBottom: 0 }}
-                        >
-                          <Input.Password
-                            placeholder={passwordSet ? '••••••••' : undefined}
-                            autoComplete="new-password"
-                            size="small"
-                            disabled={!localAuthEnabled}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} sm={12} md={4}>
-                        <Form.Item {...restField} name={[name, 'is_admin']} valuePropName="checked" label="Admin" style={{ marginBottom: 0 }}>
-                          <Switch checkedChildren="Admin" unCheckedChildren="User" size="small" disabled={!localAuthEnabled} />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} sm={12} md={4}>
-                        <Form.Item label=" " colon={false} style={{ marginBottom: 0 }}>
-                          <Button type="text" danger size="small" icon={<DeleteOutlined />} onClick={() => remove(name)} disabled={!localAuthEnabled}>
-                            Remove
-                          </Button>
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </Space>
-                </Card>
-              )})}
-              {!addInLabelRow && (
-                <Form.Item style={{ marginBottom: 0 }}>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button
-                      size="small"
-                      type="default"
-                      icon={<PlusOutlined />}
-                      onClick={() => add({ username: '', password: '', is_admin: false })}
-                      disabled={!localAuthEnabled}
-                    >
-                      Add user
-                    </Button>
-                  </div>
-                </Form.Item>
-              )}
-            </>
-          )}
-        </Form.List>
-      </Form.Item>
+      <LocalUsersListField
+        namePath={namePath}
+        initialList={list.length ? list : [{ username: '', password: '', is_admin: false }]}
+        listForPasswordFlag={list}
+        localUsersFormValues={localUsersFormValues}
+        localAuthEnabled={localAuthEnabled}
+        label={field.label}
+        tooltip={formItemTooltip(!localAuthEnabled ? 'Enable "Local users enabled" above to add local users.' : undefined)}
+      />
     )
   }
 
@@ -791,7 +948,7 @@ const ConfigField = React.memo(function ConfigField({
     <Form.Item
       name={namePath}
       label={field.label}
-      extra={field.extra ? <ExtraWithIcon>{field.extra}</ExtraWithIcon> : undefined}
+      tooltip={formItemTooltip(field.extra)}
       style={{ marginBottom: 12 }}
       rules={
         isBytes

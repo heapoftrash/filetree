@@ -16,12 +16,12 @@ import (
 
 // ConfigHandler serves config API (admin only).
 type ConfigHandler struct {
-	cfg *config.Config
+	live *config.LiveConfig
 }
 
 // NewConfigHandler returns a ConfigHandler.
-func NewConfigHandler(cfg *config.Config) *ConfigHandler {
-	return &ConfigHandler{cfg: cfg}
+func NewConfigHandler(live *config.LiveConfig) *ConfigHandler {
+	return &ConfigHandler{live: live}
 }
 
 // ConfigSection is a section in the config schema.
@@ -75,7 +75,7 @@ type ConfigAPIResponse struct {
 
 // GetConfig returns schema + current values (admin only).
 func (h *ConfigHandler) GetConfig(c *gin.Context) {
-	cfg := h.cfg
+	cfg := h.live.Snapshot()
 
 	// Build schema from registry
 	sections := []ConfigSection{
@@ -170,7 +170,9 @@ func (h *ConfigHandler) GetConfig(c *gin.Context) {
 		},
 		"auth_providers": authProviders,
 		"users": {
-			"admin_emails":           cfg.Users.AdminEmails,
+			"oauth_admin_emails":     cfg.Users.OauthAdminEmails,
+			"oauth_allowed_emails":   cfg.Users.OauthAllowedEmails,
+			"oauth_allow_all_users":  cfg.Users.OauthAllowAllUsers,
 			"local_users":            localUsersUI,
 			"default_admin_username": defaultAdminUsername,
 			"default_admin_password": defaultAdminPasswordSet, // true = Set, false = Not set
@@ -192,22 +194,23 @@ type ConfigUpdateRequest map[string]interface{}
 
 // UpdateConfig updates config file (admin only). Server restart required for most changes.
 func (h *ConfigHandler) UpdateConfig(c *gin.Context) {
-	if h.cfg.ConfigPath == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "config file not configured (CONFIG_FILE not set)"})
-		return
-	}
-
 	var req ConfigUpdateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	cfg := *h.cfg
+	cur := h.live.Snapshot()
+	if cur.ConfigPath == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "config file not configured (CONFIG_FILE not set)"})
+		return
+	}
+
+	cfg := *cur
 	// Deep copy Providers map to avoid mutating live config before file write succeeds,
 	// and to prevent concurrent map read/write if GetConfig runs during UpdateConfig.
 	cfg.Auth.Providers = make(map[string]config.ProviderConfig)
-	for k, v := range h.cfg.Auth.Providers {
+	for k, v := range cur.Auth.Providers {
 		cfg.Auth.Providers[k] = v
 	}
 
@@ -271,7 +274,7 @@ func (h *ConfigHandler) UpdateConfig(c *gin.Context) {
 		}
 	}
 	if s, ok := req["users"].(map[string]interface{}); ok {
-		if v, ok := s["admin_emails"]; ok {
+		if v, ok := s["oauth_admin_emails"]; ok {
 			if arr, ok := toStringSlice(v); ok {
 				emails := make([]string, 0, len(arr))
 				for _, e := range arr {
@@ -280,8 +283,23 @@ func (h *ConfigHandler) UpdateConfig(c *gin.Context) {
 						emails = append(emails, es)
 					}
 				}
-				cfg.Users.AdminEmails = emails
+				cfg.Users.OauthAdminEmails = emails
 			}
+		}
+		if v, ok := s["oauth_allowed_emails"]; ok {
+			if arr, ok := toStringSlice(v); ok {
+				emails := make([]string, 0, len(arr))
+				for _, e := range arr {
+					es := strings.TrimSpace(e)
+					if es != "" {
+						emails = append(emails, es)
+					}
+				}
+				cfg.Users.OauthAllowedEmails = emails
+			}
+		}
+		if v, ok := s["oauth_allow_all_users"].(bool); ok {
+			cfg.Users.OauthAllowAllUsers = v
 		}
 		if v, ok := s["local_users"]; ok {
 			if arr, ok := toLocalUsers(v, cfg.Users.LocalUsers); ok {
@@ -318,18 +336,20 @@ func (h *ConfigHandler) UpdateConfig(c *gin.Context) {
 	}
 
 	// Write to file
-	data, err := marshalConfig(&cfg, h.cfg.ConfigPath)
+	data, err := marshalConfig(&cfg, cur.ConfigPath)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to serialize config: " + err.Error()})
 		return
 	}
-	if err := os.WriteFile(h.cfg.ConfigPath, data, 0600); err != nil {
+	if err := os.WriteFile(cur.ConfigPath, data, 0600); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to write config: " + err.Error()})
 		return
 	}
 
-	// Update in-memory config
-	*h.cfg = cfg
+	// Publish new config atomically (readers use Snapshot; no in-place struct copy)
+	pub := new(config.Config)
+	*pub = cfg
+	h.live.Replace(pub)
 
 	c.JSON(http.StatusOK, gin.H{"ok": true, "message": "Config saved. Server restart required for some changes."})
 }

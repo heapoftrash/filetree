@@ -70,9 +70,11 @@ type FrontendConfig struct {
 }
 
 type UsersConfig struct {
-	AdminEmails  []string          `yaml:"admin_emails" json:"admin_emails"`
-	LocalUsers   []LocalUser       `yaml:"local_users" json:"local_users"`
-	DefaultAdmin *DefaultAdminUser `yaml:"default_admin" json:"default_admin"`
+	OauthAdminEmails   []string          `yaml:"oauth_admin_emails" json:"oauth_admin_emails"`       // OAuth admins; union with oauth_allowed_emails for sign-in allowlist
+	OauthAllowedEmails []string          `yaml:"oauth_allowed_emails" json:"oauth_allowed_emails"`   // non-admin OAuth users allowed to sign in
+	OauthAllowAllUsers bool              `yaml:"oauth_allow_all_users" json:"oauth_allow_all_users"` // if true, skip email allowlist for OAuth sign-in (oauth_admin_emails still gates admin)
+	LocalUsers         []LocalUser       `yaml:"local_users" json:"local_users"`
+	DefaultAdmin       *DefaultAdminUser `yaml:"default_admin" json:"default_admin"`
 }
 
 type LocalUser struct {
@@ -84,6 +86,11 @@ type LocalUser struct {
 type DefaultAdminUser struct {
 	Username string `yaml:"username" json:"username"`
 	Password string `yaml:"password,omitempty" json:"password,omitempty"` // plaintext or bcrypt; hashed on first run if plaintext
+}
+
+func parseBoolEnv(s string) bool {
+	s = strings.TrimSpace(strings.ToLower(s))
+	return s == "1" || s == "true" || s == "yes" || s == "on"
 }
 
 // isBcryptHash returns true if s looks like a bcrypt hash ($2a$, $2b$, $2y$).
@@ -146,8 +153,14 @@ func Load(configPath string) (*Config, error) {
 		if len(c.Frontend.CORSOrigins) > 0 {
 			src.set("frontend.cors_origins", SourceConfig)
 		}
-		if len(c.Users.AdminEmails) > 0 {
-			src.set("users.admin_emails", SourceConfig)
+		if len(c.Users.OauthAdminEmails) > 0 {
+			src.set("users.oauth_admin_emails", SourceConfig)
+		}
+		if len(c.Users.OauthAllowedEmails) > 0 {
+			src.set("users.oauth_allowed_emails", SourceConfig)
+		}
+		if c.Users.OauthAllowAllUsers {
+			src.set("users.oauth_allow_all_users", SourceConfig)
 		}
 		if c.Auth.Providers != nil {
 			if p, ok := c.Auth.Providers["google"]; ok && p.ClientID != "" {
@@ -228,13 +241,25 @@ func Load(configPath string) (*Config, error) {
 		}
 		src.set("frontend.cors_origins", SourceEnv)
 	}
-	if v := os.Getenv("ADMIN_EMAILS"); v != "" {
+	if v := os.Getenv("OAUTH_ADMIN_EMAILS"); v != "" {
 		parts := strings.Split(v, ",")
 		for i, p := range parts {
 			parts[i] = strings.TrimSpace(p)
 		}
-		c.Users.AdminEmails = parts
-		src.set("users.admin_emails", SourceEnv)
+		c.Users.OauthAdminEmails = parts
+		src.set("users.oauth_admin_emails", SourceEnv)
+	}
+	if v := os.Getenv("OAUTH_ALLOWED_EMAILS"); v != "" {
+		parts := strings.Split(v, ",")
+		for i, p := range parts {
+			parts[i] = strings.TrimSpace(p)
+		}
+		c.Users.OauthAllowedEmails = parts
+		src.set("users.oauth_allowed_emails", SourceEnv)
+	}
+	if v := os.Getenv("OAUTH_ALLOW_ALL_USERS"); v != "" {
+		c.Users.OauthAllowAllUsers = parseBoolEnv(v)
+		src.set("users.oauth_allow_all_users", SourceEnv)
 	}
 
 	// 3. Defaults
@@ -260,8 +285,14 @@ func Load(configPath string) (*Config, error) {
 	if src["frontend.url"] == 0 {
 		src.set("frontend.url", SourceDefault)
 	}
-	if src["users.admin_emails"] == 0 {
-		src.set("users.admin_emails", SourceDefault)
+	if src["users.oauth_admin_emails"] == 0 {
+		src.set("users.oauth_admin_emails", SourceDefault)
+	}
+	if src["users.oauth_allowed_emails"] == 0 {
+		src.set("users.oauth_allowed_emails", SourceDefault)
+	}
+	if src["users.oauth_allow_all_users"] == 0 {
+		src.set("users.oauth_allow_all_users", SourceDefault)
 	}
 	if src["server.debug"] == 0 {
 		c.Server.Debug = false
@@ -405,10 +436,80 @@ func logConfigSources(logger *log.Logger, c *Config, src sources, configPath str
 		{"auth.oauth_redirect_url", c.Auth.OAuthRedirectURL, src["auth.oauth_redirect_url"]},
 		{"frontend.url", c.Frontend.URL, src["frontend.url"]},
 		{"frontend.cors_origins", fmt.Sprintf("%v", c.Frontend.CORSOrigins), src["frontend.cors_origins"]},
-		{"users.admin_emails", fmt.Sprintf("%v", c.Users.AdminEmails), src["users.admin_emails"]},
+		{"users.oauth_admin_emails", fmt.Sprintf("%v", c.Users.OauthAdminEmails), src["users.oauth_admin_emails"]},
+		{"users.oauth_allowed_emails", fmt.Sprintf("%v", c.Users.OauthAllowedEmails), src["users.oauth_allowed_emails"]},
+		{"users.oauth_allow_all_users", fmt.Sprintf("%v", c.Users.OauthAllowAllUsers), src["users.oauth_allow_all_users"]},
 	}
 
 	for _, item := range items {
 		logger.Printf("  %s: %s (from %s)", item.key, item.value, item.s)
 	}
+}
+
+// OAuthProviderActive reports whether Google or GitHub is enabled with a client ID.
+func OAuthProviderActive(c *Config) bool {
+	if c == nil || c.Auth.Providers == nil {
+		return false
+	}
+	for _, id := range []string{"google", "github"} {
+		p, ok := c.Auth.Providers[id]
+		if ok && p.Enabled && strings.TrimSpace(p.ClientID) != "" {
+			return true
+		}
+	}
+	return false
+}
+
+// OAuthLoginAllowlistConfigured returns true if OAuth sign-in is allowed without empty-list denial:
+// oauth_allow_all_users, or at least one non-empty email in oauth_admin_emails or oauth_allowed_emails.
+func OAuthLoginAllowlistConfigured(c *Config) bool {
+	if c == nil {
+		return false
+	}
+	if c.Users.OauthAllowAllUsers {
+		return true
+	}
+	for _, e := range c.Users.OauthAdminEmails {
+		if strings.TrimSpace(e) != "" {
+			return true
+		}
+	}
+	for _, e := range c.Users.OauthAllowedEmails {
+		if strings.TrimSpace(e) != "" {
+			return true
+		}
+	}
+	return false
+}
+
+// UserIsAdmin reports whether identity (OAuth email or local username from JWT) has admin
+// privileges for the given live config: oauth_admin_emails, local_users with is_admin, or
+// default_admin when its password is set.
+func UserIsAdmin(c *Config, identity string) bool {
+	if c == nil {
+		return false
+	}
+	identity = strings.TrimSpace(identity)
+	if identity == "" {
+		return false
+	}
+	for _, e := range c.Users.OauthAdminEmails {
+		if strings.EqualFold(strings.TrimSpace(e), identity) {
+			return true
+		}
+	}
+	localUsers := c.Users.LocalUsers
+	if localUsers == nil {
+		localUsers = []LocalUser{}
+	}
+	for _, u := range localUsers {
+		if strings.EqualFold(u.Username, identity) && u.IsAdmin {
+			return true
+		}
+	}
+	da := c.Users.DefaultAdmin
+	if da != nil && da.Password != "" && strings.EqualFold(da.Username, identity) {
+		return true
+	}
+	return false
 }
