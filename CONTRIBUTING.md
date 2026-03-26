@@ -23,7 +23,8 @@ Validate locally: `make commitlint` or `npx commitlint --last --verbose`
 Release automation uses [Release Please](https://github.com/googleapis/release-please) (`.github/workflows/release-please.yml`):
 
 - Land **conventional commits** on `main` (`feat:`, `fix:`, `chore:`, …).
-- Release Please opens a **release PR** that bumps `version.txt` / `.release-please-manifest.json` and updates `CHANGELOG.md`. **Merge that PR** to cut a release (tag + GitHub Release).
+- Release Please opens a **release PR** that bumps `version.txt` / `.release-please-manifest.json` and updates `CHANGELOG.md`. **Merge that PR** to cut a release (tag + GitHub Release). Versions use **beta** prereleases (e.g. `v0.0.4-beta`). `bump-patch-for-minor-pre-major` keeps `feat:` on **0.0.x** before 1.0.
+- If a release PR shows the wrong version (e.g. `0.1.0` after a config change), **close it without merging** and let the next Release Please run refresh the PR, or push a small commit to `main` to retrigger.
 - The **Release** workflow (`.github/workflows/release.yml`) runs on **version tags** and adds binaries, `sha256sums.txt`, and the multi-arch container image.
 
 **Token (recommended):** Add a [fine-grained or classic PAT](https://github.com/settings/tokens) with `contents` (and `workflow` if needed) as repository secret **`RELEASE_PLEASE_TOKEN`**, and reference it in the Release Please workflow. If you use only the default `GITHUB_TOKEN`, tag pushes from Release Please **may not** trigger other workflows (GitHub limitation); a PAT avoids that.
