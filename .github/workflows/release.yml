@@ -227,6 +227,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           body_path: release-notes.md
+          # Align with GHCR latest: false when tag contains '-' (e.g. v0.0.4-beta)
+          prerelease: ${{ contains(github.ref_name, '-') }}
           files: |
             dist/*
             sha256sums.txt
