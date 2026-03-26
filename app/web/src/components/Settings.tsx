@@ -74,8 +74,8 @@ const AUTH_PROVIDER_MENU_ITEMS = [
 ] as const
 
 const USERS_MENU_ITEMS = [
-  { key: 'admin_user', label: 'Admin user', icon: <UserOutlined /> },
-  { key: 'local_user', label: 'Local user', icon: <TeamOutlined /> },
+  { key: 'admin_user', label: 'OAuth', icon: <UserOutlined /> },
+  { key: 'local_user', label: 'Local', icon: <TeamOutlined /> },
 ] as const
 
 const SECTION_OPTIONS = TOP_LEVEL_SECTIONS.map((s) => ({
@@ -142,14 +142,11 @@ function categoryForField(name: (string | number)[]): {
   if (first === 'auth' || first === 'auth_providers') return { section: 'auth_providers', authProviderSub: 'google' }
   if (first === 'users') {
     const key = name[1]
-    if (
-      key === 'oauth_admin_emails' ||
-      key === 'oauth_allowed_emails' ||
-      key === 'oauth_allow_all_users' ||
-      key === 'default_admin_username' ||
-      key === 'default_admin_password'
-    ) {
+    if (key === 'oauth_admin_emails' || key === 'oauth_allowed_emails' || key === 'oauth_allow_all_users') {
       return { section: 'users', usersSub: 'admin_user' }
+    }
+    if (key === 'default_admin_username' || key === 'default_admin_password') {
+      return { section: 'users', usersSub: 'local_user' }
     }
     return { section: 'users', usersSub: 'local_user' }
   }
@@ -463,24 +460,6 @@ export default function Settings() {
                           description="Any OAuth user with an email can sign in. Email lists are ignored for sign-in; only the admin list controls who gets admin access."
                         />
                       )}
-                      <Divider style={{ margin: '20px 0' }} />
-                      <Title level={5} style={{ marginTop: 0, marginBottom: 12 }}>
-                        Default admin (bootstrap)
-                      </Title>
-                      <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
-                        Used when no local users exist yet. Password is stored hashed in config after first startup.
-                      </Text>
-                      {defaultAdminBootstrapFields.map((field) => (
-                        <ConfigField
-                          key={`users.${field.key}`}
-                          sectionId="users"
-                          field={field}
-                          values={values}
-                          localAuthEnabled={localAuthEnabled}
-                          oauthEnabled={oauthEnabled}
-                          addButtonPosition="right"
-                        />
-                      ))}
                     </>
                   )}
                   {usersSub === 'local_user' && (
@@ -503,6 +482,24 @@ export default function Settings() {
                           localAuthEnabled={localAuthEnabled}
                           addButtonPosition="right"
                           localUsersFormValues={localUsersFormValues}
+                        />
+                      ))}
+                      <Divider style={{ margin: '20px 0' }} />
+                      <Title level={5} style={{ marginTop: 0, marginBottom: 12 }}>
+                        Default admin (bootstrap)
+                      </Title>
+                      <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
+                        Used when no local users exist yet. Password is stored hashed in config after first startup.
+                      </Text>
+                      {defaultAdminBootstrapFields.map((field) => (
+                        <ConfigField
+                          key={`users.${field.key}`}
+                          sectionId="users"
+                          field={field}
+                          values={values}
+                          localAuthEnabled={localAuthEnabled}
+                          oauthEnabled={oauthEnabled}
+                          addButtonPosition="right"
                         />
                       ))}
                     </>
