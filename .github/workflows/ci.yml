@@ -195,7 +195,8 @@ jobs:
             type=ref,event=branch
             type=sha,prefix=sha-
           flavor: |
-            latest=true
+            # GHCR `latest` is owned by .github/workflows/release.yml (multi-arch stable tags only)
+            latest=false
 
       - name: Build and push image
         uses: docker/build-push-action@v6
