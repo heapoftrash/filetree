@@ -15,10 +15,6 @@ site/
 # Video tooling (imageio-ffmpeg for trimming)
 vendor/
 
-# git-cliff (optional local install / extracted release tarball)
-.git-cliff*.tgz
-git-cliff-*/
-
 # IDE / editor
 .idea/
 .vscode/

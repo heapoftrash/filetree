@@ -18,12 +18,17 @@ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`
 
 Validate locally: `make commitlint` or `npx commitlint --last --verbose`
 
-## Changelog
+## Releases and changelog
 
-`CHANGELOG.md` is **generated** by [git-cliff](https://github.com/orhun/git-cliff) from commit history (see `cliff.toml`). Do not edit it by hand — use clear conventional commit subjects so the release history stays readable.
+Release automation uses [Release Please](https://github.com/googleapis/release-please) (`.github/workflows/release-please.yml`):
 
-- Local preview: install [git-cliff](https://github.com/orhun/git-cliff/releases) and run `git-cliff -o CHANGELOG.md` (or `make changelog`).
-- Pushes to `main` that change files other than `CHANGELOG.md` trigger `.github/workflows/changelog.yml`, which regenerates the file and commits if needed. If `main` is branch-protected, allow the workflow to push (e.g. bypass for GitHub Actions) or run **Actions → Changelog → Run workflow** manually after merging.
+- Land **conventional commits** on `main` (`feat:`, `fix:`, `chore:`, …).
+- Release Please opens a **release PR** that bumps `version.txt` / `.release-please-manifest.json` and updates `CHANGELOG.md`. **Merge that PR** to cut a release (tag + GitHub Release).
+- The **Release** workflow (`.github/workflows/release.yml`) runs on **version tags** and adds binaries, `sha256sums.txt`, and the multi-arch container image.
+
+**Token (recommended):** Add a [fine-grained or classic PAT](https://github.com/settings/tokens) with `contents` (and `workflow` if needed) as repository secret **`RELEASE_PLEASE_TOKEN`**, and reference it in the Release Please workflow. If you use only the default `GITHUB_TOKEN`, tag pushes from Release Please **may not** trigger other workflows (GitHub limitation); a PAT avoids that.
+
+Enable **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests** so Release Please can open/update release PRs.
 
 ## Pull requests
 

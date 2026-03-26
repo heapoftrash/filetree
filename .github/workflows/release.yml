@@ -220,10 +220,10 @@ jobs:
           fi
           sha256sum "${files[@]}" | sort -k2 > "$GITHUB_WORKSPACE/sha256sums.txt"
 
-      - name: Create GitHub Release
+      - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
+          # Release notes come from Release Please; this step adds binaries + checksums only.
           # Align with GHCR latest: false when tag contains '-' (e.g. v0.0.4-beta)
           prerelease: ${{ contains(github.ref_name, '-') }}
           files: |
