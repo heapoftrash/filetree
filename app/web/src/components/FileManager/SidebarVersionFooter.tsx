@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Tag, theme } from 'antd'
 import { useVersionInfo } from '../../contexts/VersionContext'
 
@@ -5,6 +6,7 @@ import { useVersionInfo } from '../../contexts/VersionContext'
 export default function SidebarVersionFooter() {
   const { token } = theme.useToken()
   const info = useVersionInfo()
+  const [updateHover, setUpdateHover] = useState(false)
 
   if (info === undefined) {
     return (
@@ -48,28 +50,47 @@ export default function SidebarVersionFooter() {
           wordBreak: 'break-word',
         }}
       >
-        {running}
-        {commitShort ? ` · ${commitShort}` : ''}
+        Version: {running}
+        {commitShort ? ` · Commit: ${commitShort}` : ''}
       </div>
 
       {info.latest_version && (
         <div style={{ marginTop: 8, fontSize: 11, lineHeight: 1.45 }}>
           {info.update_available ? (
-            <>
-              <div style={{ color: token.colorWarning, fontWeight: 500 }}>
-                Update: v{info.latest_version}
+            <div
+              onMouseEnter={() => setUpdateHover(true)}
+              onMouseLeave={() => setUpdateHover(false)}
+              style={{
+                marginLeft: -4,
+                marginRight: -4,
+                padding: '6px 8px',
+                borderRadius: token.borderRadiusSM,
+                background: updateHover ? token.colorFillQuaternary : 'transparent',
+                border: `1px solid ${updateHover ? token.colorBorderSecondary : 'transparent'}`,
+                transition:
+                  'background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease',
+                boxShadow: updateHover ? '0 1px 2px rgba(0, 0, 0, 0.06)' : 'none',
+              }}
+            >
+              <div style={{ color: token.colorTextTertiary }}>
+                Newer on GitHub: v{info.latest_version}
               </div>
               {info.release_url ? (
                 <a
                   href={info.release_url}
                   target="_blank"
                   rel="noreferrer"
-                  style={{ color: token.colorLink, display: 'inline-block', marginTop: 4 }}
+                  style={{
+                    color: token.colorLink,
+                    display: 'inline-block',
+                    marginTop: 4,
+                    fontSize: 11,
+                  }}
                 >
                   {info.release_url_kind === 'tag' ? 'View tag' : 'Release notes'}
                 </a>
               ) : null}
-            </>
+            </div>
           ) : comparable ? (
             <>
               <Tag color="success" style={{ margin: 0, fontSize: 11 }}>
