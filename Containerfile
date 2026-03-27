@@ -1,4 +1,5 @@
-FROM node:20-alpine AS frontend
+# Build JS on the builder host arch only so npm does not run under QEMU (e.g. arm/v7).
+FROM --platform=$BUILDPLATFORM node:20-alpine AS frontend
 WORKDIR /app/web
 COPY app/web/package.json app/web/package-lock.json ./
 ENV NODE_OPTIONS="--max-old-space-size=4096"
