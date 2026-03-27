@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.7](https://github.com/heapoftrash/filetree/compare/v0.0.6...v0.0.7) (2026-03-27)
+
+
+### Bug Fixes
+
+* **ui:** use Version label in sidebar footer ([5f10449](https://github.com/heapoftrash/filetree/commit/5f10449917dfcae073d3c47330e0c3b6310a6b1b))
+* **ui:** use Version label in sidebar footer ([672258f](https://github.com/heapoftrash/filetree/commit/672258f4f55920073fff8af639cca4672a8ecc36))
+
 ## [0.0.6](https://github.com/heapoftrash/filetree/compare/v0.0.5...v0.0.6) (2026-03-27)
 
 
