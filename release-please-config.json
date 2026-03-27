@@ -5,10 +5,7 @@
       "release-type": "simple",
       "changelog-path": "CHANGELOG.md",
       "bump-minor-pre-major": true,
-      "bump-patch-for-minor-pre-major": true,
-      "versioning": "prerelease",
-      "prerelease": true,
-      "prerelease-type": "beta"
+      "bump-patch-for-minor-pre-major": true
     }
   }
 }

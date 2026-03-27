@@ -54,7 +54,10 @@ jobs:
           cache-dependency-path: app/go.sum
 
       - name: Build
-        run: cd app && go build -o filetree .
+        run: |
+          VERSION=$(tr -d '\n' < version.txt)
+          COMMIT=$(git rev-parse --short HEAD)
+          cd app && go build -ldflags "-X github.com/heapoftrash/filetree/app/version.Version=${VERSION} -X github.com/heapoftrash/filetree/app/version.Commit=${COMMIT}" -o filetree .
 
       - name: Vet
         run: cd app && go vet ./...
@@ -138,7 +141,10 @@ jobs:
           cp -R app/web/dist/. app/uiembed/dist/
 
       - name: Build with embedded frontend
-        run: cd app && go build -tags embed -o filetree .
+        run: |
+          VERSION=$(tr -d '\n' < version.txt)
+          COMMIT=$(git rev-parse --short HEAD)
+          cd app && go build -tags embed -ldflags "-X github.com/heapoftrash/filetree/app/version.Version=${VERSION} -X github.com/heapoftrash/filetree/app/version.Commit=${COMMIT}" -o filetree .
 
   docker-build:
     name: Build
@@ -158,6 +164,8 @@ jobs:
           push: false
           load: true
           tags: filetree:test
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -205,6 +213,8 @@ jobs:
           file: ./Containerfile
           push: true
           platforms: linux/amd64
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha

@@ -13,7 +13,12 @@ COPY app/go.mod app/go.sum ./
 RUN go mod download
 COPY app/ ./
 COPY --from=frontend /app/web/dist ./uiembed/dist
-RUN CGO_ENABLED=0 go build -tags embed -o filetree .
+COPY version.txt /tmp/version.txt
+ARG GIT_COMMIT=unknown
+RUN VERSION=$(tr -d '\n' </tmp/version.txt) && \
+  CGO_ENABLED=0 go build -tags embed -trimpath \
+  -ldflags="-s -w -X github.com/heapoftrash/filetree/app/version.Version=${VERSION} -X github.com/heapoftrash/filetree/app/version.Commit=${GIT_COMMIT}" \
+  -o filetree .
 
 FROM alpine:3.20
 RUN apk add --no-cache ca-certificates

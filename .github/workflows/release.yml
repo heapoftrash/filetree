@@ -49,7 +49,10 @@ jobs:
           cp -R app/web/dist/. app/uiembed/dist/
 
       - name: Smoke build (embedded)
-        run: cd app && go build -tags embed -o filetree .
+        run: |
+          VERSION=$(tr -d '\n' < version.txt)
+          COMMIT=$(git rev-parse --short HEAD)
+          cd app && go build -tags embed -ldflags "-X github.com/heapoftrash/filetree/app/version.Version=${VERSION} -X github.com/heapoftrash/filetree/app/version.Commit=${COMMIT}" -o filetree .
 
       - name: Upload uiembed dist
         uses: actions/upload-artifact@v4
@@ -117,13 +120,15 @@ jobs:
           if [ "${{ matrix.goarch }}" = "arm" ]; then
             export GOARM="${{ matrix.goarm }}"
           fi
+          VERSION=$(tr -d '\n' < "$GITHUB_WORKSPACE/version.txt")
+          COMMIT=$(git -C "$GITHUB_WORKSPACE" rev-parse --short HEAD)
           cd app
           if [ "${{ matrix.goos }}" = "windows" ]; then
             OUT=filetree.exe
           else
             OUT=filetree
           fi
-          go build -tags embed -trimpath -ldflags="-s -w" -o "$OUT" .
+          go build -tags embed -trimpath -ldflags="-s -w -X github.com/heapoftrash/filetree/app/version.Version=${VERSION} -X github.com/heapoftrash/filetree/app/version.Commit=${COMMIT}" -o "$OUT" .
           mkdir -p "$RUNNER_TEMP/pack"
           cp "$OUT" "$RUNNER_TEMP/pack/"
           cd "$RUNNER_TEMP/pack"
@@ -182,6 +187,8 @@ jobs:
           file: ./Containerfile
           push: true
           platforms: linux/amd64,linux/arm64,linux/arm/v7
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha

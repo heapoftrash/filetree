@@ -56,6 +56,23 @@ export async function getLoginOptions(): Promise<LoginOptions> {
   return data
 }
 
+export interface VersionInfo {
+  version: string
+  commit: string
+  /** false when running version is not semver (e.g. dev): !update_available does not mean up to date */
+  comparable?: boolean
+  update_available: boolean
+  latest_version?: string
+  release_url?: string
+  /** "release" from GitHub Releases API; "tag" when only lightweight/annotated tags exist */
+  release_url_kind?: 'release' | 'tag'
+}
+
+export async function getVersionInfo(): Promise<VersionInfo> {
+  const { data } = await api.get<VersionInfo>('/version')
+  return data
+}
+
 export async function loginLocal(
   username: string,
   password: string,
