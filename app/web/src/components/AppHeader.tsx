@@ -10,7 +10,6 @@ import {
 } from '@ant-design/icons'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
-import { useVersionInfo } from '../contexts/VersionContext'
 
 const { Header } = Layout
 
@@ -32,7 +31,6 @@ export default function AppHeader({
   const { token } = theme.useToken()
   const { user, logout } = useAuth()
   const { mode, toggleMode } = useTheme()
-  const versionInfo = useVersionInfo()
   const navigate = useNavigate()
 
   const displayName = user?.name || user?.email || 'Account'
@@ -111,14 +109,6 @@ export default function AppHeader({
                   <div style={{ padding: '4px 0', minWidth: 200 }}>
                     <div style={{ fontWeight: 600, marginBottom: 2 }}>{user?.name || 'User'}</div>
                     <div style={{ fontSize: 12, color: token.colorTextSecondary }}>{user?.email}</div>
-                    {versionInfo != null && (
-                      <div style={{ fontSize: 11, color: token.colorTextSecondary, marginTop: 4 }}>
-                        {versionInfo.version === 'dev' ? 'Development build' : `v${versionInfo.version}`}
-                        {versionInfo.commit && versionInfo.commit !== 'unknown'
-                          ? ` · ${versionInfo.commit.slice(0, 7)}`
-                          : ''}
-                      </div>
-                    )}
                     <div style={{ marginTop: 6 }}>
                       <Tag color={user?.is_admin ? 'red' : 'blue'}>
                         {user?.is_admin ? 'Admin' : 'User'}

@@ -3,6 +3,7 @@ import { Layout, Tag, Tree } from 'antd'
 import { HomeOutlined, DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import type { DataNode } from 'antd/es/tree'
 import { theme } from 'antd'
+import SidebarVersionFooter from './SidebarVersionFooter'
 
 const { Sider } = Layout
 
@@ -109,9 +110,19 @@ export default function FileTreeSidebar({
   }
 
   return (
-    <Sider width={220} style={{ background: token.colorBgContainer, padding: 8 }}>
+    <Sider
+      width={220}
+      style={{
+        background: token.colorBgContainer,
+        padding: 8,
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        minHeight: 0,
+      }}
+    >
       <div
-        style={{ minHeight: 200 }}
+        style={{ flex: 1, minHeight: 0, overflow: 'auto' }}
         onDragOver={(e) => {
           e.preventDefault()
           e.dataTransfer.dropEffect = 'move'
@@ -177,6 +188,7 @@ export default function FileTreeSidebar({
           style={{ marginTop: 12 }}
         />
       </div>
+      <SidebarVersionFooter />
     </Sider>
   )
 }
