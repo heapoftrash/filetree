@@ -153,7 +153,7 @@ func fetchLatestReleaseTag(ctx context.Context, client *http.Client, owner, repo
 	if err != nil {
 		return "", "", "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	body, err := io.ReadAll(io.LimitReader(resp.Body, 2<<20))
 	if err != nil {
 		return "", "", "", err
@@ -186,7 +186,7 @@ func fetchLatestTagFromTagsAPI(ctx context.Context, client *http.Client, owner, 
 	if err != nil {
 		return "", "", "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	body, err := io.ReadAll(io.LimitReader(resp.Body, 2<<20))
 	if err != nil {
 		return "", "", "", err
@@ -227,7 +227,7 @@ func doReleaseGET(ctx context.Context, client *http.Client, u string) (tag, html
 	if err != nil {
 		return "", "", 0, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	body, err := io.ReadAll(io.LimitReader(resp.Body, 2<<20))
 	if err != nil {
 		return "", "", resp.StatusCode, err
