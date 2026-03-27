@@ -110,12 +110,17 @@ func (h *VersionHandler) latestGitHubRelease(ctx context.Context) (tagName, html
 
 	h.mu.Lock()
 	defer h.mu.Unlock()
-	h.cache.at = time.Now()
-	h.cache.populated = true
 	if err != nil {
-		h.cache.tagName, h.cache.htmlURL, h.cache.kind = "", "", ""
+		// Do not cache failures (e.g. context.Canceled when the client disconnects): that would
+		// poison the 30m TTL for all users. If another goroutine populated the cache, return it.
+		if h.cache.populated && time.Since(h.cache.at) < githubAPICacheTTL {
+			t, cu, ck := h.cache.tagName, h.cache.htmlURL, h.cache.kind
+			return t, cu, ck, t != ""
+		}
 		return "", "", "", false
 	}
+	h.cache.at = time.Now()
+	h.cache.populated = true
 	h.cache.tagName, h.cache.htmlURL, h.cache.kind = tag, u, k
 	return tag, u, k, tag != ""
 }
