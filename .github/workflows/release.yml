@@ -55,7 +55,7 @@ jobs:
           cd app && go build -tags embed -ldflags "-X github.com/heapoftrash/filetree/app/version.Version=${VERSION} -X github.com/heapoftrash/filetree/app/version.Commit=${COMMIT}" -o filetree .
 
       - name: Upload uiembed dist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: uiembed-dist
           path: app/uiembed/dist
@@ -140,7 +140,7 @@ jobs:
           fi
 
       - name: Upload release artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: binary-${{ matrix.suffix }}
           path: filetree_${{ github.ref_name }}_${{ matrix.suffix }}.*
