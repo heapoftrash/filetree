@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -25,6 +26,7 @@ type VersionHandler struct {
 		at         time.Time
 		tagName    string
 		htmlURL    string
+		kind       string // "release" or "tag"
 		populated  bool // true after any completed fetch (success or empty)
 	}
 }
@@ -43,6 +45,7 @@ type VersionResponse struct {
 	UpdateAvailable bool   `json:"update_available"`
 	LatestVersion   string `json:"latest_version,omitempty"`
 	ReleaseURL      string `json:"release_url,omitempty"`
+	ReleaseURLKind  string `json:"release_url_kind,omitempty"` // "release" or "tag"
 }
 
 // Get returns the running version and whether a newer GitHub release exists.
@@ -52,7 +55,7 @@ func (h *VersionHandler) Get(c *gin.Context) {
 		Commit:  version.Commit,
 	}
 
-	tag, url, ok := h.latestGitHubRelease(c.Request.Context())
+	tag, relURL, kind, ok := h.latestGitHubRelease(c.Request.Context())
 	if !ok || tag == "" {
 		c.JSON(http.StatusOK, out)
 		return
@@ -60,7 +63,8 @@ func (h *VersionHandler) Get(c *gin.Context) {
 
 	latest := strings.TrimPrefix(strings.TrimSpace(tag), "v")
 	out.LatestVersion = latest
-	out.ReleaseURL = url
+	out.ReleaseURL = relURL
+	out.ReleaseURLKind = kind
 
 	if semverNewer(latest, version.Version) {
 		out.UpdateAvailable = true
@@ -91,76 +95,114 @@ func canonicalSemver(s string) string {
 	return semver.Canonical(v)
 }
 
-func (h *VersionHandler) latestGitHubRelease(ctx context.Context) (tagName, htmlURL string, ok bool) {
+func (h *VersionHandler) latestGitHubRelease(ctx context.Context) (tagName, htmlURL, kind string, ok bool) {
 	h.mu.Lock()
 	if h.cache.populated && time.Since(h.cache.at) < githubAPICacheTTL {
-		t, u := h.cache.tagName, h.cache.htmlURL
+		t, u, k := h.cache.tagName, h.cache.htmlURL, h.cache.kind
 		h.mu.Unlock()
-		return t, u, t != ""
+		return t, u, k, t != ""
 	}
 	h.mu.Unlock()
 
-	tag, u, err := fetchLatestReleaseTag(ctx, h.client, version.GitHubOwner, version.GitHubRepo)
+	tag, u, k, err := fetchLatestReleaseTag(ctx, h.client, version.GitHubOwner, version.GitHubRepo)
 
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	h.cache.at = time.Now()
 	h.cache.populated = true
 	if err != nil {
-		h.cache.tagName, h.cache.htmlURL = "", ""
-		return "", "", false
+		h.cache.tagName, h.cache.htmlURL, h.cache.kind = "", "", ""
+		return "", "", "", false
 	}
-	h.cache.tagName, h.cache.htmlURL = tag, u
-	return tag, u, tag != ""
+	h.cache.tagName, h.cache.htmlURL, h.cache.kind = tag, u, k
+	return tag, u, k, tag != ""
 }
 
-func fetchLatestReleaseTag(ctx context.Context, client *http.Client, owner, repo string) (tag, htmlURL string, err error) {
+func fetchLatestReleaseTag(ctx context.Context, client *http.Client, owner, repo string) (tag, htmlURL, kind string, err error) {
 	// Prefer the documented "latest" endpoint (non-draft, non-prerelease only).
 	u := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/latest", owner, repo)
 	tag, htmlURL, status, err := doReleaseGET(ctx, client, u)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 	if status == http.StatusOK && tag != "" {
-		return tag, htmlURL, nil
+		return tag, htmlURL, "release", nil
 	}
 	// Prerelease-only repos: /releases/latest returns 404 — use newest release in the list.
 	if status != http.StatusNotFound {
 		if tag != "" {
-			return tag, htmlURL, nil
+			return tag, htmlURL, "release", nil
 		}
-		return "", "", fmt.Errorf("github releases/latest: status %d", status)
+		return "", "", "", fmt.Errorf("github releases/latest: status %d", status)
 	}
 
 	u = fmt.Sprintf("https://api.github.com/repos/%s/%s/releases?per_page=1", owner, repo)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 	setGitHubHeaders(req)
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(io.LimitReader(resp.Body, 2<<20))
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return "", "", fmt.Errorf("github releases list: status %d", resp.StatusCode)
+		return "", "", "", fmt.Errorf("github releases list: status %d", resp.StatusCode)
 	}
 	var arr []struct {
 		TagName string `json:"tag_name"`
 		HTMLURL string `json:"html_url"`
 	}
 	if err := json.Unmarshal(body, &arr); err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 	if len(arr) == 0 {
-		return "", "", nil
+		return fetchLatestTagFromTagsAPI(ctx, client, owner, repo)
 	}
-	return arr[0].TagName, arr[0].HTMLURL, nil
+	return arr[0].TagName, arr[0].HTMLURL, "release", nil
+}
+
+// fetchLatestTagFromTagsAPI is used when the repo has no GitHub Release objects (tag-only workflow).
+func fetchLatestTagFromTagsAPI(ctx context.Context, client *http.Client, owner, repo string) (tag, htmlURL, kind string, err error) {
+	u := fmt.Sprintf("https://api.github.com/repos/%s/%s/tags?per_page=1", owner, repo)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	if err != nil {
+		return "", "", "", err
+	}
+	setGitHubHeaders(req)
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", "", "", err
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 2<<20))
+	if err != nil {
+		return "", "", "", err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return "", "", "", fmt.Errorf("github tags: status %d", resp.StatusCode)
+	}
+	var arr []struct {
+		Name string `json:"name"`
+	}
+	if err := json.Unmarshal(body, &arr); err != nil {
+		return "", "", "", err
+	}
+	if len(arr) == 0 {
+		return "", "", "", nil
+	}
+	tagName := strings.TrimSpace(arr[0].Name)
+	if tagName == "" {
+		return "", "", "", nil
+	}
+	// GitHub browse URL for a tag (same path as release pages when notes exist).
+	html := fmt.Sprintf("https://github.com/%s/%s/releases/tag/%s", owner, repo, url.PathEscape(tagName))
+	return tagName, html, "tag", nil
 }
 
 type releaseLatestJSON struct {

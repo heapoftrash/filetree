@@ -20,7 +20,7 @@ export default function VersionUpdateBanner() {
       description={
         info.release_url ? (
           <a href={info.release_url} target="_blank" rel="noreferrer">
-            View release on GitHub
+            {info.release_url_kind === 'tag' ? 'View tag on GitHub' : 'View release on GitHub'}
           </a>
         ) : null
       }

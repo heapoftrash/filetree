@@ -64,7 +64,7 @@ export default function SidebarVersionFooter() {
                   rel="noreferrer"
                   style={{ color: token.colorLink, display: 'inline-block', marginTop: 4 }}
                 >
-                  Release notes
+                  {info.release_url_kind === 'tag' ? 'View tag' : 'Release notes'}
                 </a>
               ) : null}
             </>
@@ -80,7 +80,7 @@ export default function SidebarVersionFooter() {
                   rel="noreferrer"
                   style={{ color: token.colorLink, display: 'inline-block', marginTop: 4 }}
                 >
-                  Release notes
+                  {info.release_url_kind === 'tag' ? 'View tag' : 'Release notes'}
                 </a>
               ) : null}
             </>

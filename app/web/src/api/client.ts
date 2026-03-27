@@ -62,6 +62,8 @@ export interface VersionInfo {
   update_available: boolean
   latest_version?: string
   release_url?: string
+  /** "release" from GitHub Releases API; "tag" when only lightweight/annotated tags exist */
+  release_url_kind?: 'release' | 'tag'
 }
 
 export async function getVersionInfo(): Promise<VersionInfo> {
