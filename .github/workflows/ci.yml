@@ -153,6 +153,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Short git commit for Docker ldflags
+        id: git_commit
+        run: echo "short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -165,7 +169,7 @@ jobs:
           load: true
           tags: filetree:test
           build-args: |
-            GIT_COMMIT=${{ github.sha }}
+            GIT_COMMIT=${{ steps.git_commit.outputs.short }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -180,6 +184,10 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v6
+
+      - name: Short git commit for Docker ldflags
+        id: git_commit
+        run: echo "short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -214,7 +222,7 @@ jobs:
           push: true
           platforms: linux/amd64
           build-args: |
-            GIT_COMMIT=${{ github.sha }}
+            GIT_COMMIT=${{ steps.git_commit.outputs.short }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha

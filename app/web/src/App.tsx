@@ -8,7 +8,6 @@ import ProtectedRoute from './components/ProtectedRoute'
 import ProtectedAdminRoute from './components/ProtectedAdminRoute'
 import { AuthProvider } from './contexts/AuthContext'
 import { VersionProvider } from './contexts/VersionContext'
-import VersionUpdateBanner from './components/VersionUpdateBanner'
 
 const Settings = lazy(() => import('./components/Settings'))
 
@@ -17,7 +16,6 @@ function App() {
     <BrowserRouter>
       <VersionProvider>
         <AuthProvider>
-          <VersionUpdateBanner />
           <Routes>
             <Route path="/" element={<Navigate to="/files" replace />} />
             <Route path="/login" element={<Login />} />

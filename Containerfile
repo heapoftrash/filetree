@@ -14,6 +14,7 @@ RUN go mod download
 COPY app/ ./
 COPY --from=frontend /app/web/dist ./uiembed/dist
 COPY version.txt /tmp/version.txt
+# Same short hash as Makefile / CI: git rev-parse --short HEAD (not full SHA)
 ARG GIT_COMMIT=unknown
 RUN VERSION=$(tr -d '\n' </tmp/version.txt) && \
   CGO_ENABLED=0 go build -tags embed -trimpath \
