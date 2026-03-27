@@ -1,4 +1,4 @@
-import { theme } from 'antd'
+import { Tag, theme } from 'antd'
 import { useVersionInfo } from '../../contexts/VersionContext'
 
 /** Bottom-of-sidebar version: running build, latest vs update, link to GitHub release notes */
@@ -70,9 +70,9 @@ export default function SidebarVersionFooter() {
             </>
           ) : (
             <>
-              <div style={{ color: token.colorSuccess }}>
-                Latest · v{info.latest_version}
-              </div>
+              <Tag color="success" style={{ margin: 0, fontSize: 11 }}>
+                Latest
+              </Tag>
               {info.release_url ? (
                 <a
                   href={info.release_url}
