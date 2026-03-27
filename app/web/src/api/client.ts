@@ -56,6 +56,19 @@ export async function getLoginOptions(): Promise<LoginOptions> {
   return data
 }
 
+export interface VersionInfo {
+  version: string
+  commit: string
+  update_available: boolean
+  latest_version?: string
+  release_url?: string
+}
+
+export async function getVersionInfo(): Promise<VersionInfo> {
+  const { data } = await api.get<VersionInfo>('/version')
+  return data
+}
+
 export async function loginLocal(
   username: string,
   password: string,

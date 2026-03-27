@@ -40,6 +40,7 @@ func main() {
 	live := config.NewLiveConfig(cfg)
 	authH := handlers.NewAuthHandler(live)
 	configH := handlers.NewConfigHandler(live)
+	versionH := handlers.NewVersionHandler()
 	if !cfg.Server.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -48,6 +49,8 @@ func main() {
 
 	api := r.Group("/api")
 	{
+		api.GET("/version", versionH.Get)
+
 		// Public auth routes (no JWT required)
 		api.GET("/auth/login-options", authH.LoginOptions)
 		api.POST("/auth/local", authH.LocalLogin)

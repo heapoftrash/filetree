@@ -7,46 +7,51 @@ import Login from './components/Login'
 import ProtectedRoute from './components/ProtectedRoute'
 import ProtectedAdminRoute from './components/ProtectedAdminRoute'
 import { AuthProvider } from './contexts/AuthContext'
+import { VersionProvider } from './contexts/VersionContext'
+import VersionUpdateBanner from './components/VersionUpdateBanner'
 
 const Settings = lazy(() => import('./components/Settings'))
 
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Navigate to="/files" replace />} />
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/files/*"
-            element={
-              <ProtectedRoute>
-                <FileManager />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/preview"
-            element={
-              <ProtectedRoute>
-                <StandalonePreview />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute>
-                <ProtectedAdminRoute>
-                  <Suspense fallback={<Spin style={{ padding: 24 }} />}>
-                    <Settings />
-                  </Suspense>
-                </ProtectedAdminRoute>
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </AuthProvider>
+      <VersionProvider>
+        <AuthProvider>
+          <VersionUpdateBanner />
+          <Routes>
+            <Route path="/" element={<Navigate to="/files" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/files/*"
+              element={
+                <ProtectedRoute>
+                  <FileManager />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/preview"
+              element={
+                <ProtectedRoute>
+                  <StandalonePreview />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <ProtectedAdminRoute>
+                    <Suspense fallback={<Spin style={{ padding: 24 }} />}>
+                      <Settings />
+                    </Suspense>
+                  </ProtectedAdminRoute>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </AuthProvider>
+      </VersionProvider>
     </BrowserRouter>
   )
 }
