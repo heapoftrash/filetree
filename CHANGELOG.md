@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.4-beta.2](https://github.com/heapoftrash/filetree/compare/v0.0.4-beta.1...v0.0.4-beta.2) (2026-03-27)
+
+
+### Bug Fixes
+
+* **ci:** build Containerfile frontend stage on native platform only ([9284653](https://github.com/heapoftrash/filetree/commit/9284653410c870243403b2b08799985d9e142aab))
+* **ci:** build Containerfile frontend stage on native platform only ([f1a02d1](https://github.com/heapoftrash/filetree/commit/f1a02d10894238fbcba3015ea3cd5c6bb4c33a6c))
+
 ## [0.0.4-beta.1](https://github.com/heapoftrash/filetree/compare/v0.0.4-beta...v0.0.4-beta.1) (2026-03-27)
 
 
