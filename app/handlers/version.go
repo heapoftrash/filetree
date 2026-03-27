@@ -42,6 +42,7 @@ func NewVersionHandler() *VersionHandler {
 type VersionResponse struct {
 	Version         string `json:"version"`
 	Commit          string `json:"commit"`
+	Comparable      bool   `json:"comparable"` // running version parses as semver; if false, do not treat !update_available as "up to date"
 	UpdateAvailable bool   `json:"update_available"`
 	LatestVersion   string `json:"latest_version,omitempty"`
 	ReleaseURL      string `json:"release_url,omitempty"`
@@ -51,8 +52,9 @@ type VersionResponse struct {
 // Get returns the running version and whether a newer GitHub release exists.
 func (h *VersionHandler) Get(c *gin.Context) {
 	out := VersionResponse{
-		Version: version.Version,
-		Commit:  version.Commit,
+		Version:    version.Version,
+		Commit:     version.Commit,
+		Comparable: canonicalSemver(version.Version) != "",
 	}
 
 	tag, relURL, kind, ok := h.latestGitHubRelease(c.Request.Context())

@@ -28,6 +28,8 @@ export default function SidebarVersionFooter() {
     info.version === 'dev' ? 'Development build' : `v${info.version}`
   const commitShort =
     info.commit && info.commit !== 'unknown' ? info.commit.slice(0, 7) : null
+  /** Old API omitted comparable; treat as true so semver releases still show "Latest" when current */
+  const comparable = info.comparable !== false
 
   return (
     <div
@@ -68,11 +70,27 @@ export default function SidebarVersionFooter() {
                 </a>
               ) : null}
             </>
-          ) : (
+          ) : comparable ? (
             <>
               <Tag color="success" style={{ margin: 0, fontSize: 11 }}>
                 Latest
               </Tag>
+              {info.release_url ? (
+                <a
+                  href={info.release_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: token.colorLink, display: 'inline-block', marginTop: 4 }}
+                >
+                  {info.release_url_kind === 'tag' ? 'View tag' : 'Release notes'}
+                </a>
+              ) : null}
+            </>
+          ) : (
+            <>
+              <div style={{ color: token.colorTextSecondary }}>
+                GitHub: v{info.latest_version}
+              </div>
               {info.release_url ? (
                 <a
                   href={info.release_url}

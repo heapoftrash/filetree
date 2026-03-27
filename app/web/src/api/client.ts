@@ -59,6 +59,8 @@ export async function getLoginOptions(): Promise<LoginOptions> {
 export interface VersionInfo {
   version: string
   commit: string
+  /** false when running version is not semver (e.g. dev): !update_available does not mean up to date */
+  comparable?: boolean
   update_available: boolean
   latest_version?: string
   release_url?: string

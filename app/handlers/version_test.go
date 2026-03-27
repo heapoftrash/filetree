@@ -20,3 +20,23 @@ func TestSemverNewer(t *testing.T) {
 		}
 	}
 }
+
+func TestCanonicalSemverComparable(t *testing.T) {
+	tests := []struct {
+		in       string
+		wantNone bool // true if not valid semver for comparison
+	}{
+		{"dev", true},
+		{"", true},
+		{"not-a-version", true},
+		{"0.0.5", false},
+		{"v0.1.0", false},
+	}
+	for _, tt := range tests {
+		got := canonicalSemver(tt.in)
+		none := got == ""
+		if none != tt.wantNone {
+			t.Errorf("canonicalSemver(%q) empty=%v, want empty=%v", tt.in, none, tt.wantNone)
+		}
+	}
+}
