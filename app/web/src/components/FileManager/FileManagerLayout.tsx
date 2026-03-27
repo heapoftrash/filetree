@@ -192,7 +192,17 @@ export default function FileManagerLayout(props: FileManagerLayoutProps) {
           )
         }
       />
-      <Layout style={{ flex: 1, minHeight: 0, display: 'flex', overflow: 'hidden' }}>
+      <Layout
+        style={{
+          flex: 1,
+          minHeight: 0,
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'stretch',
+          overflow: 'hidden',
+        }}
+      >
         {sidebarVisible && (
           <FileTreeSidebar
             treeData={treeData}

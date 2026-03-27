@@ -114,81 +114,91 @@ export default function FileTreeSidebar({
       width={220}
       style={{
         background: token.colorBgContainer,
-        padding: 8,
-        display: 'flex',
-        flexDirection: 'column',
+        alignSelf: 'stretch',
+        overflow: 'hidden',
         height: '100%',
-        minHeight: 0,
       }}
     >
+      {/* ant-layout-sider-children is not a flex column; inner wrapper pins footer to the bottom */}
       <div
-        style={{ flex: 1, minHeight: 0, overflow: 'auto' }}
-        onDragOver={(e) => {
-          e.preventDefault()
-          e.dataTransfer.dropEffect = 'move'
-        }}
-        onDrop={(e) => {
-          const elements = document.elementsFromPoint(e.clientX, e.clientY)
-          const target = elements.find((el) => el.hasAttribute?.('data-drop-path')) as HTMLElement | null
-          const targetPath = target?.getAttribute('data-drop-path') ?? currentPath
-          onDrop(e, targetPath)
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          minHeight: 0,
+          overflow: 'hidden',
+          padding: 8,
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-          <Tag
-            color="blue"
-            icon={<PlusCircleOutlined />}
-            onClick={handleExpandAll}
-            style={{
-              cursor: 'pointer',
-              margin: 0,
-              transition: 'opacity 0.2s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '0.8'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '1'
-            }}
-          >
-            Expand
-          </Tag>
-          <Tag
-            color="blue"
-            icon={<MinusCircleOutlined />}
-            onClick={handleCollapseAll}
-            style={{
-              cursor: 'pointer',
-              margin: 0,
-              transition: 'opacity 0.2s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '0.8'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '1'
-            }}
-          >
-            Collapse
-          </Tag>
-        </div>
-        <Tree
-          {...treeShared}
-          treeData={homeTreeData}
-          loadData={(node) => {
-            if ((node.key as string) === '') return Promise.resolve()
-            return onTreeLoadData(node)
+        <div
+          style={{ flex: 1, minHeight: 0, overflow: 'auto' }}
+          onDragOver={(e) => {
+            e.preventDefault()
+            e.dataTransfer.dropEffect = 'move'
           }}
-          style={{ marginTop: 8 }}
-        />
-        <Tree
-          {...treeShared}
-          treeData={trashTreeNodes}
-          loadData={(node) => onTreeLoadData(node)}
-          style={{ marginTop: 12 }}
-        />
+          onDrop={(e) => {
+            const elements = document.elementsFromPoint(e.clientX, e.clientY)
+            const target = elements.find((el) => el.hasAttribute?.('data-drop-path')) as HTMLElement | null
+            const targetPath = target?.getAttribute('data-drop-path') ?? currentPath
+            onDrop(e, targetPath)
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+            <Tag
+              color="blue"
+              icon={<PlusCircleOutlined />}
+              onClick={handleExpandAll}
+              style={{
+                cursor: 'pointer',
+                margin: 0,
+                transition: 'opacity 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.8'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '1'
+              }}
+            >
+              Expand
+            </Tag>
+            <Tag
+              color="blue"
+              icon={<MinusCircleOutlined />}
+              onClick={handleCollapseAll}
+              style={{
+                cursor: 'pointer',
+                margin: 0,
+                transition: 'opacity 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.8'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '1'
+              }}
+            >
+              Collapse
+            </Tag>
+          </div>
+          <Tree
+            {...treeShared}
+            treeData={homeTreeData}
+            loadData={(node) => {
+              if ((node.key as string) === '') return Promise.resolve()
+              return onTreeLoadData(node)
+            }}
+            style={{ marginTop: 8 }}
+          />
+          <Tree
+            {...treeShared}
+            treeData={trashTreeNodes}
+            loadData={(node) => onTreeLoadData(node)}
+            style={{ marginTop: 12 }}
+          />
+        </div>
+        <SidebarVersionFooter />
       </div>
-      <SidebarVersionFooter />
     </Sider>
   )
 }
