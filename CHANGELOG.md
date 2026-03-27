@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.5](https://github.com/heapoftrash/filetree/compare/v0.0.4-beta.2...v0.0.5) (2026-03-27)
+
+
+### Features
+
+* embed version and commit in builds; `GET /api/version` with GitHub release/tag lookup and update UI
+
 ## [0.0.4-beta.2](https://github.com/heapoftrash/filetree/compare/v0.0.4-beta.1...v0.0.4-beta.2) (2026-03-27)
 
 
