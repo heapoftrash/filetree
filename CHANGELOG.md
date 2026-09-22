@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.8](https://github.com/heapoftrash/filetree/compare/v0.0.7...v0.0.8) (2026-09-22)
+
+
+### Bug Fixes
+
+* **web:** stop barrel-exporting previews for code splitting ([#90](https://github.com/heapoftrash/filetree/issues/90)) ([877fb7e](https://github.com/heapoftrash/filetree/commit/877fb7ece729c9cfeb6235c0975bb8659989db1c)), closes [#18](https://github.com/heapoftrash/filetree/issues/18)
+
 ## [0.0.7](https://github.com/heapoftrash/filetree/compare/v0.0.6...v0.0.7) (2026-03-27)
 
 
