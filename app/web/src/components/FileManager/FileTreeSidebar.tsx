@@ -4,6 +4,7 @@ import { HomeOutlined, DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined }
 import type { DataNode } from 'antd/es/tree'
 import { theme } from 'antd'
 import SidebarVersionFooter from './SidebarVersionFooter'
+import { setDropEffectForDrag } from '../../utils/dragUtils'
 
 const { Sider } = Layout
 
@@ -134,7 +135,7 @@ export default function FileTreeSidebar({
           style={{ flex: 1, minHeight: 0, overflow: 'auto' }}
           onDragOver={(e) => {
             e.preventDefault()
-            e.dataTransfer.dropEffect = 'move'
+            setDropEffectForDrag(e.dataTransfer)
           }}
           onDrop={(e) => {
             const elements = document.elementsFromPoint(e.clientX, e.clientY)

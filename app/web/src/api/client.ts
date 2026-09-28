@@ -36,9 +36,24 @@ export function setAuthToken(token: string) {
 }
 export function clearAuthToken() {
   localStorage.removeItem(TOKEN_KEY)
+  uploadLimitsCache = null
 }
 export function getAuthToken(): string | null {
   return localStorage.getItem(TOKEN_KEY)
+}
+
+export type UploadLimits = {
+  max_upload_bytes: number
+}
+
+let uploadLimitsCache: UploadLimits | null = null
+
+/** Authenticated max upload size (same value the server enforces). Cached in memory. */
+export async function getUploadLimits(force = false): Promise<UploadLimits> {
+  if (!force && uploadLimitsCache) return uploadLimitsCache
+  const { data } = await api.get<UploadLimits>('/entries/upload-limits')
+  uploadLimitsCache = data
+  return data
 }
 
 export async function authMe(): Promise<{ email: string; name?: string; picture?: string; is_admin?: boolean }> {
@@ -185,13 +200,30 @@ export async function getSignedDownloadUrl(path: string): Promise<string> {
   return data.url
 }
 
-export async function uploadFiles(path: string, files: FileList | File[]): Promise<void> {
+export type UploadFilesOptions = {
+  /** 0–100; called when the browser reports upload progress */
+  onUploadProgress?: (percent: number) => void
+  signal?: AbortSignal
+}
+
+export async function uploadFiles(
+  path: string,
+  files: FileList | File[],
+  opts?: UploadFilesOptions,
+): Promise<void> {
   const form = new FormData()
   form.append('path', path || '.')
   const list = Array.isArray(files) ? files : Array.from(files)
   list.forEach((f) => form.append('files', f))
+  // Let the browser set multipart Content-Type (incl. boundary).
   await api.post('/entries', form, {
-    headers: { 'Content-Type': 'multipart/form-data' },
+    // Large uploads; default axios timeout (30s) is too short
+    timeout: 0,
+    signal: opts?.signal,
+    onUploadProgress: (ev) => {
+      if (!opts?.onUploadProgress || !ev.total) return
+      opts.onUploadProgress(Math.min(100, Math.round((ev.loaded * 100) / ev.total)))
+    },
   })
 }
 
