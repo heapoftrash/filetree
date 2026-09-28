@@ -74,6 +74,7 @@ func main() {
 			entries.GET("/download", h.Download)
 			entries.GET("/preview", h.Preview)
 			entries.GET("/preview/info", h.PreviewInfo)
+			entries.GET("/upload-limits", h.UploadLimits)
 			entries.POST("/move", h.Move)
 			entries.POST("/copy", h.Copy)
 			entries.POST("/zip", h.DownloadZip)

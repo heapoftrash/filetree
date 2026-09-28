@@ -1,10 +1,30 @@
 import { Progress, notification } from 'antd'
-import { uploadFiles } from '../../api/client'
-import { getApiErrorMessage } from '../../utils/errors'
+import { getUploadLimits, uploadFiles } from '../../api/client'
+import { getUploadErrorMessage } from '../../utils/errors'
+import { bytesToHuman } from '../../utils/formatBytes'
 
 /** Upload one file with a sticky progress notification. */
 export async function uploadFileWithProgress(dirPath: string, file: File): Promise<void> {
   const key = `upload-${file.name}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+
+  let maxUploadBytes: number | undefined
+  try {
+    maxUploadBytes = (await getUploadLimits()).max_upload_bytes
+  } catch {
+    /* proceed without client pre-check */
+  }
+
+  if (maxUploadBytes != null && maxUploadBytes > 0 && file.size > maxUploadBytes) {
+    const description = `File exceeds max upload size (${bytesToHuman(maxUploadBytes)}).`
+    notification.error({
+      key,
+      message: `Failed to upload ${file.name}`,
+      description,
+      duration: 4,
+      placement: 'bottomRight',
+    })
+    throw new Error(description)
+  }
 
   const showProgress = (percent: number) => {
     notification.open({
@@ -31,7 +51,7 @@ export async function uploadFileWithProgress(dirPath: string, file: File): Promi
     notification.error({
       key,
       message: `Failed to upload ${file.name}`,
-      description: getApiErrorMessage(e),
+      description: getUploadErrorMessage(e, { maxUploadBytes }),
       duration: 4,
       placement: 'bottomRight',
     })
