@@ -11,6 +11,7 @@ import FileList from './FileList'
 import PreviewPanel from './PreviewPanel'
 import FullscreenPreview from './FullscreenPreview'
 import { PlusOutlined, UploadOutlined } from '@ant-design/icons'
+import { setDropEffectForDrag } from '../../utils/dragUtils'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import type { Layout as PanelLayout } from 'react-resizable-panels'
 import { getPreviewCategory } from '../../preview'
@@ -260,7 +261,7 @@ export default function FileManagerLayout(props: FileManagerLayoutProps) {
                     }}
                     onDragOver={(e) => {
                       e.preventDefault()
-                      e.dataTransfer.dropEffect = 'move'
+                      setDropEffectForDrag(e.dataTransfer)
                     }}
                     onDrop={(e) => {
                       const el = e.target as HTMLElement
@@ -327,7 +328,7 @@ export default function FileManagerLayout(props: FileManagerLayoutProps) {
                 }}
                 onDragOver={(e) => {
                   e.preventDefault()
-                  e.dataTransfer.dropEffect = 'move'
+                  setDropEffectForDrag(e.dataTransfer)
                 }}
                 onDrop={(e) => {
                   const el = e.target as HTMLElement

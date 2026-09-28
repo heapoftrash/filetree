@@ -185,13 +185,30 @@ export async function getSignedDownloadUrl(path: string): Promise<string> {
   return data.url
 }
 
-export async function uploadFiles(path: string, files: FileList | File[]): Promise<void> {
+export type UploadFilesOptions = {
+  /** 0–100; called when the browser reports upload progress */
+  onUploadProgress?: (percent: number) => void
+  signal?: AbortSignal
+}
+
+export async function uploadFiles(
+  path: string,
+  files: FileList | File[],
+  opts?: UploadFilesOptions,
+): Promise<void> {
   const form = new FormData()
   form.append('path', path || '.')
   const list = Array.isArray(files) ? files : Array.from(files)
   list.forEach((f) => form.append('files', f))
   await api.post('/entries', form, {
     headers: { 'Content-Type': 'multipart/form-data' },
+    // Large uploads; default axios timeout (30s) is too short
+    timeout: 0,
+    signal: opts?.signal,
+    onUploadProgress: (ev) => {
+      if (!opts?.onUploadProgress || !ev.total) return
+      opts.onUploadProgress(Math.min(100, Math.round((ev.loaded * 100) / ev.total)))
+    },
   })
 }
 
