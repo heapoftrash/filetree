@@ -19,7 +19,7 @@ jobs:
     name: Test and stage UI for embed
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up Go
         uses: actions/setup-go@v6
@@ -96,7 +96,7 @@ jobs:
     env:
       CGO_ENABLED: '0'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Download embedded UI
         uses: actions/download-artifact@v4
@@ -152,7 +152,7 @@ jobs:
     needs: [prep]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Short git commit for Docker ldflags
         id: git_commit
@@ -201,7 +201,7 @@ jobs:
     needs: [build-binary]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Download all binary artifacts
         uses: actions/download-artifact@v4
