@@ -14,6 +14,7 @@ Browse your files in a familiar folder layout. Create folders, rename, move, cop
 - **Grid view** — Card layout suited for images and documents; image files show lazy-loaded preview thumbnails.
 - **Remembered preferences** — List vs grid view and table sort column/direction are saved in the browser (`localStorage`) and restored on the next visit.
 - **Type filters** — Toolbar chips filter the current folder to Images, Video, Audio, or Docs (folders stay visible).
+- **README preview** — Entering a folder that contains `README.md` / `readme.txt` opens it in the preview pane automatically.
 
 ## File operations
 
