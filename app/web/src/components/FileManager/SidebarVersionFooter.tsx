@@ -53,6 +53,19 @@ export default function SidebarVersionFooter() {
         Version: {running}
         {commitShort ? ` · Commit: ${commitShort}` : ''}
       </div>
+      <a
+        href="https://heapoftrash.github.io/filetree/blog/"
+        target="_blank"
+        rel="noreferrer"
+        style={{
+          color: token.colorLink,
+          display: 'inline-block',
+          marginTop: 6,
+          fontSize: 11,
+        }}
+      >
+        What&apos;s new
+      </a>
 
       {info.latest_version && (
         <div style={{ marginTop: 8, fontSize: 11, lineHeight: 1.45 }}>
