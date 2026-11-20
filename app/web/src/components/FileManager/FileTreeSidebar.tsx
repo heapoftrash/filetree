@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react'
-import { Layout, Tag, Tree } from 'antd'
-import { HomeOutlined, DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import { Button, Layout, Tag, Tree } from 'antd'
+import { HomeOutlined, DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined, ClockCircleOutlined } from '@ant-design/icons'
 import type { DataNode } from 'antd/es/tree'
 import { theme } from 'antd'
 import SidebarVersionFooter from './SidebarVersionFooter'
 import { setDropEffectForDrag } from '../../utils/dragUtils'
+import {
+  clearRecentFolders,
+  loadRecentFolders,
+  pushRecentFolder,
+  recentFolderLabel,
+} from '../../utils/recentFolders'
 
 const { Sider } = Layout
 
@@ -38,6 +44,11 @@ export default function FileTreeSidebar({
 }: FileTreeSidebarProps) {
   const { token } = theme.useToken()
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([])
+  const [recent, setRecent] = useState<string[]>(() => loadRecentFolders())
+
+  useEffect(() => {
+    setRecent(pushRecentFolder(currentPath))
+  }, [currentPath])
 
   useEffect(() => {
     if (!currentPath) {
@@ -144,6 +155,63 @@ export default function FileTreeSidebar({
             onDrop(e, targetPath)
           }}
         >
+          {recent.length > 0 && (
+            <div style={{ marginBottom: 12 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 6,
+                  fontSize: 11,
+                  color: token.colorTextSecondary,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em',
+                }}
+              >
+                <span>
+                  <ClockCircleOutlined style={{ marginRight: 4 }} />
+                  Recent
+                </span>
+                <Button
+                  type="link"
+                  size="small"
+                  style={{ padding: 0, height: 'auto', fontSize: 11 }}
+                  onClick={() => {
+                    clearRecentFolders()
+                    setRecent([])
+                  }}
+                >
+                  Clear
+                </Button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {recent.map((path) => (
+                  <a
+                    key={path || 'home'}
+                    href="#"
+                    title={path || 'Home'}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      onTreeSelect([path])
+                    }}
+                    style={{
+                      fontSize: 12,
+                      padding: '2px 4px',
+                      borderRadius: 4,
+                      color: path === currentPath ? token.colorPrimary : token.colorText,
+                      background: path === currentPath ? token.colorPrimaryBg : 'transparent',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {recentFolderLabel(path)}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
             <Tag
               color="blue"
