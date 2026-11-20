@@ -4,6 +4,7 @@ import type { Entry } from '../../types'
 import { getFileIcon, formatSize } from '../../utils/fileUtils'
 import { listDisplayName } from '../../utils/pathUtils'
 import type { GlobalToken } from 'antd/es/theme'
+import FileEntryContextMenu, { type FileEntryContextActions } from './FileEntryContextMenu'
 
 interface FileListGridProps {
   entries: Entry[]
@@ -16,6 +17,7 @@ interface FileListGridProps {
   onOpenPreview: (record: Entry) => void
   onSelectionChange: (keys: React.Key[]) => void
   onDragStart: (e: React.DragEvent, record: Entry) => void
+  contextActions?: Omit<FileEntryContextActions, 'onOpen'>
 }
 
 export default function FileListGrid({
@@ -29,6 +31,7 @@ export default function FileListGrid({
   onOpenPreview,
   onSelectionChange,
   onDragStart,
+  contextActions,
 }: FileListGridProps) {
   if (entries.length === 0) {
     return (
@@ -45,7 +48,7 @@ export default function FileListGrid({
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
       {entries.map((record) => {
         const label = listDisplayName(record, listParentPath)
-        return (
+        const card = (
         <Card
           key={record.path}
           size="small"
@@ -101,6 +104,17 @@ export default function FileListGrid({
             </div>
           )}
         </Card>
+        )
+        if (!contextActions) return card
+        return (
+          <FileEntryContextMenu
+            key={record.path}
+            record={record}
+            onOpen={(r) => (r.isDir ? onNavigate(`/files/${r.path}`) : onOpenPreview(r))}
+            {...contextActions}
+          >
+            {card}
+          </FileEntryContextMenu>
         )
       })}
     </div>
