@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import FileManagerLayout from './FileManagerLayout'
 import { useDefaultLayout } from 'react-resizable-panels'
@@ -90,6 +90,20 @@ export default function FileManagerMain() {
     tableRef,
     savedScrollTopRef,
   )
+
+  // Auto-open README when entering a folder (once per path)
+  const autoReadmePathRef = useRef<string | null>(null)
+  useEffect(() => {
+    if (state.loading) return
+    if (autoReadmePathRef.current === currentPath) return
+    const names = ['README.md', 'readme.md', 'Readme.md', 'README.txt', 'readme.txt']
+    const readme = state.entries.find((e) => !e.isDir && names.includes(e.name))
+    autoReadmePathRef.current = currentPath
+    if (readme) {
+      previewNav.openPreview(readme)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- open once per folder navigation
+  }, [currentPath, state.loading, state.entries])
 
   useFileManagerKeyboard({
     selectedRowKeys: state.selectedRowKeys,
