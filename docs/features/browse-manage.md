@@ -38,6 +38,13 @@ Deleted items are moved to a `.trash` folder under the root. Each deletion creat
 
 Right-click a file or folder in list or grid view for Open/Preview, Download, Copy link, Copy path, Rename, Copy/Move to…, Restore (in trash), and Delete.
 
+## Keyboard
+
+- **Space** — Quick Look: open the selected file in fullscreen preview (toggle). Esc exits fullscreen, then closes the preview.
+- **Enter** — Open the selected folder
+- **Delete** — Delete the selection
+- **Arrow keys** — Previous/next file while preview is open
+
 ## Drag and drop
 
 - **Upload** — Drag files from your desktop into the browser to upload to the current folder. Empty folders show a drop zone with a choose-files button.
