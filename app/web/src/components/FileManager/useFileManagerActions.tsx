@@ -476,6 +476,19 @@ export function useFileManagerActions(params: UseFileManagerActionsParams) {
     }
   }, [copyableContent])
 
+  /** Copy a logical path (selected entry, or current folder when nothing selected). */
+  const handleCopyPath = useCallback(async (path?: string) => {
+    const target =
+      path ??
+      (selectedRowKeys.length === 1 ? (selectedRowKeys[0] as string) : currentPath || '.')
+    const text = target === '' ? '.' : target
+    if (await copyTextToClipboard(text)) {
+      message.success('Path copied')
+    } else {
+      message.error('Failed to copy path')
+    }
+  }, [selectedRowKeys, currentPath])
+
   /** Copy a time-limited signed download URL for a file (not directories). */
   const handleCopySignedLink = useCallback(async (path?: string) => {
     const target =
@@ -525,6 +538,7 @@ export function useFileManagerActions(params: UseFileManagerActionsParams) {
     handleDrop,
     handleCopyContent,
     handleCopySignedLink,
+    handleCopyPath,
     handleDragStart,
   }
 }

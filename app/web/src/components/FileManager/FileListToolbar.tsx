@@ -8,6 +8,7 @@ import {
   SwapOutlined,
   DownloadOutlined,
   LinkOutlined,
+  SnippetsOutlined,
   DeleteOutlined,
   UndoOutlined,
 } from '@ant-design/icons'
@@ -26,6 +27,7 @@ interface FileListToolbarProps {
   onMoveClick: () => void
   onDownloadClick: () => void
   onCopyLinkClick?: () => void
+  onCopyPathClick?: () => void
   onDeleteClick: () => void
   onRestoreClick: () => void
   bulkDownloading: boolean
@@ -45,6 +47,7 @@ export default function FileListToolbar({
   onMoveClick,
   onDownloadClick,
   onCopyLinkClick,
+  onCopyPathClick,
   onDeleteClick,
   onRestoreClick,
   bulkDownloading,
@@ -71,6 +74,15 @@ export default function FileListToolbar({
         style={{ flexShrink: 0 }}
       />
       <FileBreadcrumb currentPath={currentPath} navigate={onNavigate} />
+      {onCopyPathClick && (
+        <Button
+          type="text"
+          size="small"
+          icon={<SnippetsOutlined />}
+          onClick={onCopyPathClick}
+          title={selectedRowKeys.length === 1 ? 'Copy selected path' : 'Copy current folder path'}
+        />
+      )}
       <div style={{ flex: 1, minWidth: 0 }} />
       <Input
         placeholder="Search in this folder"

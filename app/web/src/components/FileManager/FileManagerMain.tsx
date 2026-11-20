@@ -165,6 +165,7 @@ export default function FileManagerMain() {
       }}
       onDownloadClick={() => actions.handleBulkDownload()}
       onCopyLinkClick={() => void actions.handleCopySignedLink()}
+      onCopyPathClick={() => void actions.handleCopyPath()}
       canCopySignedLink={
         state.selectedRowKeys.length === 1 &&
         !filteredEntries.find((e) => e.path === state.selectedRowKeys[0])?.isDir
