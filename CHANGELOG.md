@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/heapoftrash/filetree/compare/v1.0.0...v1.1.0) (2026-11-20)
+
+
+### Features
+
+* **blog:** blog header for first stable release ([1e0bac4](https://github.com/heapoftrash/filetree/commit/1e0bac436e9598805bf8e7f2693d61cf5792f4e9))
+
+
+### Bug Fixes
+
+* join blog section header and list into one card ([d51b7f3](https://github.com/heapoftrash/filetree/commit/d51b7f32e3e79de368eefc1814b5dbec2559eed8))
+
 ## [1.0.0](https://github.com/heapoftrash/filetree/compare/v0.0.9...v1.0.0) (2026-11-20)
 
 
