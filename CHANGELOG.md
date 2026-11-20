@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.0.9](https://github.com/heapoftrash/filetree/compare/v0.0.8...v0.0.9) (2026-11-20)
+
+
+### Features
+
+* **docs:** releases blog from announced GitHub tags ([c182816](https://github.com/heapoftrash/filetree/commit/c1828168320c56fa1d238943dd366ae19428cec7))
+
+
+### Bug Fixes
+
+* **ci:** pin gosec to v2.29 for Go 1.25 ([#121](https://github.com/heapoftrash/filetree/issues/121)) ([#122](https://github.com/heapoftrash/filetree/issues/122)) ([38e0d95](https://github.com/heapoftrash/filetree/commit/38e0d9592190e081c452c437d3d9c455da9a3a13))
+
 ## [0.0.8](https://github.com/heapoftrash/filetree/compare/v0.0.7...v0.0.8) (2026-11-20)
 
 
