@@ -1,4 +1,4 @@
-import { Card, Empty } from 'antd'
+import { Card } from 'antd'
 import { FolderOutlined } from '@ant-design/icons'
 import type { Entry } from '../../types'
 import { getFileIcon, formatSize } from '../../utils/fileUtils'
@@ -7,6 +7,7 @@ import { getPreviewCategory } from '../../preview'
 import type { GlobalToken } from 'antd/es/theme'
 import FileEntryContextMenu, { type FileEntryContextActions } from './FileEntryContextMenu'
 import GridImageThumb from './GridImageThumb'
+import EmptyFolderDropZone from './EmptyFolderDropZone'
 
 interface FileListGridProps {
   entries: Entry[]
@@ -20,6 +21,7 @@ interface FileListGridProps {
   onSelectionChange: (keys: React.Key[]) => void
   onDragStart: (e: React.DragEvent, record: Entry) => void
   contextActions?: Omit<FileEntryContextActions, 'onOpen'>
+  onUpload?: (file: File) => boolean | Promise<boolean>
 }
 
 export default function FileListGrid({
@@ -34,14 +36,12 @@ export default function FileListGrid({
   onSelectionChange,
   onDragStart,
   contextActions,
+  onUpload,
 }: FileListGridProps) {
   if (entries.length === 0) {
     return (
       <div style={{ width: '100%' }}>
-        <Empty
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description={searchQuery ? 'No matching files' : 'This folder is empty'}
-        />
+        <EmptyFolderDropZone searchQuery={searchQuery} onUpload={onUpload} />
       </div>
     )
   }

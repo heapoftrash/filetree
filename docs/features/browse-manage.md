@@ -38,5 +38,5 @@ Right-click a file or folder in list or grid view for Open/Preview, Download, Co
 
 ## Drag and drop
 
-- **Upload** — Drag files from your desktop into the browser to upload to the current folder
+- **Upload** — Drag files from your desktop into the browser to upload to the current folder. Empty folders show a drop zone with a choose-files button.
 - **Move/Copy** — Drag items within the file tree to move or copy them between folders

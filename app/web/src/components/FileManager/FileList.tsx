@@ -26,6 +26,7 @@ interface FileListProps {
   onStartCopy?: (record: Entry) => void
   onStartMove?: (record: Entry) => void
   onDragStart: (e: React.DragEvent, record: Entry) => void
+  onUpload?: (file: File) => boolean | Promise<boolean>
   listParentPath: string
 }
 
@@ -51,6 +52,7 @@ export default function FileList({
   onStartCopy,
   onStartMove,
   onDragStart,
+  onUpload,
   listParentPath,
 }: FileListProps) {
   const { token } = theme.useToken()
@@ -87,6 +89,7 @@ export default function FileList({
           onRestore={onRestore}
           onCopySignedLink={onCopySignedLink}
           contextActions={contextActions}
+          onUpload={onUpload}
           listParentPath={listParentPath}
         />
       ) : (
@@ -102,6 +105,7 @@ export default function FileList({
           onSelectionChange={onSelectionChange}
           onDragStart={onDragStart}
           contextActions={contextActions}
+          onUpload={onUpload}
         />
       )}
     </Spin>
