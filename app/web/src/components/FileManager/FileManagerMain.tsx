@@ -5,6 +5,7 @@ import { useDefaultLayout } from 'react-resizable-panels'
 import { useFileManagerState, useFileManagerUI, useFileManagerActions, usePreviewNavigation, useFileManagerKeyboard, PREVIEW_PANEL_LAYOUT_KEY } from './hooks'
 import { listDisplayName } from '../../utils/pathUtils'
 import type { Entry } from '../../types'
+import { getPreviewCategory } from '../../preview'
 
 function useCurrentPath(): string {
   const { '*': splat } = useParams<{ '*': string }>()
@@ -65,6 +66,16 @@ export default function FileManagerMain() {
           e.name.toLowerCase().includes(q) ||
           e.path.toLowerCase().includes(q)
         )
+      })
+    }
+    if (ui.typeFilter !== 'all') {
+      list = list.filter((e) => {
+        if (e.isDir) return true
+        const cat = getPreviewCategory(e.name)
+        if (ui.typeFilter === 'documents') {
+          return ['pdf', 'markdown', 'json', 'csv', 'html', 'text'].includes(cat)
+        }
+        return cat === ui.typeFilter
       })
     }
     return list
@@ -169,6 +180,8 @@ export default function FileManagerMain() {
       onNextFile={previewNav.goToNextFile}
       onSearchChange={ui.setSearchQuery}
       onViewModeChange={ui.setViewModeAndSave}
+      typeFilter={ui.typeFilter}
+      onTypeFilterChange={ui.setTypeFilter}
       onCopyClick={() => {
         state.setMoveCopyDest(currentPath)
         state.setMoveCopyOpen('copy')

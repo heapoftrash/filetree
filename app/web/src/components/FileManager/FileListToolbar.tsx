@@ -21,6 +21,8 @@ interface FileListToolbarProps {
   onSearchChange: (value: string) => void
   viewMode: 'list' | 'grid'
   onViewModeChange: (mode: 'list' | 'grid') => void
+  typeFilter?: 'all' | 'image' | 'video' | 'audio' | 'documents'
+  onTypeFilterChange?: (v: 'all' | 'image' | 'video' | 'audio' | 'documents') => void
   selectedRowKeys: React.Key[]
   onNavigate: (path: string) => void
   onCopyClick: () => void
@@ -41,6 +43,8 @@ export default function FileListToolbar({
   onSearchChange,
   viewMode,
   onViewModeChange,
+  typeFilter = 'all',
+  onTypeFilterChange,
   selectedRowKeys,
   onNavigate,
   onCopyClick,
@@ -100,6 +104,20 @@ export default function FileListToolbar({
           { label: <><AppstoreOutlined /> Grid</>, value: 'grid' },
         ]}
       />
+      {onTypeFilterChange && (
+        <Segmented
+          size="small"
+          value={typeFilter}
+          onChange={(v) => onTypeFilterChange(v as typeof typeFilter)}
+          options={[
+            { label: 'All', value: 'all' },
+            { label: 'Images', value: 'image' },
+            { label: 'Video', value: 'video' },
+            { label: 'Audio', value: 'audio' },
+            { label: 'Docs', value: 'documents' },
+          ]}
+        />
+      )}
       {hasSelection && (
         <Space>
           <Button icon={<CopyOutlined />} size="small" onClick={onCopyClick}>

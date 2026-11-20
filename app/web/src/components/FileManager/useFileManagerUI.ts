@@ -46,6 +46,7 @@ export function useFileManagerUI() {
     return true
   })
   const [searchQuery, setSearchQuery] = useState('')
+  const [typeFilter, setTypeFilter] = useState<'all' | 'image' | 'video' | 'audio' | 'documents'>('all')
   const [copyableContent, setCopyableContent] = useState<string | null>(null)
   const [previewFullscreen, setPreviewFullscreen] = useState(false)
   const [previewSearchQuery, setPreviewSearchQuery] = useState('')
@@ -92,6 +93,8 @@ export function useFileManagerUI() {
     setSidebarVisibleAndSave,
     searchQuery,
     setSearchQuery,
+    typeFilter,
+    setTypeFilter,
     copyableContent,
     setCopyableContent,
     previewFullscreen,
