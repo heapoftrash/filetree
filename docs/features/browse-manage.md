@@ -26,6 +26,7 @@ Browse your files in a familiar folder layout. Create folders, rename, move, cop
 | **Restore** | Restore items from trash to their original location |
 | **Download** | Download single files or multiple items as a ZIP archive |
 | **Copy link** | Copy a time-limited signed download URL for a file to the clipboard |
+| **Copy path** | Copy the current folder path (or selected item path) to the clipboard |
 
 ## Trash
 
