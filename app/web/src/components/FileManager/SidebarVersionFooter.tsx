@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { Tag, theme } from 'antd'
+import { NotificationOutlined } from '@ant-design/icons'
 import { useVersionInfo } from '../../contexts/VersionContext'
+
+const WHATS_NEW_URL = 'https://heapoftrash.github.io/filetree/blog/'
 
 /** Bottom-of-sidebar version: running build, latest vs update, link to GitHub release notes */
 export default function SidebarVersionFooter() {
@@ -54,7 +57,7 @@ export default function SidebarVersionFooter() {
         {commitShort ? ` · Commit: ${commitShort}` : ''}
       </div>
       <a
-        href="https://heapoftrash.github.io/filetree/blog/"
+        href={WHATS_NEW_URL}
         target="_blank"
         rel="noreferrer"
         style={{
@@ -76,33 +79,73 @@ export default function SidebarVersionFooter() {
               style={{
                 marginLeft: -4,
                 marginRight: -4,
-                padding: '6px 8px',
+                padding: '8px 10px',
                 borderRadius: token.borderRadiusSM,
-                background: updateHover ? token.colorFillQuaternary : 'transparent',
-                border: `1px solid ${updateHover ? token.colorBorderSecondary : 'transparent'}`,
+                background: updateHover ? token.colorWarningBgHover : token.colorWarningBg,
+                border: `1px solid ${token.colorWarningBorder}`,
                 transition:
                   'background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease',
-                boxShadow: updateHover ? '0 1px 2px rgba(0, 0, 0, 0.06)' : 'none',
+                boxShadow: updateHover ? '0 1px 4px rgba(0, 0, 0, 0.08)' : 'none',
               }}
             >
-              <div style={{ color: token.colorTextTertiary }}>
-                Newer on GitHub: v{info.latest_version}
-              </div>
-              {info.release_url ? (
-                <a
-                  href={info.release_url}
-                  target="_blank"
-                  rel="noreferrer"
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 8,
+                  alignItems: 'flex-start',
+                }}
+              >
+                <NotificationOutlined
                   style={{
-                    color: token.colorLink,
-                    display: 'inline-block',
-                    marginTop: 4,
-                    fontSize: 11,
+                    color: token.colorWarning,
+                    fontSize: 15,
+                    marginTop: 1,
+                    flexShrink: 0,
                   }}
-                >
-                  {info.release_url_kind === 'tag' ? 'View tag' : 'Release notes'}
-                </a>
-              ) : null}
+                  aria-hidden
+                />
+                <div style={{ minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontWeight: 600,
+                      color: token.colorText,
+                      fontSize: 11,
+                    }}
+                  >
+                    Update available
+                  </div>
+                  <div style={{ color: token.colorTextSecondary, marginTop: 2 }}>
+                    v{info.latest_version} is out
+                  </div>
+                  <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: '4px 10px' }}>
+                    <a
+                      href={WHATS_NEW_URL}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        color: token.colorLink,
+                        fontSize: 11,
+                        fontWeight: 500,
+                      }}
+                    >
+                      What&apos;s new
+                    </a>
+                    {info.release_url ? (
+                      <a
+                        href={info.release_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          color: token.colorLink,
+                          fontSize: 11,
+                        }}
+                      >
+                        {info.release_url_kind === 'tag' ? 'View tag' : 'Release notes'}
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
             </div>
           ) : comparable ? (
             <>
