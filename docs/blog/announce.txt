@@ -2,5 +2,5 @@
 # Add the tag on the Release Please PR (or any commit) before/after the release.
 # Lines starting with # are ignored.
 #
-# Example:
 v0.0.8
+v1.0.0
