@@ -32,6 +32,10 @@ Browse your files in a familiar folder layout. Create folders, rename, move, cop
 
 Deleted items are moved to a `.trash` folder under the root. Each deletion creates a timestamped subfolder (e.g. `.trash/1736940645/`) to avoid conflicts. You can browse trash, restore items, or permanently delete from within trash. Items in trash can be permanently removed with the permanent delete option.
 
+## Context menu
+
+Right-click a file or folder in list or grid view for Open/Preview, Download, Copy link, Copy path, Rename, Copy/Move to…, Restore (in trash), and Delete.
+
 ## Drag and drop
 
 - **Upload** — Drag files from your desktop into the browser to upload to the current folder

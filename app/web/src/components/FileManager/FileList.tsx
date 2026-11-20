@@ -21,6 +21,10 @@ interface FileListProps {
   onDelete: (path: string) => void
   onRestore?: (path: string) => void
   onCopySignedLink?: (path: string) => void
+  onCopyPath?: (path: string) => void
+  onDownload?: (path: string) => void
+  onStartCopy?: (record: Entry) => void
+  onStartMove?: (record: Entry) => void
   onDragStart: (e: React.DragEvent, record: Entry) => void
   listParentPath: string
 }
@@ -42,10 +46,25 @@ export default function FileList({
   onDelete,
   onRestore,
   onCopySignedLink,
+  onCopyPath,
+  onDownload,
+  onStartCopy,
+  onStartMove,
   onDragStart,
   listParentPath,
 }: FileListProps) {
   const { token } = theme.useToken()
+
+  const contextActions = {
+    onRename,
+    onDelete,
+    onRestore,
+    onCopySignedLink,
+    onCopyPath,
+    onDownload,
+    onStartCopy,
+    onStartMove,
+  }
 
   return (
     <Spin spinning={loading}>
@@ -67,6 +86,7 @@ export default function FileList({
           onDelete={onDelete}
           onRestore={onRestore}
           onCopySignedLink={onCopySignedLink}
+          contextActions={contextActions}
           listParentPath={listParentPath}
         />
       ) : (
@@ -81,6 +101,7 @@ export default function FileList({
           onOpenPreview={onOpenPreview}
           onSelectionChange={onSelectionChange}
           onDragStart={onDragStart}
+          contextActions={contextActions}
         />
       )}
     </Spin>

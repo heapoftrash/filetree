@@ -7,6 +7,7 @@ import { isInTrash, isRestorableTrashPath, listDisplayName, listNameSortKey } fr
 import { getSignedDownloadUrl } from '../../api/client'
 import { getApiErrorMessage } from '../../utils/errors'
 import type { GlobalToken } from 'antd/es/theme'
+import FileEntryContextMenu, { type FileEntryContextActions } from './FileEntryContextMenu'
 
 interface FileListTableProps {
   entries: Entry[]
@@ -25,6 +26,7 @@ interface FileListTableProps {
   onDelete: (path: string) => void
   onRestore?: (path: string) => void
   onCopySignedLink?: (path: string) => void
+  contextActions?: Omit<FileEntryContextActions, 'onOpen'>
   listParentPath: string
 }
 
@@ -45,6 +47,7 @@ export default function FileListTable({
   onDelete,
   onRestore,
   onCopySignedLink,
+  contextActions,
   listParentPath,
 }: FileListTableProps) {
   const columns: ColumnsType<Entry> = [
@@ -57,7 +60,7 @@ export default function FileListTable({
         listNameSortKey(a, listParentPath).localeCompare(listNameSortKey(b, listParentPath)),
       render: (_name: string, record: Entry) => {
         const label = listDisplayName(record, listParentPath)
-        return (
+        const nameCell = (
           <Space>
             {record.isDir ? (
               <FolderOutlined style={{ color: token.colorWarning }} />
@@ -111,6 +114,16 @@ export default function FileListTable({
               </>
             )}
           </Space>
+        )
+        if (!contextActions) return nameCell
+        return (
+          <FileEntryContextMenu
+            record={record}
+            onOpen={(r) => (r.isDir ? onNavigate(`/files/${r.path}`) : onOpenPreview(r))}
+            {...contextActions}
+          >
+            <span style={{ display: 'inline-block', maxWidth: '100%' }}>{nameCell}</span>
+          </FileEntryContextMenu>
         )
       },
     },

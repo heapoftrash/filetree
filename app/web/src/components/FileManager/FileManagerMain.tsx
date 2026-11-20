@@ -4,6 +4,7 @@ import FileManagerLayout from './FileManagerLayout'
 import { useDefaultLayout } from 'react-resizable-panels'
 import { useFileManagerState, useFileManagerUI, useFileManagerActions, usePreviewNavigation, useFileManagerKeyboard, PREVIEW_PANEL_LAYOUT_KEY } from './hooks'
 import { listDisplayName } from '../../utils/pathUtils'
+import type { Entry } from '../../types'
 
 function useCurrentPath(): string {
   const { '*': splat } = useParams<{ '*': string }>()
@@ -118,6 +119,18 @@ export default function FileManagerMain() {
     onDelete: actions.handleDelete,
     onRestore: actions.handleRestore,
     onCopySignedLink: (path: string) => void actions.handleCopySignedLink(path),
+    onCopyPath: (path: string) => void actions.handleCopyPath(path),
+    onDownload: (path: string) => void actions.handleBulkDownload([path]),
+    onStartCopy: (record: Entry) => {
+      state.setSelectedRowKeys([record.path])
+      state.setMoveCopyDest(currentPath)
+      state.setMoveCopyOpen('copy')
+    },
+    onStartMove: (record: Entry) => {
+      state.setSelectedRowKeys([record.path])
+      state.setMoveCopyDest(currentPath)
+      state.setMoveCopyOpen('move')
+    },
     onDragStart: actions.handleDragStart,
     listParentPath: currentPath,
   }
