@@ -16,7 +16,8 @@
 
 {% block content %}
   {% if page and page.meta and page.meta.get('template') != 'home.html' %}
-    {% if page.meta.get('image') %}
+    {# Release blog posts use ft-post-hero in blog-post.html instead #}
+    {% if page.meta.get('image') and not page.meta.get('version') %}
     <section class="md-page-hero">
       <img src="{{ base_url }}/{{ page.meta.image }}" alt="" class="md-page-hero__img" loading="lazy" />
     </section>

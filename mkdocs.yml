@@ -52,6 +52,7 @@ nav:
     - Setup: authentication/setup.md
     - OAuth providers: authentication/oauth-providers.md
     - API Reference: API.md
+  - Releases: blog/index.md
 
 markdown_extensions:
   - meta
@@ -71,6 +72,7 @@ markdown_extensions:
 extra_css:
   - assets/styles/home.css
   - assets/styles/page-meta.css
+  - assets/styles/blog.css
 
 extra:
   social:
@@ -84,3 +86,10 @@ extra:
 
 plugins:
   - search
+  - blog:
+      blog_dir: blog
+      blog_toc: true
+      post_url_format: "{date}/{slug}"
+      authors_file: "{blog}/.authors.yml"
+      post_excerpt: required
+      post_excerpt_separator: "<!-- more -->"

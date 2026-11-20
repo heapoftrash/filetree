@@ -1,0 +1,329 @@
+/* Releases blog — brand cards + landing */
+
+.ft-blog {
+  max-width: 64rem;
+  margin-inline: auto;
+}
+
+.ft-blog-hero {
+  margin: 0 0 2rem;
+  padding: 1.75rem 1.5rem 1.5rem;
+  border-radius: 0.75rem;
+  color: #e8e7ec;
+  background:
+    linear-gradient(
+      160deg,
+      #2a2438 0%,
+      #3d3548 45%,
+      #5a5168 100%
+    );
+  box-shadow: 0 12px 32px rgba(42, 36, 56, 0.22);
+}
+
+[data-md-color-scheme="slate"] .ft-blog-hero {
+  background: linear-gradient(160deg, #3d3548 0%, #2a2438 55%, #221e2e 100%);
+}
+
+.ft-blog-hero__eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.ft-blog-hero__title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.ft-blog-hero__title-row h1 {
+  margin: 0;
+  color: inherit;
+  font-weight: 700;
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+}
+
+.ft-blog-hero__logo {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
+}
+
+.ft-blog-hero__lede {
+  max-width: 40rem;
+  opacity: 0.92;
+}
+
+.ft-blog-hero__lede > :first-child {
+  margin-top: 0;
+}
+
+.ft-blog-hero__lede > :last-child {
+  margin-bottom: 0;
+}
+
+.ft-blog-hero__lede a {
+  color: #c9d7f5;
+}
+
+.ft-blog-hero__actions {
+  margin: 1.1rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ft-blog-hero .md-button {
+  color: #e8e7ec;
+  border-color: rgba(232, 231, 236, 0.55);
+}
+
+.ft-blog-hero .md-button--primary {
+  color: #2a2438;
+  background: #e8e7ec;
+  border-color: #e8e7ec;
+}
+
+.ft-blog-hero .md-button:hover {
+  opacity: 0.92;
+}
+
+/* Card grid — ~60% of prior 2-up card width (~3 per row) */
+.ft-blog-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.9rem;
+  align-items: stretch;
+}
+
+@media (min-width: 36em) {
+  .ft-blog-grid {
+    /* ~16rem ≈ 60% of previous ~27rem half-row cards */
+    grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
+  }
+}
+
+.ft-post-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 0.85rem;
+  border: 1px solid var(--md-default-fg-color--lightest, rgba(0, 0, 0, 0.08));
+  background: var(--md-default-bg-color);
+  box-shadow: 0 4px 14px rgba(42, 36, 56, 0.08);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.ft-post-card:hover {
+  box-shadow: 0 12px 28px rgba(42, 36, 56, 0.16);
+  transform: translateY(-3px);
+}
+
+[data-md-color-scheme="slate"] .ft-post-card {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+/* Thumb with title overlay */
+.ft-post-card__media {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 7.25rem;
+  overflow: hidden;
+  background: #2a2438;
+  flex-shrink: 0;
+  text-decoration: none;
+  color: #e8e7ec;
+}
+
+.ft-post-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  opacity: 0.88;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.ft-post-card:hover .ft-post-card__img {
+  transform: scale(1.04);
+  opacity: 1;
+}
+
+.ft-post-card__shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(42, 36, 56, 0.15) 0%,
+    rgba(42, 36, 56, 0.35) 45%,
+    rgba(34, 30, 46, 0.88) 100%
+  );
+  pointer-events: none;
+}
+
+.ft-post-card__title {
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.65rem;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  pointer-events: none;
+}
+
+.ft-post-card__label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  color: #e8e7ec;
+}
+
+.ft-post-card__name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+}
+
+.ft-post-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.65rem 0.85rem 0.8rem;
+}
+
+.ft-post-card .md-post__header {
+  margin-bottom: 0.2rem;
+}
+
+.ft-post-card .md-meta__list {
+  margin: 0;
+  font-size: 0.72rem;
+  opacity: 0.8;
+}
+
+.ft-post-card .md-post__content {
+  flex: 1 1 auto;
+}
+
+/* Title already on the image (Material may emit h1 or h2) */
+.ft-post-card .md-post__content > h1,
+.ft-post-card .md-post__content > h2:first-child {
+  display: none;
+}
+
+/* Teaser only */
+.ft-post-card .md-post__content > p {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ft-post-card .md-post__action {
+  margin-top: auto;
+  padding-top: 0.45rem;
+  font-size: 0.78rem;
+}
+
+/* Hide Material's default lone header H1 duplication feel on index */
+.ft-blog > header.ft-blog-hero + .ft-blog-grid {
+  margin-top: 0;
+}
+
+/* Full post hero — same brand treatment as card thumbs */
+.ft-post-hero {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 10rem;
+  margin: 0 0 1.25rem;
+  overflow: hidden;
+  border-radius: 0.85rem;
+  background: #2a2438;
+  box-shadow: 0 8px 24px rgba(42, 36, 56, 0.2);
+}
+
+.ft-post-hero__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  opacity: 0.9;
+}
+
+.ft-post-hero__shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(42, 36, 56, 0.15) 0%,
+    rgba(42, 36, 56, 0.35) 45%,
+    rgba(34, 30, 46, 0.88) 100%
+  );
+  pointer-events: none;
+}
+
+.ft-post-hero__title {
+  position: absolute;
+  left: 1.1rem;
+  right: 1.1rem;
+  bottom: 0.9rem;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.ft-post-hero__label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  color: #e8e7ec;
+}
+
+.ft-post-hero__name {
+  font-size: 1.65rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #fff;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Avoid stacking the markdown H1 under the hero title */
+.md-content--post .md-content__inner > h1:first-of-type {
+  display: none;
+}
+
+@media (min-width: 48em) {
+  .ft-post-hero {
+    height: 12rem;
+  }
+
+  .ft-post-hero__name {
+    font-size: 1.9rem;
+  }
+}

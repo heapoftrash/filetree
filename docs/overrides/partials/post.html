@@ -1,0 +1,47 @@
+{# Filetree: compact release cards — title lives on the thumb #}
+{% set thumb = post.meta.get("image", "assets/images/release-thumb.svg") %}
+{% set version = post.meta.get("version") or post.config.slug %}
+{% set title = version or post.title %}
+<article class="md-post md-post--excerpt ft-post-card">
+  <a class="ft-post-card__media" href="{{ post.url | url }}">
+    <img src="{{ thumb | url }}" alt="" class="ft-post-card__img" loading="lazy" width="640" height="200" />
+    <span class="ft-post-card__shade" aria-hidden="true"></span>
+    <span class="ft-post-card__title">
+      <span class="ft-post-card__label">Release</span>
+      <span class="ft-post-card__name">{{ title }}</span>
+    </span>
+  </a>
+  <div class="ft-post-card__body">
+    <header class="md-post__header">
+      <div class="md-post__meta md-meta">
+        <ul class="md-meta__list">
+          <li class="md-meta__item">
+            <time datetime="{{ post.config.date.created }}">
+              {{- post.config.date.created | date -}}
+            </time>
+          </li>
+          {% if post.config.readtime %}
+            {% set time = post.config.readtime %}
+            <li class="md-meta__item">
+              {% if time == 1 %}
+                {{ lang.t("readtime.one") }}
+              {% else %}
+                {{ lang.t("readtime.other") | replace("#", time) }}
+              {% endif %}
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </header>
+    <div class="md-post__content md-typeset">
+      {{ post.content }}
+      {% if post.more %}
+        <nav class="md-post__action">
+          <a href="{{ post.url | url }}">
+            {{ lang.t("blog.continue") }}
+          </a>
+        </nav>
+      {% endif %}
+    </div>
+  </div>
+</article>

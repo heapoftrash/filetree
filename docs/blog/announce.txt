@@ -1,0 +1,6 @@
+# Tags to feature on the docs Releases blog (one per line).
+# Add the tag on the Release Please PR (or any commit) before/after the release.
+# Lines starting with # are ignored.
+#
+# Example:
+v0.0.8
