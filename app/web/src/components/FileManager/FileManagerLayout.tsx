@@ -69,6 +69,8 @@ export interface FileManagerLayoutProps {
   onNextFile: () => void
   onSearchChange: (value: string) => void
   onViewModeChange: (mode: 'list' | 'grid') => void
+  typeFilter?: 'all' | 'image' | 'video' | 'audio' | 'documents'
+  onTypeFilterChange?: (v: 'all' | 'image' | 'video' | 'audio' | 'documents') => void
   onCopyClick: () => void
   onMoveClick: () => void
   onDownloadClick: () => void
@@ -136,6 +138,8 @@ export default function FileManagerLayout(props: FileManagerLayoutProps) {
     onNextFile,
     onSearchChange,
     onViewModeChange,
+    typeFilter,
+    onTypeFilterChange,
     onCopyClick,
     onMoveClick,
     onDownloadClick,
@@ -238,6 +242,8 @@ export default function FileManagerLayout(props: FileManagerLayoutProps) {
             onSearchChange={onSearchChange}
             viewMode={fileListProps.viewMode}
             onViewModeChange={onViewModeChange}
+            typeFilter={typeFilter}
+            onTypeFilterChange={onTypeFilterChange}
             selectedRowKeys={fileListProps.selectedRowKeys as string[]}
             onNavigate={fileListProps.onNavigate}
             onCopyClick={onCopyClick}
