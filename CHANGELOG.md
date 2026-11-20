@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.0.0](https://github.com/heapoftrash/filetree/compare/v0.0.9...v1.0.0) (2026-11-20)
+
+
+### Features
+
+* **web:** auto-open README when entering a folder ([#124](https://github.com/heapoftrash/filetree/issues/124)) ([#143](https://github.com/heapoftrash/filetree/issues/143)) ([8d49f01](https://github.com/heapoftrash/filetree/commit/8d49f01cfafba93d239868f45f76eaf1ff4edec5))
+* **web:** copy folder or selection path to clipboard ([#126](https://github.com/heapoftrash/filetree/issues/126)) ([#138](https://github.com/heapoftrash/filetree/issues/138)) ([e74510c](https://github.com/heapoftrash/filetree/commit/e74510c60ed3bee5c92a925ac8f7b49e81bfd1ab))
+* **web:** copy signed download link to clipboard ([#123](https://github.com/heapoftrash/filetree/issues/123)) ([#136](https://github.com/heapoftrash/filetree/issues/136)) ([6439231](https://github.com/heapoftrash/filetree/commit/64392310a062c41facfaebfd557d6d307161d1b1))
+* **web:** empty-folder upload drop zone ([#127](https://github.com/heapoftrash/filetree/issues/127)) ([#141](https://github.com/heapoftrash/filetree/issues/141)) ([16bacac](https://github.com/heapoftrash/filetree/commit/16bacac0d385f55bc2a7b34cd5e9b633597be669))
+* **web:** lazy image thumbnails in grid view ([#128](https://github.com/heapoftrash/filetree/issues/128)) ([#140](https://github.com/heapoftrash/filetree/issues/140)) ([abeeabd](https://github.com/heapoftrash/filetree/commit/abeeabdfd237bc3be148e66060cd1ef15010564d))
+* **web:** recent folders in sidebar ([#130](https://github.com/heapoftrash/filetree/issues/130)) ([#145](https://github.com/heapoftrash/filetree/issues/145)) ([d9e4708](https://github.com/heapoftrash/filetree/commit/d9e4708a10132be59602e504527b0396325407e0))
+* **web:** right-click context menu for file actions ([#129](https://github.com/heapoftrash/filetree/issues/129)) ([#139](https://github.com/heapoftrash/filetree/issues/139)) ([3d803bc](https://github.com/heapoftrash/filetree/commit/3d803bc3e59ebf581fd91013978d5d28bc6ce28a))
+* **web:** Spacebar Quick Look fullscreen preview ([#125](https://github.com/heapoftrash/filetree/issues/125)) ([#144](https://github.com/heapoftrash/filetree/issues/144)) ([b3b3935](https://github.com/heapoftrash/filetree/commit/b3b393537c045825802dc9dcd7f289aed59df8ce))
+* **web:** toolbar file type filter chips ([#133](https://github.com/heapoftrash/filetree/issues/133)) ([#142](https://github.com/heapoftrash/filetree/issues/142)) ([3960bf9](https://github.com/heapoftrash/filetree/commit/3960bf999cd888b776f0fac67da3c9e8ca5bb0ca))
+* **web:** What's new link in sidebar version footer ([#134](https://github.com/heapoftrash/filetree/issues/134)) ([#146](https://github.com/heapoftrash/filetree/issues/146)) ([e3d934a](https://github.com/heapoftrash/filetree/commit/e3d934a0dc477a8c253928d2a772f801f3bd0133))
+
+
+### Miscellaneous Chores
+
+* prepare 1.0.0 release and docs blog announce ([#147](https://github.com/heapoftrash/filetree/issues/147)) ([3a9b5b0](https://github.com/heapoftrash/filetree/commit/3a9b5b0070a95db09a0072aba629e5b31ff3d1dd))
+
 ## [0.0.9](https://github.com/heapoftrash/filetree/compare/v0.0.8...v0.0.9) (2026-11-20)
 
 
