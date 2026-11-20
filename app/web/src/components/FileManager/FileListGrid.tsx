@@ -3,8 +3,10 @@ import { FolderOutlined } from '@ant-design/icons'
 import type { Entry } from '../../types'
 import { getFileIcon, formatSize } from '../../utils/fileUtils'
 import { listDisplayName } from '../../utils/pathUtils'
+import { getPreviewCategory } from '../../preview'
 import type { GlobalToken } from 'antd/es/theme'
 import FileEntryContextMenu, { type FileEntryContextActions } from './FileEntryContextMenu'
+import GridImageThumb from './GridImageThumb'
 
 interface FileListGridProps {
   entries: Entry[]
@@ -81,13 +83,17 @@ export default function FileListGrid({
           }}
           onDoubleClick={() => record.isDir && onNavigate(`/files/${record.path}`)}
         >
-          <div style={{ fontSize: 36, marginBottom: 8 }}>
-            {record.isDir ? (
-              <FolderOutlined style={{ color: token.colorWarning }} />
-            ) : (
-              getFileIcon(record.name, token)
-            )}
-          </div>
+          {!record.isDir && getPreviewCategory(record.name) === 'image' ? (
+            <GridImageThumb path={record.path} token={token} />
+          ) : (
+            <div style={{ fontSize: 36, marginBottom: 8 }}>
+              {record.isDir ? (
+                <FolderOutlined style={{ color: token.colorWarning }} />
+              ) : (
+                getFileIcon(record.name, token)
+              )}
+            </div>
+          )}
           <div
             style={{
               overflow: 'hidden',
