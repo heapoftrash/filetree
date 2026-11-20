@@ -1,4 +1,4 @@
-import { Table, Button, Space, Popconfirm, Empty, message } from 'antd'
+import { Table, Button, Space, Popconfirm, message } from 'antd'
 import { FolderOutlined, EditOutlined, DeleteOutlined, DownloadOutlined, LinkOutlined, UndoOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import type { Entry } from '../../types'
@@ -8,6 +8,7 @@ import { getSignedDownloadUrl } from '../../api/client'
 import { getApiErrorMessage } from '../../utils/errors'
 import type { GlobalToken } from 'antd/es/theme'
 import FileEntryContextMenu, { type FileEntryContextActions } from './FileEntryContextMenu'
+import EmptyFolderDropZone from './EmptyFolderDropZone'
 
 interface FileListTableProps {
   entries: Entry[]
@@ -27,6 +28,7 @@ interface FileListTableProps {
   onRestore?: (path: string) => void
   onCopySignedLink?: (path: string) => void
   contextActions?: Omit<FileEntryContextActions, 'onOpen'>
+  onUpload?: (file: File) => boolean | Promise<boolean>
   listParentPath: string
 }
 
@@ -48,6 +50,7 @@ export default function FileListTable({
   onRestore,
   onCopySignedLink,
   contextActions,
+  onUpload,
   listParentPath,
 }: FileListTableProps) {
   const columns: ColumnsType<Entry> = [
@@ -212,12 +215,7 @@ export default function FileListTable({
         onSortChange(field, order)
       }}
       locale={{
-        emptyText: (
-          <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description={searchQuery ? 'No matching files' : 'This folder is empty'}
-          />
-        ),
+        emptyText: <EmptyFolderDropZone searchQuery={searchQuery} onUpload={onUpload} />,
       }}
       onRow={(record) =>
         record.isDir

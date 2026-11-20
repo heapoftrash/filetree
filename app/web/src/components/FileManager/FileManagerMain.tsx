@@ -132,6 +132,7 @@ export default function FileManagerMain() {
       state.setMoveCopyOpen('move')
     },
     onDragStart: actions.handleDragStart,
+    onUpload: actions.handleUpload,
     listParentPath: currentPath,
   }
 
