@@ -1,5 +1,5 @@
 import { Table, Button, Space, Popconfirm, Empty, message } from 'antd'
-import { FolderOutlined, EditOutlined, DeleteOutlined, DownloadOutlined, UndoOutlined } from '@ant-design/icons'
+import { FolderOutlined, EditOutlined, DeleteOutlined, DownloadOutlined, LinkOutlined, UndoOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import type { Entry } from '../../types'
 import { getFileIcon, formatSize, formatDate } from '../../utils/fileUtils'
@@ -24,6 +24,7 @@ interface FileListTableProps {
   onRename: (record: Entry) => void
   onDelete: (path: string) => void
   onRestore?: (path: string) => void
+  onCopySignedLink?: (path: string) => void
   listParentPath: string
 }
 
@@ -43,6 +44,7 @@ export default function FileListTable({
   onRename,
   onDelete,
   onRestore,
+  onCopySignedLink,
   listParentPath,
 }: FileListTableProps) {
   const columns: ColumnsType<Entry> = [
@@ -138,6 +140,15 @@ export default function FileListTable({
       render: (_: unknown, record: Entry) => (
         <Space>
           <Button type="link" size="small" icon={<EditOutlined />} onClick={() => onRename(record)} title="Rename" />
+          {!record.isDir && onCopySignedLink && (
+            <Button
+              type="link"
+              size="small"
+              icon={<LinkOutlined />}
+              onClick={() => onCopySignedLink(record.path)}
+              title="Copy signed download link"
+            />
+          )}
           {onRestore && isRestorableTrashPath(record.path) && (
             <Button
               type="link"

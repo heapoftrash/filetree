@@ -7,6 +7,7 @@ import {
   CopyOutlined,
   SwapOutlined,
   DownloadOutlined,
+  LinkOutlined,
   DeleteOutlined,
   UndoOutlined,
 } from '@ant-design/icons'
@@ -24,9 +25,12 @@ interface FileListToolbarProps {
   onCopyClick: () => void
   onMoveClick: () => void
   onDownloadClick: () => void
+  onCopyLinkClick?: () => void
   onDeleteClick: () => void
   onRestoreClick: () => void
   bulkDownloading: boolean
+  /** True when exactly one selected item is a file (not a folder) */
+  canCopySignedLink?: boolean
 }
 
 export default function FileListToolbar({
@@ -40,9 +44,11 @@ export default function FileListToolbar({
   onCopyClick,
   onMoveClick,
   onDownloadClick,
+  onCopyLinkClick,
   onDeleteClick,
   onRestoreClick,
   bulkDownloading,
+  canCopySignedLink = false,
 }: FileListToolbarProps) {
   const goBack = () => {
     const parts = currentPath.split('/').filter(Boolean)
@@ -93,6 +99,11 @@ export default function FileListToolbar({
           <Button icon={<DownloadOutlined />} size="small" onClick={onDownloadClick} loading={bulkDownloading}>
             Download ({selectedRowKeys.length})
           </Button>
+          {canCopySignedLink && onCopyLinkClick && (
+            <Button icon={<LinkOutlined />} size="small" onClick={onCopyLinkClick} title="Copy signed download link">
+              Copy link
+            </Button>
+          )}
           {restorableSelected.length > 0 && (
             <Button icon={<UndoOutlined />} size="small" onClick={onRestoreClick}>
               Restore ({restorableSelected.length})

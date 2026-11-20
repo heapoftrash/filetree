@@ -20,6 +20,7 @@ interface FileListProps {
   onRename: (record: Entry) => void
   onDelete: (path: string) => void
   onRestore?: (path: string) => void
+  onCopySignedLink?: (path: string) => void
   onDragStart: (e: React.DragEvent, record: Entry) => void
   listParentPath: string
 }
@@ -40,6 +41,7 @@ export default function FileList({
   onRename,
   onDelete,
   onRestore,
+  onCopySignedLink,
   onDragStart,
   listParentPath,
 }: FileListProps) {
@@ -64,6 +66,7 @@ export default function FileList({
           onRename={onRename}
           onDelete={onDelete}
           onRestore={onRestore}
+          onCopySignedLink={onCopySignedLink}
           listParentPath={listParentPath}
         />
       ) : (

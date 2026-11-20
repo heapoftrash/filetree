@@ -117,6 +117,7 @@ export default function FileManagerMain() {
     onRename: actions.openRename,
     onDelete: actions.handleDelete,
     onRestore: actions.handleRestore,
+    onCopySignedLink: (path: string) => void actions.handleCopySignedLink(path),
     onDragStart: actions.handleDragStart,
     listParentPath: currentPath,
   }
@@ -163,6 +164,11 @@ export default function FileManagerMain() {
         state.setMoveCopyOpen('move')
       }}
       onDownloadClick={() => actions.handleBulkDownload()}
+      onCopyLinkClick={() => void actions.handleCopySignedLink()}
+      canCopySignedLink={
+        state.selectedRowKeys.length === 1 &&
+        !filteredEntries.find((e) => e.path === state.selectedRowKeys[0])?.isDir
+      }
       onDeleteClick={() => actions.handleBulkDelete()}
       onRestoreSelection={() => actions.handleBulkRestore()}
       onDownloadPreview={() => actions.handleBulkDownload([state.previewEntry!.path])}
