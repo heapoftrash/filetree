@@ -9,9 +9,11 @@ import {
   moveEntry,
   copyEntry,
   downloadZip,
+  getSignedDownloadUrl,
 } from '../../api/client'
 import type { Entry } from '../../types'
 import { getApiErrorMessage, isConflictError, isNotFoundError } from '../../utils/errors'
+import { copyTextToClipboard, toAbsoluteUrl } from '../../utils/clipboard'
 import { uniqueName, isRestorableTrashPath, parentLogicalPath } from '../../utils/pathUtils'
 import type { ConflictModalState } from './useFileManagerState'
 import { uploadFileWithProgress, uploadFilesWithProgress } from './uploadNotify'
@@ -467,13 +469,41 @@ export function useFileManagerActions(params: UseFileManagerActionsParams) {
 
   const handleCopyContent = useCallback(async () => {
     if (!copyableContent) return
-    try {
-      await navigator.clipboard.writeText(copyableContent)
+    if (await copyTextToClipboard(copyableContent)) {
       message.success('Copied to clipboard')
-    } catch {
+    } else {
       message.error('Failed to copy')
     }
   }, [copyableContent])
+
+  /** Copy a time-limited signed download URL for a file (not directories). */
+  const handleCopySignedLink = useCallback(async (path?: string) => {
+    const target =
+      path ??
+      (selectedRowKeys.length === 1 ? (selectedRowKeys[0] as string) : undefined)
+    if (!target) {
+      message.warning('Select one file to copy a link')
+      return
+    }
+    const entry = entries.find((e) => e.path === target)
+    if (entry?.isDir) {
+      message.warning('Signed links are only available for files')
+      return
+    }
+    const hide = message.loading('Creating link...', 0)
+    try {
+      const url = toAbsoluteUrl(await getSignedDownloadUrl(target))
+      hide()
+      if (await copyTextToClipboard(url)) {
+        message.success('Download link copied')
+      } else {
+        message.error('Failed to copy link')
+      }
+    } catch (e: unknown) {
+      hide()
+      message.error(getApiErrorMessage(e))
+    }
+  }, [selectedRowKeys, entries])
 
   const handleDragStart = useCallback((e: React.DragEvent, record: Entry) => {
     const action = e.ctrlKey || e.metaKey ? 'copy' : 'move'
@@ -494,6 +524,7 @@ export function useFileManagerActions(params: UseFileManagerActionsParams) {
     handleBulkDownload,
     handleDrop,
     handleCopyContent,
+    handleCopySignedLink,
     handleDragStart,
   }
 }

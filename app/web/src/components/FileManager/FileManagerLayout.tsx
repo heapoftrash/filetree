@@ -72,6 +72,8 @@ export interface FileManagerLayoutProps {
   onCopyClick: () => void
   onMoveClick: () => void
   onDownloadClick: () => void
+  onCopyLinkClick?: () => void
+  canCopySignedLink?: boolean
   onDeleteClick: () => void
   onRestoreSelection: () => void
   onDownloadPreview: () => void
@@ -136,6 +138,8 @@ export default function FileManagerLayout(props: FileManagerLayoutProps) {
     onCopyClick,
     onMoveClick,
     onDownloadClick,
+    onCopyLinkClick,
+    canCopySignedLink,
     onDeleteClick,
     onRestoreSelection,
     onDownloadPreview,
@@ -237,6 +241,8 @@ export default function FileManagerLayout(props: FileManagerLayoutProps) {
             onCopyClick={onCopyClick}
             onMoveClick={onMoveClick}
             onDownloadClick={onDownloadClick}
+            onCopyLinkClick={onCopyLinkClick}
+            canCopySignedLink={canCopySignedLink}
             onDeleteClick={onDeleteClick}
             onRestoreClick={onRestoreSelection}
             bulkDownloading={bulkDownloading}
