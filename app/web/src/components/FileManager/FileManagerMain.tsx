@@ -112,6 +112,9 @@ export default function FileManagerMain() {
     handleBulkDelete: actions.handleBulkDelete,
     previewEntry: state.previewEntry,
     setPreviewEntry: state.setPreviewEntry,
+    openPreview: previewNav.openPreview,
+    previewFullscreen: ui.previewFullscreen,
+    setPreviewFullscreen: ui.setPreviewFullscreen,
     goToPrevFile: previewNav.goToPrevFile,
     goToNextFile: previewNav.goToNextFile,
   })

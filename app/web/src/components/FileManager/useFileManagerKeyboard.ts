@@ -10,6 +10,9 @@ export function useFileManagerKeyboard(params: {
   handleBulkDelete: (pathsOverride?: string[]) => Promise<void>
   previewEntry: Entry | null
   setPreviewEntry: (e: Entry | null) => void
+  openPreview: (record: Entry) => void
+  previewFullscreen: boolean
+  setPreviewFullscreen: (v: boolean | ((prev: boolean) => boolean)) => void
   goToPrevFile: () => void
   goToNextFile: () => void
 }) {
@@ -20,11 +23,14 @@ export function useFileManagerKeyboard(params: {
     handleBulkDelete,
     previewEntry,
     setPreviewEntry,
+    openPreview,
+    previewFullscreen,
+    setPreviewFullscreen,
     goToPrevFile,
     goToNextFile,
   } = params
 
-  // Keyboard: Enter = open folder, Delete = bulk delete
+  // Keyboard: Enter = open folder, Delete = bulk delete, Space = Quick Look
   useEffect(() => {
     const onKeyDown = (ev: KeyboardEvent) => {
       if (ev.target instanceof HTMLInputElement || ev.target instanceof HTMLTextAreaElement) return
@@ -32,6 +38,22 @@ export function useFileManagerKeyboard(params: {
         if (selectedRowKeys.length === 1) {
           const entry = entries.find((e) => e.path === selectedRowKeys[0])
           if (entry?.isDir) navigate(`/files/${entry.path}`)
+        }
+      } else if (ev.key === ' ' || ev.key === 'Spacebar') {
+        ev.preventDefault()
+        if (previewFullscreen) {
+          setPreviewFullscreen(false)
+          return
+        }
+        if (previewEntry && !previewEntry.isDir) {
+          setPreviewFullscreen(true)
+          return
+        }
+        const key = selectedRowKeys.length === 1 ? (selectedRowKeys[0] as string) : null
+        const entry = key ? entries.find((e) => e.path === key) : null
+        if (entry && !entry.isDir) {
+          openPreview(entry)
+          setPreviewFullscreen(true)
         }
       } else if (ev.key === 'Delete' && selectedRowKeys.length > 0) {
         ev.preventDefault()
@@ -52,16 +74,29 @@ export function useFileManagerKeyboard(params: {
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [selectedRowKeys, entries, navigate, handleBulkDelete])
+  }, [
+    selectedRowKeys,
+    entries,
+    navigate,
+    handleBulkDelete,
+    previewEntry,
+    previewFullscreen,
+    openPreview,
+    setPreviewFullscreen,
+  ])
 
-  // Keyboard: Arrow keys for prev/next, Escape to close when preview is open
+  // Keyboard: Arrow keys for prev/next, Escape closes fullscreen then preview
   useEffect(() => {
     const onKeyDown = (ev: KeyboardEvent) => {
       if (!previewEntry) return
       if (ev.target instanceof HTMLInputElement || ev.target instanceof HTMLTextAreaElement) return
       if (ev.key === 'Escape') {
         ev.preventDefault()
-        setPreviewEntry(null)
+        if (previewFullscreen) {
+          setPreviewFullscreen(false)
+        } else {
+          setPreviewEntry(null)
+        }
       } else if (ev.key === 'ArrowRight') {
         ev.preventDefault()
         goToNextFile()
@@ -72,5 +107,12 @@ export function useFileManagerKeyboard(params: {
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [previewEntry, setPreviewEntry, goToPrevFile, goToNextFile])
+  }, [
+    previewEntry,
+    previewFullscreen,
+    setPreviewEntry,
+    setPreviewFullscreen,
+    goToPrevFile,
+    goToNextFile,
+  ])
 }
