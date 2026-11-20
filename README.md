@@ -12,9 +12,6 @@
 
 
 <p align="center">
-  <a href="https://goreportcard.com/report/github.com/heapoftrash/filetree/app">
-    <img src="https://goreportcard.com/badge/github.com/heapoftrash/filetree/app" alt="Go Report Card"/>
-  </a>
   <a href="https://github.com/heapoftrash/filetree/actions/workflows/ci.yml">
     <img src="https://github.com/heapoftrash/filetree/actions/workflows/ci.yml/badge.svg" alt="Build status"/>
   </a>
