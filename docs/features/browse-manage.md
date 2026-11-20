@@ -9,7 +9,7 @@ Browse your files in a familiar folder layout. Create folders, rename, move, cop
 
 ## Folder tree and views
 
-- **Folder tree sidebar** — Navigate quickly through your directory structure. Expand and collapse folders.
+- **Folder tree sidebar** — Navigate quickly through your directory structure. Expand and collapse folders. A **Recent** list remembers the last folders you opened (browser `localStorage`).
 - **List view** — Table layout with name, size, modified date. Sort by column.
 - **Grid view** — Card layout suited for images and documents; image files show lazy-loaded preview thumbnails.
 - **Remembered preferences** — List vs grid view and table sort column/direction are saved in the browser (`localStorage`) and restored on the next visit.
