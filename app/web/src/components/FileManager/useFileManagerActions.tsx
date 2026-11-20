@@ -6,7 +6,6 @@ import {
   deleteEntry,
   restoreFromTrash,
   listEntries,
-  uploadFiles,
   moveEntry,
   copyEntry,
   downloadZip,
@@ -15,6 +14,7 @@ import type { Entry } from '../../types'
 import { getApiErrorMessage, isConflictError, isNotFoundError } from '../../utils/errors'
 import { uniqueName, isRestorableTrashPath, parentLogicalPath } from '../../utils/pathUtils'
 import type { ConflictModalState } from './useFileManagerState'
+import { uploadFileWithProgress, uploadFilesWithProgress } from './uploadNotify'
 
 /** Walk up until list succeeds (handles trash bucket removed after restore). */
 async function firstListablePath(start: string): Promise<string> {
@@ -355,11 +355,10 @@ export function useFileManagerActions(params: UseFileManagerActionsParams) {
     async (file: File) => {
       setUploading(true)
       try {
-        await uploadFiles(currentPath, [file])
-        message.success(`${file.name} uploaded`)
+        await uploadFileWithProgress(currentPath, file)
         loadEntries(currentPath)
-      } catch (e: unknown) {
-        message.error(getApiErrorMessage(e))
+      } catch {
+        /* error already shown via notification */
       } finally {
         setUploading(false)
       }
@@ -411,6 +410,22 @@ export function useFileManagerActions(params: UseFileManagerActionsParams) {
   const handleDrop = useCallback(
     (e: React.DragEvent, targetPath: string) => {
       e.preventDefault()
+      const osFiles = e.dataTransfer.files
+      if (osFiles?.length) {
+        const targetDir = targetPath || '.'
+        const list = Array.from(osFiles)
+        setUploading(true)
+        void (async () => {
+          try {
+            await uploadFilesWithProgress(targetDir, list)
+          } finally {
+            loadEntries(currentPath)
+            loadTree()
+            setUploading(false)
+          }
+        })()
+        return
+      }
       try {
         const data = JSON.parse(e.dataTransfer.getData('application/json') || '{}') as {
           paths?: string[]
@@ -447,7 +462,7 @@ export function useFileManagerActions(params: UseFileManagerActionsParams) {
         /* invalid drag data, ignore */
       }
     },
-    [currentPath, loadEntries, loadTree],
+    [currentPath, setUploading, loadEntries, loadTree],
   )
 
   const handleCopyContent = useCallback(async () => {

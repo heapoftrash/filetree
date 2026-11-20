@@ -10,6 +10,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// multipartSlack is allowance for multipart framing beyond raw file bytes
+// when rejecting oversized uploads via Content-Length.
+const multipartSlack = 64 << 10 // 64 KiB
+
 func (h *Handler) CreateOrUpload(c *gin.Context) {
 	contentType := c.GetHeader("Content-Type")
 	if strings.HasPrefix(contentType, "multipart/form-data") {
@@ -17,6 +21,11 @@ func (h *Handler) CreateOrUpload(c *gin.Context) {
 		return
 	}
 	h.createDir(c)
+}
+
+// UploadLimits returns the effective max upload size enforced by this handler.
+func (h *Handler) UploadLimits(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"max_upload_bytes": h.maxUploadBytes})
 }
 
 func (h *Handler) createDir(c *gin.Context) {
@@ -50,13 +59,24 @@ func (h *Handler) createDir(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"path": filepath.ToSlash(relPath)})
 }
 
+func (h *Handler) uploadTooLarge(c *gin.Context) {
+	c.JSON(http.StatusRequestEntityTooLarge, gin.H{
+		"error":            "upload exceeds size limit",
+		"max_upload_bytes": h.maxUploadBytes,
+	})
+}
+
 func (h *Handler) upload(c *gin.Context) {
+	if cl := c.Request.ContentLength; cl > 0 && cl > h.maxUploadBytes+multipartSlack {
+		h.uploadTooLarge(c)
+		return
+	}
 	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, h.maxUploadBytes)
 	form, err := c.MultipartForm()
 	if err != nil {
 		var maxBytesErr *http.MaxBytesError
 		if errors.As(err, &maxBytesErr) {
-			c.JSON(http.StatusRequestEntityTooLarge, gin.H{"error": "upload exceeds size limit"})
+			h.uploadTooLarge(c)
 			return
 		}
 		c.JSON(http.StatusBadRequest, gin.H{"error": "multipart required"})
