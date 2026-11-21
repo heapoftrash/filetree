@@ -25,7 +25,11 @@
     {% if page.meta.get('features') %}
     <div class="md-page-features">
       {% for feature in page.meta.features %}
+      {% if feature.get('link') %}
+      <a href="{{ feature.link | url }}" class="md-page-feature-card md-page-feature-card--link">
+      {% else %}
       <div class="md-page-feature-card">
+      {% endif %}
         {% if feature.get('image') %}
         <span class="md-page-feature-card__img">
           <img src="{{ base_url }}/{{ feature.image }}" alt="{{ feature.title }}" loading="lazy" />
@@ -42,7 +46,11 @@
             <p class="md-page-feature-card__description">{{ feature.description }}</p>
           </div>
         </div>
+      {% if feature.get('link') %}
+      </a>
+      {% else %}
       </div>
+      {% endif %}
       {% endfor %}
     </div>
     {% endif %}

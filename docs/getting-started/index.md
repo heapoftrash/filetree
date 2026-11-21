@@ -1,6 +1,22 @@
 ---
 title: Getting Started
 icon: material/rocket-launch
+hide:
+  - toc
+features:
+- title: Container
+  icon: material/docker
+  description: Get started with Filetree using Docker
+  link: getting-started/installation/
+- title: Linux
+  icon: material/linux
+  description: Use a single binary for Linux to use Filetree
+  link: getting-started/installation/
+- title: Configuration
+  icon: material/cog
+  description: Using configuration file to setup Filetree
+  link: configuration/
+
 ---
 
 # Getting Started
