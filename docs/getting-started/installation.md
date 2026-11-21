@@ -92,10 +92,10 @@ This page covers **building from source** and local development. Prerequisites: 
 ## First run
 
 1. Open **http://localhost:8080** (or **http://localhost:5173** in development)
-2. If auth is enabled, you'll be redirected to `/login`. Configure OAuth or local users in [Configuration](../configuration/config-file.md)
+2. If auth is enabled, you'll be redirected to `/login`. Configure OAuth or local users in [Configuration](configuration/config-file.md)
 3. If no auth is configured, the API may allow unauthenticated access (check your config)
 
 ## Troubleshooting
 
 - **CORS errors** — Ensure `frontend.url` in config matches your dev URL (e.g. `http://localhost:5173`)
-- **OAuth redirect** — Set `oauth_redirect_url` to `http://localhost:8080/api/auth/google/callback` (or your production URL) for OAuth to work. See [Configuration](../configuration/config-file.md).
+- **OAuth redirect** — Set `oauth_redirect_url` to `http://localhost:8080/api/auth/google/callback` (or your production URL) for OAuth to work. See [Configuration](configuration/config-file.md).
