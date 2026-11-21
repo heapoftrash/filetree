@@ -1,4 +1,4 @@
 # Prefer not committing CI-generated posts (`generated: true` in frontmatter).
-# Hand-written posts (no generated flag) should be committed — see docs/blog/README.md.
+# Hand-written posts (no generated flag) should be committed — see docs/scripts/blog-posts.md.
 #
 # This file intentionally does not ignore *.md so authors can track custom posts.

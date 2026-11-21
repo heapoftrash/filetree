@@ -2,9 +2,11 @@
 
 The docs **Releases** page (`/blog/`) lists posts from `docs/blog/posts/`.
 
+This file is for contributors (not part of the published site).
+
 ## Auto posts from GitHub Releases
 
-1. Add the tag to [`announce.txt`](announce.txt) (one per line, e.g. `v1.0.1`).
+1. Add the tag to [`docs/blog/announce.txt`](../blog/announce.txt) (one per line, e.g. `v1.0.1`).
 2. On the next docs build, `docs/scripts/generate_release_posts.py` creates a post from the GitHub release body (sections cleaned up for reading).
 3. Generated files include `generated: true` in frontmatter and are safe to overwrite.
 
@@ -66,4 +68,4 @@ Optional GitHub button + section cards (same as generated posts):
 
 Posts are listed **newest first** by the `date` frontmatter. Same calendar day? Use a full datetime (`2026-11-20T19:32:06Z`) so the later release wins.
 
-Authors live in [`.authors.yml`](.authors.yml).
+Authors live in [`docs/blog/.authors.yml`](../blog/.authors.yml).

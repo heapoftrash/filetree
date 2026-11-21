@@ -9,7 +9,7 @@ A release gets a blog post only if it opts in via one of:
 Drafts are never published. Everything else without an opt-in is skipped.
 
 Hand-written posts under docs/blog/posts/ (no `generated: true`) are never
-deleted or overwritten — see docs/blog/README.md.
+deleted or overwritten — see docs/scripts/blog-posts.md.
 
 Env:
   GITHUB_REPOSITORY  owner/repo (default: heapoftrash/filetree)
