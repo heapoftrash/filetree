@@ -27,6 +27,7 @@ Release automation uses [Release Please](https://github.com/googleapis/release-p
 - If a release PR shows the wrong version (e.g. `0.1.0` after a config change), **close it without merging** and let the next Release Please run refresh the PR, or push a small commit to `main` to retrigger.
 - The **Release** workflow (`.github/workflows/release.yml`) runs on **version tags** and adds binaries, `sha256sums.txt`, and the multi-arch container image.
 - To feature a release on the docs **Releases** blog, add its tag (e.g. `v0.0.9`) to `docs/blog/announce.txt` on the release PR (or a follow-up commit). Untagged releases are not shown.
+- To **write a blog post yourself** (or replace the auto-generated notes for a tag), add a markdown file under `docs/blog/posts/` — see [`docs/blog/README.md`](docs/blog/README.md). Hand-written posts must not include `generated: true`; the docs build will not overwrite them. Use a full `date:` datetime so newer posts sort first.
 
 **Token (recommended):** Add a [fine-grained or classic PAT](https://github.com/settings/tokens) with `contents` (and `workflow` if needed) as repository secret **`RELEASE_PLEASE_TOKEN`**, and reference it in the Release Please workflow. If you use only the default `GITHUB_TOKEN`, tag pushes from Release Please **may not** trigger other workflows (GitHub limitation); a PAT avoids that.
 

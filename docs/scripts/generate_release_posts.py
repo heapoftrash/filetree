@@ -8,6 +8,9 @@ A release gets a blog post only if it opts in via one of:
 
 Drafts are never published. Everything else without an opt-in is skipped.
 
+Hand-written posts under docs/blog/posts/ (no `generated: true`) are never
+deleted or overwritten — see docs/blog/README.md.
+
 Env:
   GITHUB_REPOSITORY  owner/repo (default: heapoftrash/filetree)
   GITHUB_TOKEN       optional; raises API rate limits
@@ -141,11 +144,38 @@ def slugify_tag(tag: str) -> str:
     return s.strip("-") or "release"
 
 
-def post_date(rel: dict) -> str:
+def post_datetime(rel: dict) -> str:
+    """Full ISO timestamp so same-day releases sort newest-first in Material blog."""
     raw = rel.get("published_at") or rel.get("created_at")
     if not raw:
-        return datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    return raw[:10]
+        return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    if raw.endswith("+00:00"):
+        return raw[:-6] + "Z"
+    return raw
+
+
+def post_date_prefix(rel: dict) -> str:
+    """Filename prefix (YYYY-MM-DD) — Material also reads time from frontmatter date."""
+    return post_datetime(rel)[:10]
+
+
+def is_generated_post(path: Path) -> bool:
+    """True when frontmatter has `generated: true` (safe to overwrite/delete)."""
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return False
+    if not text.startswith("---"):
+        return False
+    end = text.find("\n---", 3)
+    if end < 0:
+        return False
+    return bool(re.search(r"^generated:\s*true\s*$", text[3:end], re.M))
+
+
+def find_post_for_slug(slug: str) -> Path | None:
+    matches = sorted(POSTS_DIR.glob(f"*-{slug}.md"))
+    return matches[0] if matches else None
 
 
 def _plain(text: str) -> str:
@@ -311,7 +341,8 @@ def _intro(tag: str, highlights: list[str]) -> str:
 def write_post(rel: dict) -> Path:
     tag = rel["tag_name"]
     title = (rel.get("name") or tag).strip() or tag
-    date = post_date(rel)
+    when = post_datetime(rel)
+    day = post_date_prefix(rel)
     slug = slugify_tag(tag)
     raw_body = (rel.get("body") or "").strip()
     html_url = rel.get("html_url") or f"https://github.com/{REPO}/releases/tag/{tag}"
@@ -323,7 +354,7 @@ def write_post(rel: dict) -> Path:
     front = "\n".join(
         [
             "---",
-            f"date: {date}",
+            f"date: {when}",
             "authors:",
             "  - filetree",
             "categories:",
@@ -331,6 +362,7 @@ def write_post(rel: dict) -> Path:
             f"slug: {slug}",
             f"version: {tag}",
             "image: assets/images/release-thumb.svg",
+            "generated: true",
             "---",
             "",
             f"# {title}",
@@ -352,15 +384,17 @@ def write_post(rel: dict) -> Path:
         ]
     )
 
-    path = POSTS_DIR / f"{date}-{slug}.md"
+    path = POSTS_DIR / f"{day}-{slug}.md"
     path.write_text(front, encoding="utf-8")
     return path
 
 
 def main() -> None:
     POSTS_DIR.mkdir(parents=True, exist_ok=True)
+    # Only remove prior *generated* posts; hand-written markdown is kept.
     for old in POSTS_DIR.glob("*.md"):
-        old.unlink()
+        if is_generated_post(old):
+            old.unlink()
 
     announce = load_announce_tags()
     if announce:
@@ -371,6 +405,7 @@ def main() -> None:
     releases = fetch_releases()
     written = 0
     skipped = 0
+    kept = 0
     for rel in releases:
         tag = rel.get("tag_name", "?")
         why = opt_in_reason(rel, announce)
@@ -378,11 +413,17 @@ def main() -> None:
             print(f"skip {tag}: {skip_reason(rel)}")
             skipped += 1
             continue
+        slug = slugify_tag(tag)
+        existing = find_post_for_slug(slug)
+        if existing is not None and not is_generated_post(existing):
+            print(f"keep {existing.relative_to(ROOT)} (hand-written, skip generate)")
+            kept += 1
+            continue
         path = write_post(rel)
         print(f"write {path.relative_to(ROOT)} ({why})")
         written += 1
 
-    print(f"done: {written} posts, {skipped} skipped")
+    print(f"done: {written} generated, {kept} hand-written kept, {skipped} skipped")
 
 
 if __name__ == "__main__":

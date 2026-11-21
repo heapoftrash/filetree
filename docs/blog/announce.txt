@@ -2,5 +2,8 @@
 # Add the tag on the Release Please PR (or any commit) before/after the release.
 # Lines starting with # are ignored.
 #
+# Hand-written posts: see docs/blog/README.md — commit markdown under posts/
+# without `generated: true` and the build will keep your copy for that tag.
+#
 v0.0.8
 v1.0.0
