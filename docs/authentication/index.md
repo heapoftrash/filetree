@@ -1,6 +1,8 @@
 ---
 title: Authentication
 icon: material/shield-account
+hide:
+  - toc
 features:
   - title: Local users
     icon: fontawesome/regular/user

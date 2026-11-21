@@ -26,7 +26,14 @@
     <div class="md-page-features">
       {% for feature in page.meta.features %}
       {% if feature.get('link') %}
-      <a href="{{ feature.link | url }}" class="md-page-feature-card md-page-feature-card--link">
+      {% set _link = feature.link %}
+      {% if '#' in _link %}
+        {% set _parts = _link.split('#', 1) %}
+        {% set _href = (_parts[0] | url if _parts[0] else '') ~ '#' ~ _parts[1] %}
+      {% else %}
+        {% set _href = _link | url %}
+      {% endif %}
+      <a href="{{ _href }}" class="md-page-feature-card md-page-feature-card--link">
       {% else %}
       <div class="md-page-feature-card">
       {% endif %}

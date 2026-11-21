@@ -1,6 +1,8 @@
 ---
 title: Features
 icon: material/format-list-checks
+hide:
+  - toc
 features:
   - title: Browse & manage
     icon: material/folder

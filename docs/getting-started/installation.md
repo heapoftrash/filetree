@@ -5,7 +5,9 @@ icon: material/package-variant
 
 # Installation
 
-Filetree runs as a single binary that serves both the API and the web UI. Prerequisites: **Go 1.21+** and **Node.js 18+** (Node is needed to build the UI in `app/web/`).
+For **prebuilt containers and release binaries**, see [Getting Started](index.md) (tags, assets, and run commands).
+
+This page covers **building from source** and local development. Prerequisites: **Go 1.21+** and **Node.js 18+** (Node is needed to build the UI in `app/web/`).
 
 ## Installation
 
