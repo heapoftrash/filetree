@@ -45,7 +45,7 @@
 
 ## Quick start
 
-Full guides: **[Documentation](https://heapoftrash.github.io/filetree/)** — installation, production, configuration, authentication.
+Full guides: **[Documentation](https://heapoftrash.github.io/filetree/)** — getting started, configuration, authentication.
 
 ### Docker (prebuilt image) <small> recommended </small>
 
