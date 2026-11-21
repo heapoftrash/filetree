@@ -86,9 +86,9 @@ extra:
       link: https://github.com/heapoftrash/filetree
       name: GitHub
   announce:
-    title: Filetree is a work in progress.
+    title: Filetree reaches its first stable release!
     icon: material/rocket-launch
-    link: https://github.com/heapoftrash/filetree
+    link: https://heapoftrash.github.io/filetree/blog/2026/11/20/v1-0-0/
 
 plugins:
   - search
