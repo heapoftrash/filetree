@@ -106,6 +106,8 @@ a.md-page-feature-card--link:hover {
   flex: 1;
   min-width: 0;
   line-height: 1.4;
+  padding-left: 0.65rem;
+  border-left: 3px solid #5488e8;
 }
 
 .md-page-feature-card__title {
