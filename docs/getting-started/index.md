@@ -16,7 +16,7 @@ Over time, it grew, I added auth, previews, signed URLs, and an admin UI. What b
 ## Features
 
 - **Minimal setup** — Build once, run anywhere. Single binary or a small Container image.
-- **No database** — No complex setup, everything lives in a [config](/configuration) file. Add local users, toggle auth providers, and adjust settings without migrations or extra services.
+- **No database** — No complex setup, everything lives in a [config](../configuration/index.md) file. Add local users, toggle auth providers, and adjust settings without migrations or extra services.
 - **Fast and lightweight** — Built with Go. Starts in milliseconds, uses little memory.
 - **Works everywhere** — Responsive interface for desktop, tablet, and mobile. Access your files from any browser.
 - **Browse & manage** — Create folders, rename, move, copy, delete (with trash). Drag-and-drop to upload.
