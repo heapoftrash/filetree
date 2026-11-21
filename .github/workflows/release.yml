@@ -230,7 +230,7 @@ jobs:
           sha256sum "${files[@]}" | sort -k2 > "$GITHUB_WORKSPACE/sha256sums.txt"
 
       - name: Upload release assets
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           # Release notes come from Release Please; this step adds binaries + checksums only.
           # Align with GHCR latest: false when tag contains '-' (e.g. v0.0.4-beta)
