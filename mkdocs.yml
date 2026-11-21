@@ -48,8 +48,7 @@ nav:
     - Overview: getting-started/index.md
     - Container: getting-started/container.md
     - Single binary: getting-started/single-binary.md
-    - Installation: getting-started/installation.md
-    - Production: getting-started/production.md
+    - Build from source: getting-started/build-from-source.md
   - Configuration:
     - Overview: configuration/index.md
     - Config file: configuration/config-file.md

@@ -58,5 +58,4 @@ If the package is private, run `docker login ghcr.io` first. Podman works the sa
 ## Next steps
 
 - [Configuration](../configuration/) — config file and environment variables
-- [Installation](installation.md) — build your own image from source
-- [Production](production.md) — reverse proxy and hardening
+- [Build from source](build-from-source.md) — build your own image or binary

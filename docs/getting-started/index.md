@@ -12,6 +12,10 @@ features:
     icon: material/application-braces
     description: Download a release binary for Linux, macOS, or Windows
     link: getting-started/single-binary/
+  - title: Build from source
+    icon: material/source-branch
+    description: Clone the repo, build with Make or Docker, or run in development
+    link: getting-started/build-from-source/
   - title: Configuration
     icon: material/cog
     description: Point Filetree at your files and optional auth settings
@@ -22,16 +26,11 @@ features:
 
 Deploy Filetree in a few minutes. Choose how you want to run it, then add configuration if you need auth or custom paths.
 
-The cards above open the full guides. Quick links:
-
 | Guide | What you’ll do |
 |-------|----------------|
 | [Container](container.md) | Pull from GHCR, pick a tag, `docker run` |
 | [Single binary](single-binary.md) | Download a release archive and run one binary |
+| [Build from source](build-from-source.md) | Clone, build, develop, and deploy your own build |
 | [Configuration](../configuration/) | Config file + environment variables |
 
-Also useful once you’re running:
-
-- [Installation](installation.md) — build from source / local development
-- [Production](production.md) — reverse proxy, HTTPS, embed vs disk UI
-- [Authentication](../authentication/) — Google, GitHub, or local users
+Also: [Authentication](../authentication/) for Google, GitHub, or local users.

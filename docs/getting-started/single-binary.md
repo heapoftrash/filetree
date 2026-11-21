@@ -52,5 +52,4 @@ Then open **http://localhost:8080**.
 ## Next steps
 
 - [Configuration](../configuration/) — config file and environment variables
-- [Installation](installation.md) — build from source instead of downloading
-- [Production](production.md) — reverse proxy and hardening
+- [Build from source](build-from-source.md) — build from source instead of downloading

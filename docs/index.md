@@ -47,7 +47,7 @@ showcase:
     icon: material/cellphone
   - title: Fast and lightweight
     description: Single binary, no database, minimal dependencies. Starts in milliseconds and uses little memory. Built with Go for performance.
-    link: getting-started/installation/
+    link: getting-started/build-from-source/
     icon: material/lightning-bolt
   - title: Open Source
     description: MIT licensed. Host it yourself, modify it, contribute. No vendor lock-in — your files stay under your control.
