@@ -5,7 +5,9 @@ icon: material/shield-account
 
 # Secure auth
 
-Sign in with Google OAuth, GitHub OAuth, or local username/password. All API routes require a valid JWT. You can enable one or more providers and manage local users in the admin UI.
+Sign in with Google OAuth, GitHub OAuth, or local username/password. You can enable one or more providers and manage local users in the admin UI.
+
+There is **no “auth off” mode**: protected API routes always require a valid JWT, and the web UI always goes through login. If no providers or local users are configured, the login page reports that no login methods are available.
 
 ## Auth providers
 
@@ -15,12 +17,12 @@ Sign in with Google OAuth, GitHub OAuth, or local username/password. All API rou
 | **GitHub OAuth** | Sign in with a GitHub account. Requires an OAuth App from GitHub Developer Settings |
 | **Local** | Username and password stored in config. Passwords are bcrypt-hashed |
 
-You can enable multiple providers; users choose which one to use at login.
+You can enable multiple providers; users choose which one to use at login. See [Authentication setup](../authentication/setup.md) and [OAuth providers](../authentication/oauth-providers.md).
 
 ## JWT sessions
 
-- **Token expiry** — JWTs expire after 24 hours. The frontend stores the token and uses it for API calls.
-- **Storage** — Tokens are kept in memory (or localStorage, depending on frontend implementation). No server-side session store.
+- **Token expiry** — JWTs expire after 24 hours. The frontend attaches the token to API calls.
+- **Storage** — The UI stores the token in the browser’s **localStorage** (`filetree-token`). There is no server-side session store.
 - **Usage** — Send the token as `Authorization: Bearer <token>` or as `?token=<token>` for GET requests (e.g. preview links).
 
 ## OAuth allowlist
