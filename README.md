@@ -63,7 +63,7 @@ If the package is private, run `docker login ghcr.io` before `docker pull`.
 
 1. Copy [config.example.yaml](config.example.yaml) or [config.example.json](config.example.json) to `config.yaml` / `config.json`.
 2. Set **`CONFIG_FILE`** to that path when you start the binary or container (see [Configuration](#configuration)).
-3. Environment variables override the file. Full schema: [config file (docs)](https://heapoftrash.github.io/filetree/getting-started/configuration/config-file/).
+3. Environment variables override the file. Full schema: [config file (docs)](https://heapoftrash.github.io/filetree/configuration/config-file/).
 
 ### Production binary
 

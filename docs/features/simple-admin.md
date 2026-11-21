@@ -10,7 +10,7 @@ No database — configuration is stored in a single YAML or JSON file. The admin
 ## Config file
 
 - **Format** — YAML or JSON. Set `CONFIG_FILE` to the path (e.g. `./config.yaml`).
-- **Sections** — `server`, `auth`, `frontend`, `users`. See [Config file](../getting-started/configuration/config-file.md) for the full schema.
+- **Sections** — `server`, `auth`, `frontend`, `users`. See [Config file](../configuration/config-file.md) for the full schema.
 - **Override** — Environment variables override config file values. Useful for secrets in production.
 
 ## Admin UI

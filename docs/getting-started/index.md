@@ -15,7 +15,7 @@ features:
   - title: Configuration
     icon: material/cog
     description: Point Filetree at your files and optional auth settings
-    link: getting-started/configuration/
+    link: configuration/
 ---
 
 # Getting Started
@@ -28,7 +28,7 @@ The cards above open the full guides. Quick links:
 |-------|----------------|
 | [Container](container.md) | Pull from GHCR, pick a tag, `docker run` |
 | [Single binary](single-binary.md) | Download a release archive and run one binary |
-| [Configuration](configuration/) | Config file + environment variables |
+| [Configuration](../configuration/) | Config file + environment variables |
 
 Also useful once you’re running:
 

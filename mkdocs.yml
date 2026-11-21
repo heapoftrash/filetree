@@ -48,12 +48,12 @@ nav:
     - Overview: getting-started/index.md
     - Container: getting-started/container.md
     - Single binary: getting-started/single-binary.md
-    - Configuration:
-      - Overview: getting-started/configuration/index.md
-      - Config file: getting-started/configuration/config-file.md
-      - Environment variables: getting-started/configuration/environment-variables.md
     - Installation: getting-started/installation.md
     - Production: getting-started/production.md
+  - Configuration:
+    - Overview: configuration/index.md
+    - Config file: configuration/config-file.md
+    - Environment variables: configuration/environment-variables.md
   - Authentication:
     - Overview: authentication/index.md
     - Setup: authentication/setup.md

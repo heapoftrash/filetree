@@ -24,7 +24,7 @@ auth:
   jwt_secret: change-me-in-production
 ```
 
-3. Start with `CONFIG_FILE` pointing at that file — see [Container](../container.md) or [Single binary](../single-binary.md).
+3. Start with `CONFIG_FILE` pointing at that file — see [Container](../getting-started/container.md) or [Single binary](../getting-started/single-binary.md).
 
 ## Useful knobs
 
@@ -43,7 +43,7 @@ auth:
 | [Config file](config-file.md) | Full schema for `server`, `auth`, `frontend`, `users` |
 | [Environment variables](environment-variables.md) | Override any setting via env |
 
-Auth setup: [Authentication](../../authentication/).
+Auth setup: [Authentication](../authentication/).
 
 ## Example (YAML)
 
