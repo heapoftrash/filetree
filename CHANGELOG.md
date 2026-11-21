@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.1.0](https://github.com/heapoftrash/filetree/compare/v1.0.0...v1.1.0) (2026-11-21)
+
+
+### Features
+
+* **blog:** a blog post for the first stable release ([185d421](https://github.com/heapoftrash/filetree/commit/185d42106c41b9e4138c351d2ab1e4b5f6bea54e))
+* **blog:** blog header for first stable release ([1e0bac4](https://github.com/heapoftrash/filetree/commit/1e0bac436e9598805bf8e7f2693d61cf5792f4e9))
+* **docs:** link getting-started feature cards via main override ([d433ead](https://github.com/heapoftrash/filetree/commit/d433eadb42a965f8e3d25fbd44d70d6df49bffb6))
+
+
+### Bug Fixes
+
+* **docs:** move blog authoring guide out of blog/ ([9fd3fde](https://github.com/heapoftrash/filetree/commit/9fd3fde513572a3c2b9b6b7e8c2cb5b5f92be8ec))
+* **docs:** use relative link to configuration page ([3473d4d](https://github.com/heapoftrash/filetree/commit/3473d4dcb8800999b1e2f1b487715b7df3dccc61))
+* join blog section header and list into one card ([d51b7f3](https://github.com/heapoftrash/filetree/commit/d51b7f32e3e79de368eefc1814b5dbec2559eed8))
+
 ## [1.0.0](https://github.com/heapoftrash/filetree/compare/v0.0.9...v1.0.0) (2026-11-20)
 
 
